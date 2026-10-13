@@ -1,54 +1,130 @@
-# Automatizované testy pro Demo Login (kitner.cz)
+# Automatizované testy – testovani.kitner.cz
 
-Projekt obsahuje sadu automatizovaných E2E testů pro ověření přihlašovacího formuláře na adrese [http://testovani.kitner.cz/courses](http://testovani.kitner.cz/courses) pomocí **Playwright** a **Pytest** v jazyce Python.
+Projekt obsahuje kompletní sadu automatizovaných **E2E testů** pro webovou aplikaci [testovani.kitner.cz](http://testovani.kitner.cz) postavenou na **Playwright** a **Pytest** v jazyce Python. Testy pokrývají všechny klíčové funkce aplikace a jsou organizovány podle vzoru **Page Object Model (POM)**.
+
+---
 
 ## Struktura projektu
 
-- `pages/login_page.py` – Page Object Model pro přihlašovací stránku
-- `pages/register_page.py` – Page Object Model pro registrační stránku
-- `tests/conftest.py` – Pytest fixtures (vč. automatické registrace a ukládání `test_user.json`)
-- `tests/test_login.py` – Testovací scénáře pro přihlášení a odhlášení
-- `tests/test_register.py` – Testovací scénáře pro registraci
-- `test_user.json` – Uložené přihlašovací údaje pro opakované použití v testech
-- `reports/report.html` – Automaticky generovaný HTML report s výsledky testů
-- `pytest.ini` – Konfigurace pro spouštění testů a generování reportu
-- `requirements.txt` – Seznam potřebných knihoven
+```
+├── pages/                        # Page Object Model – lokátory a akce
+│   ├── login_page.py             # Přihlašovací stránka (/login)
+│   ├── register_page.py          # Registrační stránka (/register)
+│   ├── forgot_password_page.py   # Obnova hesla (/forgot-password)
+│   ├── home_page.py              # Domovská stránka po přihlášení (/home)
+│   ├── profile_page.py           # Profil uživatele (/profile)
+│   ├── courses_page.py           # Katalog kurzů (/courses, /courses/:id)
+│   └── course_create_page.py     # Vytvoření kurzu (/courses/create)
+│
+├── tests/                        # Testovací scénáře
+│   ├── conftest.py               # Pytest fixtures (registrace, HTML report)
+│   ├── test_login.py             # 9 testů – přihlášení
+│   ├── test_register.py          # 7 testů – registrace
+│   ├── test_forgot_password.py   # 3 testy – obnova hesla
+│   ├── test_profile.py           # 5 testů – profil uživatele
+│   ├── test_courses.py           # 4 testy – katalog a detail kurzů
+│   └── test_course_management.py # 3 testy – vytváření kurzů a Moje kurzy
+│
+├── reports/report.html           # Automaticky generovaný HTML report
+├── pytest.ini                    # Konfigurace Pytest a reportu
+├── requirements.txt              # Závislosti projektu
+└── test_user.json                # Uložené testovací přihlašovací údaje
+```
 
-## Pokryté testovací scénáře
+---
 
-### Přihlášení a odhlášení (`tests/test_login.py`)
-1. **Navigace na přihlášení:** Ověření přechodu z `/courses` do přihlášení `/login` přes odkaz v menu.
-2. **Kontrola UI prvků:** Ověření existence a viditelnosti vstupních polí (email, heslo), tlačítka odeslání a odkazů.
-3. **Úspěšné přihlášení a odhlášení:** Přihlášení platným účtem, ověření přesměrování a následné odhlášení.
-4. **Validace hesla:** Ověření maskování zadaného hesla (`type="password"`).
-5. **Nativní HTML5 validace:** Ověření validace formátu e-mailu před odesláním.
-6. **Neplatné přihlášení:** Ověření zobrazení validační chybové hlášky (*"These credentials do not match our records."*).
-7. **Parametrizované testy neplatných údajů:** Testování různých kombinací neplatných e-mailů a hesel.
-8. **Odkaz na zapomenuté heslo:** Ověření přesměrování na `/forgot-password`.
-9. **Odkaz na registraci:** Ověření přesměrování na `/register`.
+## Pokryté testovací scénáře (33 testů)
 
-### Registrace (`tests/test_register.py`)
-1. **Kontrola UI prvků:** Ověření existence polí (jméno, email, heslo, heslo znovu) a tlačítka.
-2. **Úspěšná registrace:** Registrace nového uživatele a ověření uvítání na domovské stránce.
+### 1. Přihlášení – `tests/test_login.py` (9 testů)
+1. Navigace z `/courses` na `/login` přes odkaz v menu
+2. Kontrola přítomnosti a viditelnosti UI prvků formuláře
+3. Úspěšné přihlášení a odhlášení (ověření přesměrování + odhlášení)
+4. Maskování pole hesla (`type="password"`)
+5. HTML5 validace formátu e-mailu
+6. Neplatné přihlašovací údaje (chybová hláška)
+7. Parametrizovaná matice neplatných přihlášení (2 kombinace)
+8. Odkaz „Zapomenuté heslo" → `/forgot-password`
+9. Odkaz „Registrace" → `/register`
+
+### 2. Registrace – `tests/test_register.py` (7 testů)
+1. Kontrola přítomnosti UI prvků registračního formuláře
+2. Úspěšná registrace nového uživatele + ověření uvítání
+3. Neshodná hesla – chybová hláška
+4. Duplicitní e-mail – chybová hláška
+5. HTML5 validace formátu e-mailu
+6. Maskování obou polí pro heslo
+7. Odeslání prázdného formuláře – validační hlášky pro všechna povinná pole
+
+### 3. Obnova hesla – `tests/test_forgot_password.py` (3 testy)
+1. Zobrazení formuláře a jeho prvků (pole e-mail, tlačítko)
+2. HTML5 validace – zamezení odeslání při neplatném formátu e-mailu
+3. Odeslání žádosti s platným e-mailem + ověření odpovědi aplikace
+
+### 4. Profil uživatele – `tests/test_profile.py` (5 testů)
+1. Načtení profilu – předvyplněné údaje uživatele
+2. Úspěšná aktualizace profilu (telefon, IČO) a přesměrování
+3. Validace neplatného IČO (ARES modulo 11)
+4. Validace neplatného telefonního čísla
+5. Ochrana před nepřihlášeným uživatelem (přesměrování na `/login`)
+
+### 5. Katalog a detail kurzů – `tests/test_courses.py` (4 testy)
+1. Zobrazení katalogu kurzů a nadpisu stránky
+2. Přítomnost prvků karet kurzů (název, cena, odkaz)
+3. Proklik na detail kurzu `/courses/:id`
+4. Zobrazení termínů běhu kurzu – anonymní vs. přihlášený uživatel
+
+### 6. Správa kurzů – `tests/test_course_management.py` (3 testy)
+1. Přítomnost formuláře pro vytvoření kurzu na `/courses/create`
+2. Odeslání formuláře – vytvoření nového kurzu
+3. Zobrazení stránky Moje kurzy `/my-courses`
+
+---
 
 ## Jak testy spustit
 
-1. **Aktivace virtuálního prostředí:**
-   ```powershell
-   .\.venv\Scripts\Activate.ps1
-   ```
+### Požadavky
+```powershell
+pip install -r requirements.txt
+playwright install chromium
+```
 
-2. **Spuštění testů v headless režimu:**
-   ```powershell
-   pytest
-   ```
+### Aktivace virtuálního prostředí
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
 
-3. **Spuštění testů s viditelným oknem prohlížeče (headed):**
-   ```powershell
-   pytest --headed
-   ```
+### Spuštění všech testů
+```powershell
+pytest
+```
 
-4. **Spuštění s pomalejším krokem pro sledování (slowmo):**
-   ```powershell
-   pytest --headed --slowmo 500
-   ```
+### Spuštění s viditelným prohlížečem
+```powershell
+pytest --headed
+```
+
+### Spuštění se zpomaleným krokem (pro sledování)
+```powershell
+pytest --headed --slowmo 500
+```
+
+### Spuštění konkrétního modulu
+```powershell
+pytest tests/test_login.py -v
+```
+
+### HTML report
+Po každém spuštění je automaticky vygenerován report:
+```
+reports/report.html
+```
+
+---
+
+## Architektura – Page Object Model
+
+Všechny lokátory jsou definovány výhradně v souborech `pages/*.py` pomocí nativního Playwright API:
+```python
+page.get_by_test_id("email_input")
+```
+Testovací soubory v `tests/` neobsahují žádné inline selektory – veškerá interakce probíhá přes metody Page Objectů.
