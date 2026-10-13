@@ -14,6 +14,9 @@ class RegisterPage:
         self.password_again_input: Locator = page.get_by_test_id("password_again_input")
         self.register_button: Locator = page.get_by_test_id("register_button")
         self.login_link: Locator = page.get_by_test_id("login_link")
+        self.name_error: Locator = page.get_by_test_id("name_input_errors")
+        self.password_error: Locator = page.get_by_test_id("password_input_errors")
+        self.email_error: Locator = page.get_by_test_id("email_input_errors")
 
     def navigate(self):
         """Otevře přímo URL registrační stránky."""
