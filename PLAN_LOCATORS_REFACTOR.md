@@ -1,76 +1,98 @@
-# Implementační plán: Refaktoring všech lokátorů na standard `data-testid`
+# Implementační plán: Refaktoring lokátorů dle Page Object Modelu (POM) a standardu `data-testid`
 
-Tento plán popisuje kroky k jednotnému přechodu všech lokátorů v projektu na nativní Playwright metodu `page.get_by_test_id(...)` a eliminaci zbývajících obecných HTML tagů (`button`, `body`).
-
----
-
-## 1. Analýza současného stavu
-
-V projektu jsou identifikována následující místa vyžadující úpravu:
-
-### A. Page Objecty (`pages/`)
-V současnosti používají syntaxi CSS selektoru `page.locator("[data-testid='...']")`:
-- **`pages/login_page.py`** (11 lokátorů):
-  - `email_input`, `password_input`, `login_button`, `login_title`, `error_message`, `forgot_password_link`, `register_link`, `nav_login_link`, `nav_courses_link`, `logout_button`, `profile_link`
-- **`pages/register_page.py`** (6 lokátorů):
-  - `name_input`, `email_input`, `password_input`, `password_again_input`, `register_button`, `login_link`
-
-### B. Testovací soubory (`tests/`)
-Obsahují inline selektory a obecné HTML tagy, které nemají stabilní vazbu na `data-testid`:
-- **`tests/test_login.py` (řádek 158)**:
-  - Používá `page.locator("button")` pro ověření tlačítka na `/forgot-password`.
-  - *Zjištěný skutečný atribut v DOM:* `data-testid="submit_button"`.
-- **`tests/test_login.py` (řádky 155, 169, 172)**:
-  - Používá surové CSS selektory `page.locator("[data-testid='...']")`.
-- **`tests/test_register.py` (řádek 47)**:
-  - Používá `page.locator("body")` pro ověření uvítacího textu `to_contain_text(f"Vítej uživateli {name}!")`.
-  - *Zjištěný skutečný atribut v DOM:* `<div data-testid="home_section">`.
+Tento plán detailně popisuje přechod na **čistý Page Object Model (POM)** s nulovým výskytem surových lokátorů v testech a jednotným využitím moderní Playwright metody `page.get_by_test_id(...)`.
 
 ---
 
-## 2. Cílový stav (Target Architecture)
+## 1. Architektonické principy POM v tomto projektu
 
-1. **Všechny lokátory v Page Objectech** budou používat čistou a doporučenou Playwright metodu:
-   ```python
-   self.email_input: Locator = page.get_by_test_id("email_input")
-   ```
-2. **Eliminace tagových selektorů v testech**:
-   - `page.locator("button")` $\rightarrow$ `page.get_by_test_id("submit_button")`
-   - `page.locator("body")` $\rightarrow$ `page.get_by_test_id("home_section")`
-3. **Dodržení Page Object Modelu (POM)**:
-   - Pokud se prvek logicky vztahuje ke stránce nebo procesu, doplnit jej jako vlastnost přímo do příslušného Page Objectu namísto ad-hoc volání v testu.
+1. **Pravidlo Zero-Inline-Locators:**
+   - Testovací metody v `tests/` **nesmí obsahovat žádné selektory** (`page.locator()`, `page.get_by_test_id()` ani CSS/XPath).
+   - Testy komunikují se stránkou výhradně přes instance Page Objectů a jejich atributy/metody.
+2. **Konzistentní lokalizace přes `data-testid`:**
+   - Všechny Page Objecty používají nativní Playwright metodu `page.get_by_test_id("...")`.
+3. **Samostatný Page Object pro každou logickou obrazovku:**
+   - `/login` $\rightarrow$ `LoginPage`
+   - `/register` $\rightarrow$ `RegisterPage`
+   - `/forgot-password` $\rightarrow$ `ForgotPasswordPage`
+   - `/home` (po registraci/přihlášení) $\rightarrow$ `HomePage`
+
+---
+
+## 2. Porovnání: Současný stav vs. Cílový POM stav
+
+| Soubor / Místo | Současný stav | Cílový POM stav |
+| :--- | :--- | :--- |
+| **`pages/login_page.py`** | `page.locator("[data-testid='...']")` (11 prvků) | Převod na `page.get_by_test_id("...")` |
+| **`pages/register_page.py`** | `page.locator("[data-testid='...']")` (6 prvků) | Převod na `page.get_by_test_id("...")` |
+| **`pages/forgot_password_page.py`** | Neexistuje | **Nový POM**: Obsahuje `email_input`, `submit_button`, metodu `reset_password()` |
+| **`pages/home_page.py`** | Neexistuje | **Nový POM**: Obsahuje `welcome_section` (`data-testid="home_section"`) |
+| **`tests/test_login.py` (ř. 155–158)** | Surové `page.locator("[data-testid='email_input']")` a `page.locator("button")` | Použije instanci `ForgotPasswordPage(page)`: `expect(forgot_page.email_input)`, `expect(forgot_page.submit_button)` |
+| **`tests/test_login.py` (ř. 169–172)** | Surové `page.locator("[data-testid='name_input']")` a `page.locator("[data-testid='register_button']")` | Použije instanci `RegisterPage(page)`: `expect(reg_page.name_input)`, `expect(reg_page.register_button)` |
+| **`tests/test_register.py` (ř. 47)** | Surové `page.locator("body")` | Použije `HomePage(page)`: `expect(home_page.welcome_section).to_contain_text(...)` |
 
 ---
 
 ## 3. Fáze a kroky implementace
 
-### Fáze 1: Refaktoring Page Objectů
-- [ ] **Krok 1.1**: Upravit [`pages/login_page.py`](file:///c:/Users/marti/Documents/VyvojAplikaci/QA_AI_kurz/Lekce1/pages/login_page.py) – převést všech 11 atributů z `page.locator("[data-testid='...']")` na `page.get_by_test_id("...")`.
-- [ ] **Krok 1.2**: Upravit [`pages/register_page.py`](file:///c:/Users/marti/Documents/VyvojAplikaci/QA_AI_kurz/Lekce1/pages/register_page.py) – převést všech 6 atributů na `page.get_by_test_id("...")`. Přidat lokátor pro uvítací hlášku `self.welcome_message = page.get_by_test_id("home_section")`.
+### Fáze 1: Aktualizace existujících Page Objectů
+- [x] **Krok 1.1: Refaktor `pages/login_page.py`**
+  - Nahradit zápisy `page.locator("[data-testid='...']")` metodou `page.get_by_test_id("...")` pro všech 11 lokátorů:
+    - `email_input`, `password_input`, `login_button`, `login_title`, `error_message`, `forgot_password_link`, `register_link`, `nav_login_link`, `nav_courses_link`, `logout_button`, `profile_link`.
+- [x] **Krok 1.2: Refaktor `pages/register_page.py`**
+  - Nahradit zápisy `page.locator("[data-testid='...']")` metodou `page.get_by_test_id("...")` pro všech 6 lokátorů:
+    - `name_input`, `email_input`, `password_input`, `password_again_input`, `register_button`, `login_link`.
 
-### Fáze 2: Refaktoring testovacích souborů
-- [ ] **Krok 2.1**: Upravit [`tests/test_login.py`](file:///c:/Users/marti/Documents/VyvojAplikaci/QA_AI_kurz/Lekce1/tests/test_login.py):
-  - Na řádku 155 převést na `page.get_by_test_id("email_input")`
-  - Na řádku 158 nahradit `page.locator("button")` za `page.get_by_test_id("submit_button")`
-  - Na řádcích 169 a 172 převést na `page.get_by_test_id(...)`
-- [ ] **Krok 2.2**: Upravit [`tests/test_register.py`](file:///c:/Users/marti/Documents/VyvojAplikaci/QA_AI_kurz/Lekce1/tests/test_register.py):
-  - Na řádku 47 nahradit `page.locator("body")` za `page.get_by_test_id("home_section")` (nebo využít Page Object).
+### Fáze 2: Vytvoření nových Page Objectů pro chybějící stránky
+- [x] **Krok 2.1: Vytvoření `pages/forgot_password_page.py`**
+  - Třída `ForgotPasswordPage`:
+    - `URL = "http://testovani.kitner.cz/forgot-password"`
+    - `self.email_input = page.get_by_test_id("email_input")`
+    - `self.submit_button = page.get_by_test_id("submit_button")`
+    - Pomocná metoda `navigate()`
+- [x] **Krok 2.2: Vytvoření `pages/home_page.py`**
+  - Třída `HomePage`:
+    - `URL = "http://testovani.kitner.cz/home"`
+    - `self.welcome_section = page.get_by_test_id("home_section")`
 
-### Fáze 3: Verifikace a spuštění testů
-- [ ] **Krok 3.1**: Spustit kompletní sadu testů pomocí pytestu:
-  ```powershell
-  .venv\Scripts\pytest -v
-  ```
-- [ ] **Krok 3.2**: Zkontrolovat vygenerovaný HTML report v [`reports/report.html`](file:///c:/Users/marti/Documents/VyvojAplikaci/QA_AI_kurz/Lekce1/reports/report.html).
+### Fáze 3: Refaktoring testů na čistý POM
+- [x] **Krok 3.1: Vyčištění `tests/test_login.py`**
+  - Importovat `ForgotPasswordPage` a `RegisterPage`.
+  - V testu `test_forgot_password_link`:
+    - Nahradit inline selektory instancí `forgot_page = ForgotPasswordPage(page)`.
+    - Ověřit `forgot_page.email_input` a `forgot_page.submit_button`.
+  - V testu `test_register_link`:
+    - Nahradit inline selektory instancí `register_page = RegisterPage(page)`.
+    - Ověřit `register_page.name_input` a `register_page.register_button`.
+- [x] **Krok 3.2: Vyčištění `tests/test_register.py`**
+  - Importovat `HomePage`.
+  - V testu `test_successful_registration`:
+    - Nahradit `page.locator("body")` voláním `home_page = HomePage(page)`.
+    - Ověřit `expect(home_page.welcome_section).to_contain_text(f"Vítej uživateli {name}!")`.
 
-### Fáze 4: Verzování zásadní změny (Git Commit)
-- [ ] **Krok 4.1**: Protože se jedná o ucelený architektonický refaktoring lokátorů v celém projektu, vytvořit zásadní commit:
-  ```bash
-  git commit -m "Refactor: Unified all locators to Playwright get_by_test_id"
-  ```
+### Fáze 4: Verifikace a regresní testování
+- [x] **Krok 4.1: Běh testovací sady**
+  - Spustit pytest:
+    ```powershell
+    .venv\Scripts\pytest -v
+    ```
+  - Ověřit, že všech 8+ testovacích scénářů proběhne bez chyb (100% zelené).
+- [x] **Krok 4.2: Kontrola HTML reportu**
+  - Zkontrolovat, že se správně vygeneroval report [`reports/report.html`](file:///c:/Users/marti/Documents/VyvojAplikaci/QA_AI_kurz/Lekce1/reports/report.html).
+
+### Fáze 5: Verzování na Git & Push na GitHub
+- [x] **Krok 5.1: Vytvoření zásadního commitu**
+  - Protože jde o klíčový architektonický milník, provést commit:
+    ```powershell
+    git add .
+    git commit -m "Refactor: Full POM architecture with data-testid locators"
+    ```
+- [x] **Krok 5.2: Odeslání do GitHub repozitáře**
+  - `git push origin main`
 
 ---
 
-## 4. Očekávané přínosy
-- **100% imunita vůči změnám CSS a HTML tagů**: Žádný test nebude záviset na obecných tazích (`body`, `button`) ani CSS selektorech.
-- **Konzistentní kód**: Čistší, kratší a moderní zápis doporučovaný týmem Playwright.
+## 4. Přínosy tohoto řešení
+- **Čistota kódu (Clean Code):** Testy se soustředí pouze na testovací logiku a asserty, ne na HTML strukturu.
+- **Opakovatelnost a znovupoužitelnost:** Všechny prvky jsou definovány na jediném místě – při budoucí změně v aplikaci se upraví pouze jeden řádek v POM třídě.
+- **Maximální stabilita:** Žádné tagové selektory (`body`, `button`), 100% krytí přes stabilní `data-testid`.

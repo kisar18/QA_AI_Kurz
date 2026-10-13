@@ -2,6 +2,7 @@ import uuid
 import pytest
 from playwright.sync_api import Page, expect
 from pages.register_page import RegisterPage
+from pages.home_page import HomePage
 from pages.helpers import step
 
 
@@ -44,5 +45,6 @@ class TestDemoRegister:
         expect(page).to_have_url("http://testovani.kitner.cz/home")
         step("Ověřeno přesměrování po registraci na /home")
 
-        expect(page.locator("body")).to_contain_text(f"Vítej uživateli {name}!")
+        home_page = HomePage(page)
+        expect(home_page.welcome_section).to_contain_text(f"Vítej uživateli {name}!")
         step(f"Ověřena uvítací zpráva pro uživatele {name}")

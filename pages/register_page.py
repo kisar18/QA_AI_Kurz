@@ -8,12 +8,12 @@ class RegisterPage:
 
     def __init__(self, page: Page):
         self.page = page
-        self.name_input: Locator = page.locator("[data-testid='name_input']")
-        self.email_input: Locator = page.locator("[data-testid='email_input']")
-        self.password_input: Locator = page.locator("[data-testid='password_input']")
-        self.password_again_input: Locator = page.locator("[data-testid='password_again_input']")
-        self.register_button: Locator = page.locator("[data-testid='register_button']")
-        self.login_link: Locator = page.locator("[data-testid='login_link']")
+        self.name_input: Locator = page.get_by_test_id("name_input")
+        self.email_input: Locator = page.get_by_test_id("email_input")
+        self.password_input: Locator = page.get_by_test_id("password_input")
+        self.password_again_input: Locator = page.get_by_test_id("password_again_input")
+        self.register_button: Locator = page.get_by_test_id("register_button")
+        self.login_link: Locator = page.get_by_test_id("login_link")
 
     def navigate(self):
         """Otevře přímo URL registrační stránky."""

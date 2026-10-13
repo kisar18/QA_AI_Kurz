@@ -1,6 +1,8 @@
 import pytest
 from playwright.sync_api import Page, expect
 from pages.login_page import LoginPage
+from pages.register_page import RegisterPage
+from pages.forgot_password_page import ForgotPasswordPage
 from pages.helpers import step
 
 
@@ -152,10 +154,11 @@ class TestDemoLogin:
         expect(page).to_have_url("http://testovani.kitner.cz/forgot-password")
         step("Ověřeno přesměrování na /forgot-password")
 
-        expect(page.locator("[data-testid='email_input']")).to_be_visible()
+        forgot_page = ForgotPasswordPage(page)
+        expect(forgot_page.email_input).to_be_visible()
         step("Ověřena přítomnost pole pro zadání resetovacího e-mailu")
 
-        expect(page.locator("button")).to_be_visible()
+        expect(forgot_page.submit_button).to_be_visible()
         step("Ověřena přítomnost odesílacího tlačítka")
 
     def test_register_link(self, page: Page):
@@ -166,8 +169,9 @@ class TestDemoLogin:
         expect(page).to_have_url("http://testovani.kitner.cz/register")
         step("Ověřeno přesměrování na /register")
 
-        expect(page.locator("[data-testid='name_input']")).to_be_visible()
+        register_page = RegisterPage(page)
+        expect(register_page.name_input).to_be_visible()
         step("Ověřeno pole pro jméno na stránce registrace")
 
-        expect(page.locator("[data-testid='register_button']")).to_be_visible()
+        expect(register_page.register_button).to_be_visible()
         step("Ověřeno tlačítko 'Registrovat'")

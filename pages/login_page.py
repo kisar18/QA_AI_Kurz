@@ -9,17 +9,17 @@ class LoginPage:
 
     def __init__(self, page: Page):
         self.page = page
-        self.email_input: Locator = page.locator("[data-testid='email_input']")
-        self.password_input: Locator = page.locator("[data-testid='password_input']")
-        self.login_button: Locator = page.locator("[data-testid='login_button']")
-        self.login_title: Locator = page.locator("[data-testid='login_text']")
-        self.error_message: Locator = page.locator("[data-testid='email_input_errors']")
-        self.forgot_password_link: Locator = page.locator("[data-testid='forgot_password_link']")
-        self.register_link: Locator = page.locator("[data-testid='register_link']")
-        self.nav_login_link: Locator = page.locator("[data-testid='login_link']")
-        self.nav_courses_link: Locator = page.locator("[data-testid='courses_link']")
-        self.logout_button: Locator = page.locator("[data-testid='logout_button']")
-        self.profile_link: Locator = page.locator("[data-testid='courses_profile']")
+        self.email_input: Locator = page.get_by_test_id("email_input")
+        self.password_input: Locator = page.get_by_test_id("password_input")
+        self.login_button: Locator = page.get_by_test_id("login_button")
+        self.login_title: Locator = page.get_by_test_id("login_text")
+        self.error_message: Locator = page.get_by_test_id("email_input_errors")
+        self.forgot_password_link: Locator = page.get_by_test_id("forgot_password_link")
+        self.register_link: Locator = page.get_by_test_id("register_link")
+        self.nav_login_link: Locator = page.get_by_test_id("login_link")
+        self.nav_courses_link: Locator = page.get_by_test_id("courses_link")
+        self.logout_button: Locator = page.get_by_test_id("logout_button")
+        self.profile_link: Locator = page.get_by_test_id("courses_profile")
 
     def navigate(self):
         """Otevře přímo URL přihlašovací stránky."""
