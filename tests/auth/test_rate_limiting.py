@@ -18,15 +18,13 @@ class TestRateLimiting:
 
         # Prvních 5 pokusů musí vracet standardní chybu o neshodě údajů
         for attempt in range(1, 6):
-            login_page.login(probe_email, wrong_password)
-            page.wait_for_timeout(1000)
+            login_page.login_with_response(probe_email, wrong_password)
             expect(login_page.error_message).to_be_visible()
             expect(login_page.error_message).to_contain_text("These credentials do not match our records.")
             step(f"Pokus {attempt}/5: Zobrazena standardní chybová hláška o neplatných údajích")
 
         # 6. pokus musí narazit na ochranu proti hrubé síle (Rate Limiting)
-        login_page.login(probe_email, wrong_password)
-        page.wait_for_timeout(1000)
+        login_page.login_with_response(probe_email, wrong_password)
         expect(login_page.error_message).to_be_visible()
         expect(login_page.error_message).to_contain_text("Too many login attempts")
-        step("Pokus 6: Úspěšně zachycena blokace – zobrazena hláška 'Too many login attempts. Please try again in ... seconds.'")
+        step("Pokus 6: Úspěšně zachycena blokace – zobrazena hláška 'Too many login attempts'")

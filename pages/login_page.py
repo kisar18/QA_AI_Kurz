@@ -42,6 +42,21 @@ class LoginPage(BasePage):
 
         self.login_button.click()
 
+    def login_with_response(self, email: str, password: str):
+        """Vyplní formulář, odešle jej a počká na síťovou odpověď z endpointu /login."""
+        if email:
+            self.email_input.fill(email)
+        else:
+            self.email_input.clear()
+
+        if password:
+            self.password_input.fill(password)
+        else:
+            self.password_input.clear()
+
+        with self.page.expect_response(lambda res: "/login" in res.url and res.request.method == "POST"):
+            self.login_button.click()
+
     def logout(self):
         """Odhlásí přihlášeného uživatele kliknutím na 'Odhlásit se'."""
         self.logout_button.click()
