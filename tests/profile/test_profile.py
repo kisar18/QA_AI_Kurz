@@ -2,6 +2,7 @@ import pytest
 from playwright.sync_api import Page, expect
 from pages.login_page import LoginPage
 from pages.profile_page import ProfilePage
+from pages.my_courses_page import MyCoursesPage
 from helpers.step_helpers import step
 
 
@@ -101,6 +102,7 @@ class TestMyCourses:
     @pytest.fixture(autouse=True)
     def setup(self, page: Page):
         self.login_page = LoginPage(page)
+        self.my_courses_page = MyCoursesPage(page)
 
     def _login(self, page: Page, user: dict):
         self.login_page.navigate()
@@ -110,15 +112,14 @@ class TestMyCourses:
     def test_my_courses_page_display(self, page: Page, registered_user: dict):
         """Ověření načtení stránky zapsaných kurzů přihlášeného klienta (/my-courses)."""
         self._login(page, registered_user)
-        page.goto(f"{self.login_page.base_url}/my-courses")
-        page.wait_for_load_state("networkidle")
+        self.my_courses_page.navigate()
 
         expect(page).to_have_url(f"{self.login_page.base_url}/my-courses")
         step("Ověřena URL /my-courses")
 
-        expect(page.get_by_test_id("courses_title")).to_be_visible()
-        expect(page.get_by_test_id("courses_title")).to_have_text("Mé zapsané kurzy")
+        expect(self.my_courses_page.title).to_be_visible()
+        expect(self.my_courses_page.title).to_have_text("Mé zapsané kurzy")
         step("Ověřen nadpis sekce 'Mé zapsané kurzy'")
 
-        expect(page.get_by_test_id("courses_section")).to_be_visible()
+        expect(self.my_courses_page.courses_section).to_be_visible()
         step("Ověřena sekce pro zobrazení kurzů uživatele")

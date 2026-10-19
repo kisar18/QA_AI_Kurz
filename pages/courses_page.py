@@ -31,6 +31,11 @@ class CoursesPage(BasePage):
         self.iteration_cards: Locator = page.locator("[data-testid^='iteration_']")
         self.enroll_buttons: Locator = page.get_by_role("button", name="Nezávazná registrace")
 
+        # Lektorská akční tlačítka
+        self.add_course_button: Locator = page.get_by_role("button", name="Přidat kurz")
+        self.add_iteration_buttons: Locator = page.get_by_test_id("add_iteration_button")
+        self.participants_buttons: Locator = page.get_by_role("button", name="Přihlášení")
+
     def open_first_course_detail(self):
         """Proklikne na detail prvního kurzu v katalogu."""
         self.detail_buttons.first.click()

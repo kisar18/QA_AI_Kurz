@@ -41,29 +41,15 @@ class TestForgotPassword:
     # -----------------------------------------------------------------------
     # TC-FP-03: Odeslání žádosti o obnovu hesla s platným e-mailem
     # -----------------------------------------------------------------------
-    def test_submit_valid_email_shows_feedback(self):
-        """Ověří, že odeslání formuláře s platným e-mailem proběhne
-        (backend odpoví – stránka se přesměruje nebo zobrazí zprávu o úspěchu)."""
-        self.forgot_page.request_password_reset("test@example.com")
-
-        # Aplikace by měla buď přesměrovat (pryč z /forgot-password)
-        # nebo zobrazit potvrzení na stejné stránce.
-        # Čekáme na síťový klid a ověřujeme jeden ze dvou scénářů.
-        self.page.wait_for_load_state("networkidle")
+    def test_submit_valid_email_shows_feedback(self, registered_user: dict):
+        """Ověří, že odeslání formuláře s platným registrovaným e-mailem zobrazí potvrzovací zprávu (US-05)."""
+        self.forgot_page.request_password_reset(registered_user["email"])
 
         current_url = self.page.url
         if "/forgot-password" in current_url:
-            # Stránka zůstala – musí být zobrazena zpráva o úspěchu / potvrzení
-            success_indicators = [
-                self.page.get_by_text("byl odeslán", exact=False),
-                self.page.get_by_text("email", exact=False),
-                self.page.get_by_text("success", exact=False),
-                self.page.get_by_text("obnov", exact=False),
-            ]
-            visible_count = sum(
-                1 for el in success_indicators if el.count() > 0
-            )
-            assert visible_count > 0 or True  # Formulář byl odeslán – backend přijal požadavek
+            # Po odeslání formuláře musí být přítomna zpětná vazba (potvrzení odeslání nebo throttling limit)
+            feedback = self.forgot_page.status_message.or_(self.forgot_page.email_error)
+            expect(feedback.first).to_be_visible(timeout=10000)
         else:
             # Přesměrování znamená úspěšné odeslání
             assert "/forgot-password" not in current_url
@@ -76,4 +62,4 @@ class TestForgotPassword:
         self.forgot_page.request_password_reset("non_existent_user_99999@example.com")
         self.page.wait_for_timeout(1000)
 
-        expect(self.page.get_by_text("We can't find a user with that email address.")).to_be_visible()
+        expect(self.forgot_page.user_not_found_message).to_be_visible()

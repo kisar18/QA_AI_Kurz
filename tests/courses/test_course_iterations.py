@@ -60,7 +60,7 @@ class TestCourseIterations:
         expect(self.courses_page.course_detail).to_be_visible()
 
         # Lektor má u běhů tlačítko 'Přihlášení'
-        participants_button = page.get_by_role("button", name="Přihlášení").first
+        participants_button = self.courses_page.participants_buttons.first
         if participants_button.count() > 0 and participants_button.is_visible():
             participants_button.click()
             page.wait_for_url(re.compile(r".*/courses/\d+/participants"))
@@ -85,5 +85,5 @@ class TestCourseIterations:
         expect(self.courses_page.course_detail).to_be_visible()
 
         # Tlačítko 'Přihlášení' (účastníci) nesmí být pro studenta zobrazeno
-        expect(page.get_by_role("button", name="Přihlášení")).not_to_be_visible()
+        expect(self.courses_page.participants_buttons).not_to_be_visible()
         step("Ověřeno, že tlačítko 'Přihlášení' (seznam účastníků) není studentovi nabízeno")
