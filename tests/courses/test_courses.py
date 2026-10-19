@@ -112,8 +112,9 @@ class TestCoursesCatalog:
             step("Ověřeno zobrazení data zahájení a ukončení běhu kurzu")
 
             # Formát kapacity poměrem X/Y (např. "Kapacita: 0/15")
-            assert re.search(r"Kapacita:\s*\d+/\d+", iteration_text), f"Formát kapacity X/Y nenalezen: {iteration_text}"
-            step(f"Ověřen správný formát poměru obsazenosti a kapacity: {re.search(r'Kapacita:\s*\d+/\d+', iteration_text).group(0)}")
+            capacity_match = re.search(r"Kapacita:\s*\d+/\d+", iteration_text)
+            assert capacity_match, f"Formát kapacity X/Y nenalezen: {iteration_text}"
+            step(f"Ověřen správný formát poměru obsazenosti a kapacity: {capacity_match.group(0)}")
 
     def test_course_detail_iterations_anonymous_vs_authenticated(self, page: Page, registered_user: dict):
         """[US-10, US-11] Ověření, že termíny běhů kurzu se zobrazují anonymně a tlačítka zápisu se aktivují po přihlášení."""
