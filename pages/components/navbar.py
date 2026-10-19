@@ -13,6 +13,8 @@ class Navbar:
         self.login_link: Locator = page.get_by_test_id("login_link")
         self.logout_button: Locator = page.get_by_test_id("logout_button")
         self.courses_link: Locator = page.get_by_test_id("courses_link")
+        self.home_link: Locator = page.get_by_test_id("home_link")
+        self.my_courses_link: Locator = page.get_by_role("link", name="Moje kurzy")
         self.profile_link: Locator = page.get_by_test_id("courses_profile")
 
     def logout(self):

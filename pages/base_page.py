@@ -29,7 +29,8 @@ class BasePage:
         """Sestaví absolutní URL z BASE_URL a PATH."""
         return f"{self.base_url}{self.PATH}"
 
-    def navigate(self):
-        """Otevře přímo URL dané stránky a počká na síťový klid."""
-        self.page.goto(self.url)
+    def navigate(self, path: str | None = None):
+        """Otevře přímo URL dané stránky (nebo volitelné specifikované cesty) a počká na síťový klid."""
+        target_url = f"{self.base_url}{path}" if path else self.url
+        self.page.goto(target_url)
         self.page.wait_for_load_state("networkidle")

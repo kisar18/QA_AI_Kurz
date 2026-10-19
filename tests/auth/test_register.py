@@ -129,3 +129,38 @@ class TestDemoRegister:
         expect(self.register_page.password_error).to_be_visible()
         expect(self.register_page.password_error).to_contain_text("The password field is required.")
         step("Ověřena chybová hláška pro povinné heslo: 'The password field is required.'")
+
+    def test_registration_duplicate_email_case_insensitive(self, page: Page, registered_user: dict):
+        """Ověření, že kontrola unikátnosti e-mailu je case-insensitive (US-02)."""
+        self.register_page.navigate()
+        self.register_page.register(
+            name="Upper Case Tester",
+            email=registered_user["email"].upper(),
+            password="Password123!",
+            password_again="Password123!",
+        )
+
+        expect(page).to_have_url(f"{self.register_page.base_url}/register")
+        expect(self.register_page.email_error).to_be_visible()
+        expect(self.register_page.email_error).to_contain_text("The email has already been taken.")
+        step("Ověřeno zamítnutí duplicitní registrace i při zadání e-mailu velkými písmeny")
+
+    def test_registration_email_whitespace_trimmed(self, page: Page):
+        """Ověření, že zadaný e-mail je před registrací normalizován ořezáním mezer (US-02)."""
+        from utils.data_generator import generate_random_email, generate_random_string
+        email = generate_random_email("qa_trim")
+        name = f"Trim Tester {generate_random_string(4)}"
+
+        self.register_page.navigate()
+        self.register_page.register(
+            name=name,
+            email=f"   {email}   ",
+            password="Password123!",
+            password_again="Password123!",
+        )
+
+        # Po úspěšné registraci je uživatel přesměrován na /home
+        expect(page).to_have_url(f"{self.register_page.base_url}/home")
+        expect(self.register_page.navbar.logout_button).to_be_visible()
+        step("Ověřena úspěšná registrace uživatele se zadaným e-mailem obsahujícím okrajové mezery")
+

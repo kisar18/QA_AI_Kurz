@@ -67,3 +67,13 @@ class TestForgotPassword:
         else:
             # Přesměrování znamená úspěšné odeslání
             assert "/forgot-password" not in current_url
+
+    # -----------------------------------------------------------------------
+    # TC-FP-04: Neexistující e-mail zobrazí chybovou hlášku
+    # -----------------------------------------------------------------------
+    def test_non_existent_email_shows_user_not_found_message(self):
+        """Ověří, že zadání neexistujícího e-mailu zobrazí chybovou hlášku (US-05)."""
+        self.forgot_page.request_password_reset("non_existent_user_99999@example.com")
+        self.page.wait_for_timeout(1000)
+
+        expect(self.page.get_by_text("We can't find a user with that email address.")).to_be_visible()

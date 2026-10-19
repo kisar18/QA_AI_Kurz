@@ -175,3 +175,33 @@ class TestDemoLogin:
 
         expect(register_page.register_button).to_be_visible()
         step("Ověřeno tlačítko 'Registrovat'")
+
+    def test_login_case_insensitive_email(self, page: Page, registered_user: dict):
+        """Ověření, že zadání e-mailu s velkými písmeny je platné a přihlásí uživatele (US-03)."""
+        self.login_page.navigate()
+        self.login_page.login(registered_user["email"].upper(), registered_user["password"])
+
+        expect(page).to_have_url(f"{self.login_page.base_url}/courses")
+        expect(self.login_page.logout_button).to_be_visible()
+        step(f"Ověřeno úspěšné přihlášení s verzí e-mailu velkými písmeny: {registered_user['email'].upper()}")
+
+    def test_login_email_whitespace_trimmed(self, page: Page, registered_user: dict):
+        """Ověření, že systém automaticky ořízne mezery před a za e-mailovou adresou (US-03)."""
+        self.login_page.navigate()
+        self.login_page.login(f"   {registered_user['email']}   ", registered_user["password"])
+
+        expect(page).to_have_url(f"{self.login_page.base_url}/courses")
+        expect(self.login_page.logout_button).to_be_visible()
+        step("Ověřeno úspěšné přihlášení s e-mailem obsahujícím počáteční a koncové mezery")
+
+    def test_login_submission_via_enter_key(self, page: Page, registered_user: dict):
+        """Ověření přístupnosti: formulář přihlášení lze odeslat stiskem klávesy Enter (US-03)."""
+        self.login_page.navigate()
+        self.login_page.email_input.fill(registered_user["email"])
+        self.login_page.password_input.fill(registered_user["password"])
+        self.login_page.password_input.press("Enter")
+
+        expect(page).to_have_url(f"{self.login_page.base_url}/courses")
+        expect(self.login_page.logout_button).to_be_visible()
+        step("Ověřeno úspěšné odeslání přihlašovacího formuláře klávesou Enter z pole hesla")
+
