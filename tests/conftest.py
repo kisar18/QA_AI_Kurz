@@ -8,7 +8,35 @@ from playwright.sync_api import Browser
 from pytest_html import extras
 from pages.register_page import RegisterPage
 
-from config.settings import CREDENTIALS_FILE
+from config.settings import CREDENTIALS_FILE, LECTOR_CREDENTIALS_FILE, INVALID_EMAILS_FILE
+
+
+@pytest.fixture(scope="session")
+def lector_user() -> dict:
+    """
+    Vrátí přihlašovací údaje pro účet lektora z data/lector_user.json.
+    Tento účet disponuje oprávněním pro správu kurzů a vypisování termínů/běhů.
+    """
+    if os.path.exists(LECTOR_CREDENTIALS_FILE):
+        with open(LECTOR_CREDENTIALS_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return {
+        "name": "Lektor",
+        "email": "lector@lector.com",
+        "password": "lector@lector.com",
+        "role": "lector",
+    }
+
+
+@pytest.fixture(scope="session")
+def invalid_emails() -> list:
+    """
+    Vrátí seznam statických neplatných e-mailových formátů z data/invalid_emails.json.
+    """
+    if os.path.exists(INVALID_EMAILS_FILE):
+        with open(INVALID_EMAILS_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return ["neplatny-email", "chybejici_zavinac.com"]
 
 
 @pytest.fixture(scope="session")

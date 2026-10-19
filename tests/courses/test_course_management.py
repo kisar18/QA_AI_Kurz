@@ -18,9 +18,9 @@ class TestCourseManagement:
         self.login_page.login(user["email"], user["password"])
         page.wait_for_url("**/courses")
 
-    def test_course_create_form_elements_presence(self, page: Page, registered_user: dict):
-        """Ověření zobrazení formuláře pro vytvoření kurzu a jeho polí."""
-        self._login(page, registered_user)
+    def test_course_create_form_elements_presence(self, page: Page, lector_user: dict):
+        """Ověření zobrazení formuláře pro vytvoření kurzu a jeho polí (pod účtem lektora)."""
+        self._login(page, lector_user)
         self.course_create_page.navigate()
 
         expect(page).to_have_url(self.course_create_page.url)
@@ -44,9 +44,9 @@ class TestCourseManagement:
         expect(self.course_create_page.submit_button).to_be_visible()
         step("Ověřeno tlačítko 'Vytvořit kurz'")
 
-    def test_course_create_submission_flow(self, page: Page, registered_user: dict):
-        """Ověření vyplnění a odeslání formuláře nového kurzu s přesměrováním do přehledu."""
-        self._login(page, registered_user)
+    def test_course_create_submission_flow(self, page: Page, lector_user: dict):
+        """Ověření vyplnění a odeslání formuláře nového kurzu lektorem s přesměrováním do přehledu."""
+        self._login(page, lector_user)
         self.course_create_page.navigate()
 
         course_name = "Automatizovaný QA Kurz"

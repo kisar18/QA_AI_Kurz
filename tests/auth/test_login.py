@@ -75,10 +75,10 @@ class TestDemoLogin:
         expect(self.login_page.profile_link).not_to_be_visible()
         step("Ověřeno, že odkaz 'Můj Profil' po odhlášení zmizel")
 
-    def test_html5_validation_on_invalid_email_format(self, page: Page):
+    def test_html5_validation_on_invalid_email_format(self, page: Page, invalid_emails: list):
         """Ověření nativní HTML5 validace pro neplatný formát e-mailu (formulář se neodešle)."""
         self.login_page.navigate()
-        self.login_page.login("neplatny_format_emailu", "TajneHeslo123")
+        self.login_page.login(invalid_emails[0], "TajneHeslo123")
 
         validation_message = self.login_page.email_input.evaluate("el => el.validationMessage")
         assert len(validation_message) > 0

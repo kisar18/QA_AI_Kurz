@@ -83,12 +83,12 @@ class TestDemoRegister:
         expect(self.register_page.email_error).to_contain_text("The email has already been taken.")
         step("Ověřena chybová hláška 'The email has already been taken.'")
 
-    def test_registration_html5_email_validation(self, page: Page):
-        """Ověření HTML5 validace při zadání neplatného formátu e-mailu."""
+    def test_registration_html5_email_validation(self, page: Page, invalid_emails: list):
+        """Ověření HTML5 validace při zadání neplatného formátu e-mailu (z data/invalid_emails.json)."""
         self.register_page.navigate()
         self.register_page.register(
             name="Valid Name",
-            email="neplatny_email_bez_zavinace",
+            email=invalid_emails[0],
             password="Password123!",
             password_again="Password123!",
         )

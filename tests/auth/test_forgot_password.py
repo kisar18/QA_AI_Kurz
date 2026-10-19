@@ -25,17 +25,18 @@ class TestForgotPassword:
     # -----------------------------------------------------------------------
     # TC-FP-02: HTML5 validace formátu e-mailu
     # -----------------------------------------------------------------------
-    def test_invalid_email_format_prevented(self):
+    def test_invalid_email_format_prevented(self, invalid_emails: list):
         """Ověří, že prohlížečová HTML5 validace zabrání odeslání formuláře
-        při zadání řetězce bez znaku '@' (neplatný e-mail)."""
-        self.forgot_page.email_input.fill("neplatny-email")
+        při zadání řetězce bez znaku '@' (neplatný e-mail z data/invalid_emails.json)."""
+        invalid_sample = invalid_emails[0]
+        self.forgot_page.email_input.fill(invalid_sample)
         self.forgot_page.submit_button.click()
 
         # HTML5 validace nedovolí odeslání – stránka zůstane na /forgot-password
         expect(self.page).to_have_url(self.forgot_page.url)
 
         # Pole e-mailu musí být stále vyplněné (formulář nebyl odeslán)
-        expect(self.forgot_page.email_input).to_have_value("neplatny-email")
+        expect(self.forgot_page.email_input).to_have_value(invalid_sample)
 
     # -----------------------------------------------------------------------
     # TC-FP-03: Odeslání žádosti o obnovu hesla s platným e-mailem
