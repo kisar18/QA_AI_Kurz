@@ -17,12 +17,17 @@ Architektura projektu odpovídá osvědčenému modelu **Test Project Structure*
 ├── config/
 │   ├── __init__.py
 │   └── settings.py              # ENVIRONMENT – Globální nastavení, URL, browser options a cesty
+├── plans/                       # IMPLEMENTAČNÍ PLÁNY – Architektura, POM refaktor, pokrytí testy
+│   ├── PLAN_LOCATORS_REFACTOR.md
+│   ├── PLAN_TEST_COVERAGE.md
+│   └── PLAN_PROJECT_STRUCTURE_REFACTOR.md
+├── user stories/
+│   └── požadavky_ust_podle_src.md # SPECIFIKACE – Agilní specifikace požadavků a akceptační kritéria
 ├── data/
+│   ├── README.md                # TEST DATA DOCS – Dokumentace testovacích účtů a jejich rolí
 │   ├── test_user.json           # TEST DATA – Uložené přihlašovací údaje zákazníka / studenta
 │   ├── lector_user.json         # TEST DATA – Přihlašovací údaje lektora (správa kurzů)
 │   └── invalid_emails.json      # TEST DATA – Statická testovací data pro parametrizované testy
-├── user stories/
-│   └── požadavky_ust_podle_src.md # SPECIFIKACE – Agilní specifikace požadavků a akceptační kritéria
 ├── utils/
 │   ├── __init__.py
 │   └── data_generator.py        # UTILITIES – Nezávislé generátory (unikátní data, IČO modulo 11)
