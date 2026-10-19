@@ -41,18 +41,22 @@ class TestForgotPassword:
     # -----------------------------------------------------------------------
     # TC-FP-03: Odeslání žádosti o obnovu hesla s platným e-mailem
     # -----------------------------------------------------------------------
-    def test_submit_valid_email_shows_feedback(self, registered_user: dict):
+    def test_submit_valid_email_shows_feedback(self, page: Page, registered_user: dict):
         """Ověří, že odeslání formuláře s platným registrovaným e-mailem zobrazí potvrzovací zprávu (US-05)."""
+        # Zachytíme /forgot-password pro deterministický test zobrazení UI hlášky
+        # (reálný Mailtrap na serveru testovani.kitner.cz pravidelně vyčerpává měsíční limit a vrací 500 TransportException)
+        page.route(
+            "**/forgot-password",
+            lambda route: route.fulfill(
+                status=200,
+                content_type="application/json",
+                json={"status": "Odkaz na obnovení hesla byl odeslán."},
+            ),
+        )
         self.forgot_page.request_password_reset(registered_user["email"])
 
-        current_url = self.page.url
-        if "/forgot-password" in current_url:
-            # Po odeslání formuláře musí být přítomna zpětná vazba (potvrzení odeslání nebo throttling limit)
-            feedback = self.forgot_page.status_message.or_(self.forgot_page.email_error)
-            expect(feedback.first).to_be_visible(timeout=10000)
-        else:
-            # Přesměrování znamená úspěšné odeslání
-            assert "/forgot-password" not in current_url
+        expect(self.forgot_page.status_message).to_be_visible()
+        expect(self.forgot_page.status_message).to_contain_text("Odkaz na obnovení hesla")
 
     # -----------------------------------------------------------------------
     # TC-FP-04: Neexistující e-mail zobrazí chybovou hlášku
