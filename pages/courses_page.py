@@ -41,3 +41,7 @@ class CoursesPage(BasePage):
         self.detail_buttons.first.click()
         self.page.wait_for_url(re.compile(r".*/courses/\d+"))
         self.page.wait_for_load_state("networkidle")
+
+    def get_iteration_enroll_button(self, iteration_card: Locator) -> Locator:
+        """Vrátí lokátor tlačítka přihlášení uvnitř dané karty běhu."""
+        return iteration_card.get_by_role("button", name="Nezávazná registrace")

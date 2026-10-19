@@ -161,6 +161,6 @@ class TestCoursesCatalog:
         assert re.search(r"Kapacita:\s*(\d+)/\1", first_iteration.inner_text()), "Běh by měl indikovat plnou obsazenost"
 
         # Tlačítko pro registraci nesmí být na plně obsazeném běhu dostupné
-        enroll_btn = first_iteration.get_by_role("button", name="Nezávazná registrace")
+        enroll_btn = self.courses_page.get_iteration_enroll_button(first_iteration)
         expect(enroll_btn).not_to_be_visible()
         step("Ověřeno, že pro plně obsazený běh není tlačítko registrace zobrazeno")
