@@ -8,7 +8,7 @@ from playwright.sync_api import Browser
 from pytest_html import extras
 from pages.register_page import RegisterPage
 
-CREDENTIALS_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "test_user.json")
+from config.settings import CREDENTIALS_FILE
 
 
 @pytest.fixture(scope="session")

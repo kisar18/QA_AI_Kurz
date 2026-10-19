@@ -1,13 +1,14 @@
 from playwright.sync_api import Page, Locator
+from pages.base_page import BasePage
 
 
-class RegisterPage:
+class RegisterPage(BasePage):
     """Page Object Model pro registrační stránku."""
 
-    URL = "http://testovani.kitner.cz/register"
+    PATH = "/register"
 
     def __init__(self, page: Page):
-        self.page = page
+        super().__init__(page)
         self.name_input: Locator = page.get_by_test_id("name_input")
         self.email_input: Locator = page.get_by_test_id("email_input")
         self.password_input: Locator = page.get_by_test_id("password_input")
@@ -17,11 +18,6 @@ class RegisterPage:
         self.name_error: Locator = page.get_by_test_id("name_input_errors")
         self.password_error: Locator = page.get_by_test_id("password_input_errors")
         self.email_error: Locator = page.get_by_test_id("email_input_errors")
-
-    def navigate(self):
-        """Otevře přímo URL registrační stránky."""
-        self.page.goto(self.URL)
-        self.page.wait_for_load_state("networkidle")
 
     def register(self, name: str, email: str, password: str, password_again: str):
         """Vyplní formulář a odešle registraci."""

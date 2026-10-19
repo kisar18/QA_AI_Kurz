@@ -1,20 +1,16 @@
 from playwright.sync_api import Page, Locator
+from pages.base_page import BasePage
 
 
-class ForgotPasswordPage:
+class ForgotPasswordPage(BasePage):
     """Page Object Model pro stránku zapomenutého hesla (/forgot-password)."""
 
-    URL = "http://testovani.kitner.cz/forgot-password"
+    PATH = "/forgot-password"
 
     def __init__(self, page: Page):
-        self.page = page
+        super().__init__(page)
         self.email_input: Locator = page.get_by_test_id("email_input")
         self.submit_button: Locator = page.get_by_test_id("submit_button")
-
-    def navigate(self):
-        """Otevře přímo URL stránky pro obnovu hesla."""
-        self.page.goto(self.URL)
-        self.page.wait_for_load_state("networkidle")
 
     def request_password_reset(self, email: str):
         """Vyplní e-mail a odešle žádost o obnovení hesla."""

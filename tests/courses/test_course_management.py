@@ -2,7 +2,7 @@ import pytest
 from playwright.sync_api import Page, expect
 from pages.login_page import LoginPage
 from pages.course_create_page import CourseCreatePage
-from pages.helpers import step
+from helpers.step_helpers import step
 
 
 class TestCourseManagement:
@@ -23,7 +23,7 @@ class TestCourseManagement:
         self._login(page, registered_user)
         self.course_create_page.navigate()
 
-        expect(page).to_have_url("http://testovani.kitner.cz/courses/create")
+        expect(page).to_have_url(self.course_create_page.url)
         step("Ověřena URL /courses/create")
 
         expect(self.course_create_page.heading).to_be_visible()
@@ -59,21 +59,5 @@ class TestCourseManagement:
             price=1990,
         )
 
-        expect(page).to_have_url("http://testovani.kitner.cz/courses/")
+        expect(page).to_have_url(f"{self.course_create_page.base_url}/courses/")
         step("Ověřeno úspěšné odeslání formuláře a přesměrování na přehled kurzů (/courses/)")
-
-    def test_my_courses_page_display(self, page: Page, registered_user: dict):
-        """Ověření načtení stránky zapsaných kurzů přihlášeného klienta (/my-courses)."""
-        self._login(page, registered_user)
-        page.goto("http://testovani.kitner.cz/my-courses")
-        page.wait_for_load_state("networkidle")
-
-        expect(page).to_have_url("http://testovani.kitner.cz/my-courses")
-        step("Ověřena URL /my-courses")
-
-        expect(page.get_by_test_id("courses_title")).to_be_visible()
-        expect(page.get_by_test_id("courses_title")).to_have_text("Mé zapsané kurzy")
-        step("Ověřen nadpis sekce 'Mé zapsané kurzy'")
-
-        expect(page.get_by_test_id("courses_section")).to_be_visible()
-        step("Ověřena sekce pro zobrazení kurzů uživatele")

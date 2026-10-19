@@ -3,7 +3,7 @@ from playwright.sync_api import Page, expect
 from pages.login_page import LoginPage
 from pages.register_page import RegisterPage
 from pages.forgot_password_page import ForgotPasswordPage
-from pages.helpers import step
+from helpers.step_helpers import step
 
 
 class TestDemoLogin:
@@ -17,7 +17,7 @@ class TestDemoLogin:
         """Ověření prokliku z hlavní stránky kurzů do formuláře přihlášení."""
         self.login_page.navigate_via_courses()
 
-        expect(page).to_have_url("http://testovani.kitner.cz/login")
+        expect(page).to_have_url(f"{self.login_page.base_url}/login")
         step("Ověřeno přesměrování na URL /login")
 
         expect(self.login_page.login_title).to_be_visible()
@@ -51,7 +51,7 @@ class TestDemoLogin:
         self.login_page.login(registered_user["email"], registered_user["password"])
 
         # Po úspěšném přihlášení:
-        expect(page).to_have_url("http://testovani.kitner.cz/courses")
+        expect(page).to_have_url(f"{self.login_page.base_url}/courses")
         step("Ověřeno přesměrování na stránku kurzů (/courses)")
 
         expect(self.login_page.logout_button).to_be_visible()
@@ -84,7 +84,7 @@ class TestDemoLogin:
         assert len(validation_message) > 0
         step("Ověřeno spuštění HTML5 validace pro neplatný formát e-mailu")
 
-        expect(page).to_have_url("http://testovani.kitner.cz/login")
+        expect(page).to_have_url(f"{self.login_page.base_url}/login")
         step("Ověřeno, že stránka zůstala na /login a formulář se neodeslal")
 
         expect(self.login_page.error_message).not_to_be_visible()
@@ -104,7 +104,7 @@ class TestDemoLogin:
         expect(self.login_page.error_message).to_contain_text("These credentials do not match our records.")
         step("Ověřen text chybové hlášky 'These credentials do not match our records.'")
 
-        expect(page).to_have_url("http://testovani.kitner.cz/login")
+        expect(page).to_have_url(f"{self.login_page.base_url}/login")
         step("Ověřeno, že uživatel zůstal na stránce /login")
 
         expect(self.login_page.nav_login_link).to_be_visible()
@@ -133,7 +133,7 @@ class TestDemoLogin:
         assert len(self.login_page.get_error_message()) > 0
         step("Ověřeno, že text chybové hlášky není prázdný")
 
-        expect(page).to_have_url("http://testovani.kitner.cz/login")
+        expect(page).to_have_url(f"{self.login_page.base_url}/login")
         step("Ověřeno zachování URL /login")
 
         expect(self.login_page.logout_button).not_to_be_visible()
@@ -151,7 +151,7 @@ class TestDemoLogin:
         self.login_page.navigate()
         self.login_page.forgot_password_link.click()
 
-        expect(page).to_have_url("http://testovani.kitner.cz/forgot-password")
+        expect(page).to_have_url(f"{self.login_page.base_url}/forgot-password")
         step("Ověřeno přesměrování na /forgot-password")
 
         forgot_page = ForgotPasswordPage(page)
@@ -166,7 +166,7 @@ class TestDemoLogin:
         self.login_page.navigate()
         self.login_page.register_link.click()
 
-        expect(page).to_have_url("http://testovani.kitner.cz/register")
+        expect(page).to_have_url(f"{self.login_page.base_url}/register")
         step("Ověřeno přesměrování na /register")
 
         register_page = RegisterPage(page)

@@ -1,14 +1,14 @@
 from playwright.sync_api import Page, Locator
+from pages.base_page import BasePage
 
 
-class LoginPage:
+class LoginPage(BasePage):
     """Page Object Model pro přihlašovací stránku."""
 
-    URL = "http://testovani.kitner.cz/login"
-    COURSES_URL = "http://testovani.kitner.cz/courses"
+    PATH = "/login"
 
     def __init__(self, page: Page):
-        self.page = page
+        super().__init__(page)
         self.email_input: Locator = page.get_by_test_id("email_input")
         self.password_input: Locator = page.get_by_test_id("password_input")
         self.login_button: Locator = page.get_by_test_id("login_button")
@@ -21,14 +21,9 @@ class LoginPage:
         self.logout_button: Locator = page.get_by_test_id("logout_button")
         self.profile_link: Locator = page.get_by_test_id("courses_profile")
 
-    def navigate(self):
-        """Otevře přímo URL přihlašovací stránky."""
-        self.page.goto(self.URL)
-        self.page.wait_for_load_state("networkidle")
-
     def navigate_via_courses(self):
         """Přejde na /courses a odtud klikne na odkaz 'Přihlásit se' v navigaci."""
-        self.page.goto(self.COURSES_URL)
+        self.page.goto(f"{self.base_url}/courses")
         self.page.wait_for_load_state("networkidle")
         self.nav_login_link.click()
         self.page.wait_for_url("**/login")

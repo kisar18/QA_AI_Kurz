@@ -3,7 +3,7 @@ import pytest
 from playwright.sync_api import Page, expect
 from pages.courses_page import CoursesPage
 from pages.login_page import LoginPage
-from pages.helpers import step
+from helpers.step_helpers import step
 
 
 class TestCoursesCatalog:
@@ -18,7 +18,7 @@ class TestCoursesCatalog:
         """Ověření správného načtení katalogu kurzů."""
         self.courses_page.navigate()
 
-        expect(page).to_have_url("http://testovani.kitner.cz/courses")
+        expect(page).to_have_url(self.courses_page.url)
         step("Ověřena URL /courses")
 
         expect(self.courses_page.title).to_be_visible()

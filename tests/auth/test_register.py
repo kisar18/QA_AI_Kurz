@@ -3,7 +3,7 @@ import pytest
 from playwright.sync_api import Page, expect
 from pages.register_page import RegisterPage
 from pages.home_page import HomePage
-from pages.helpers import step
+from helpers.step_helpers import step
 
 
 class TestDemoRegister:
@@ -42,7 +42,7 @@ class TestDemoRegister:
         self.register_page.navigate()
         self.register_page.register(name, email, password, password)
 
-        expect(page).to_have_url("http://testovani.kitner.cz/home")
+        expect(page).to_have_url(f"{self.register_page.base_url}/home")
         step("Ověřeno přesměrování po registraci na /home")
 
         home_page = HomePage(page)
@@ -59,7 +59,7 @@ class TestDemoRegister:
             password_again="DifferentPassword456!",
         )
 
-        expect(page).to_have_url("http://testovani.kitner.cz/register")
+        expect(page).to_have_url(f"{self.register_page.base_url}/register")
         step("Ověřeno, že stránka zůstala na /register")
 
         expect(self.register_page.password_error).to_be_visible()
@@ -76,7 +76,7 @@ class TestDemoRegister:
             password_again="Password123!",
         )
 
-        expect(page).to_have_url("http://testovani.kitner.cz/register")
+        expect(page).to_have_url(f"{self.register_page.base_url}/register")
         step("Ověřeno, že registrace nebyla dokončena a zůstává na /register")
 
         expect(self.register_page.email_error).to_be_visible()
@@ -97,7 +97,7 @@ class TestDemoRegister:
         assert len(validation_message) > 0
         step("Ověřeno spuštění nativní HTML5 validace e-mailu")
 
-        expect(page).to_have_url("http://testovani.kitner.cz/register")
+        expect(page).to_have_url(f"{self.register_page.base_url}/register")
         step("Ověřeno, že formulář se neodeslal")
 
     def test_registration_passwords_are_masked(self, page: Page):
@@ -115,7 +115,7 @@ class TestDemoRegister:
         self.register_page.navigate()
         self.register_page.register_button.click()
 
-        expect(page).to_have_url("http://testovani.kitner.cz/register")
+        expect(page).to_have_url(f"{self.register_page.base_url}/register")
         step("Ověřeno, že prázdný formulář se neodeslal a stránka zůstává na /register")
 
         expect(self.register_page.name_error).to_be_visible()

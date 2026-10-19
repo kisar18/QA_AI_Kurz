@@ -32,7 +32,7 @@ class TestForgotPassword:
         self.forgot_page.submit_button.click()
 
         # HTML5 validace nedovolí odeslání – stránka zůstane na /forgot-password
-        expect(self.page).to_have_url(self.forgot_page.URL)
+        expect(self.page).to_have_url(self.forgot_page.url)
 
         # Pole e-mailu musí být stále vyplněné (formulář nebyl odeslán)
         expect(self.forgot_page.email_input).to_have_value("neplatny-email")

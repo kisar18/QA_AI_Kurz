@@ -2,7 +2,7 @@ import pytest
 from playwright.sync_api import Page, expect
 from pages.login_page import LoginPage
 from pages.profile_page import ProfilePage
-from pages.helpers import step
+from helpers.step_helpers import step
 
 
 class TestUserProfile:
@@ -55,7 +55,7 @@ class TestUserProfile:
 
         self.profile_page.update_profile(phone=valid_phone, ico=valid_ico)
 
-        expect(page).to_have_url("http://testovani.kitner.cz/home")
+        expect(page).to_have_url(f"{self.profile_page.base_url}/home")
         step("Ověřeno přesměrování na /home po úspěšném uložení profilu")
 
     def test_profile_invalid_ico_validation(self, page: Page, registered_user: dict):
@@ -66,7 +66,7 @@ class TestUserProfile:
         # Neplatné IČO s platným telefonem
         self.profile_page.update_profile(phone="+420777123456", ico="12345678")
 
-        expect(page).to_have_url("http://testovani.kitner.cz/profile")
+        expect(page).to_have_url(f"{self.profile_page.base_url}/profile")
         step("Ověřeno, že formulář se neodeslal a stránka zůstává na /profile")
 
         expect(self.profile_page.ico_error).to_be_visible()
@@ -80,7 +80,7 @@ class TestUserProfile:
         # Neplatný telefon s platným IČO
         self.profile_page.update_profile(phone="12", ico="27082440")
 
-        expect(page).to_have_url("http://testovani.kitner.cz/profile")
+        expect(page).to_have_url(f"{self.profile_page.base_url}/profile")
         step("Ověřeno, že formulář se neodeslal při neplatném telefonu")
 
         expect(self.profile_page.phone_error).to_be_visible()
@@ -93,3 +93,32 @@ class TestUserProfile:
         expect(self.profile_page.name_input).not_to_be_visible()
         expect(self.profile_page.heading).not_to_be_visible()
         step("Ověřeno, že nepřihlášený uživatel nemá přístup k datům profilu")
+
+
+class TestMyCourses:
+    """Testovací sada pro sekci zapsaných kurzů zákazníka (/my-courses) – US-13."""
+
+    @pytest.fixture(autouse=True)
+    def setup(self, page: Page):
+        self.login_page = LoginPage(page)
+
+    def _login(self, page: Page, user: dict):
+        self.login_page.navigate()
+        self.login_page.login(user["email"], user["password"])
+        page.wait_for_url("**/courses")
+
+    def test_my_courses_page_display(self, page: Page, registered_user: dict):
+        """Ověření načtení stránky zapsaných kurzů přihlášeného klienta (/my-courses)."""
+        self._login(page, registered_user)
+        page.goto(f"{self.login_page.base_url}/my-courses")
+        page.wait_for_load_state("networkidle")
+
+        expect(page).to_have_url(f"{self.login_page.base_url}/my-courses")
+        step("Ověřena URL /my-courses")
+
+        expect(page.get_by_test_id("courses_title")).to_be_visible()
+        expect(page.get_by_test_id("courses_title")).to_have_text("Mé zapsané kurzy")
+        step("Ověřen nadpis sekce 'Mé zapsané kurzy'")
+
+        expect(page.get_by_test_id("courses_section")).to_be_visible()
+        step("Ověřena sekce pro zobrazení kurzů uživatele")

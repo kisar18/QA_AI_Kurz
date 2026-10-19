@@ -9,9 +9,14 @@ venv/
 ENV/
 env/
 
+# Environment secrets
+.env
+
 # Pytest & Test artifacts
 .pytest_cache/
 reports/*.html
+reports/*.png
+reports/*.jpg
 test-results/
 playwright-report/
 blob-report/
