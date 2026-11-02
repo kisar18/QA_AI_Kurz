@@ -1,8 +1,10 @@
+from pathlib import Path
 import pytest
 from playwright.sync_api import Page, expect
 from pages.login_page import LoginPage
 from pages.course_create_page import CourseCreatePage
 from helpers.step_helpers import step
+from utils.image_generator import create_png_image
 
 
 class TestCourseManagement:
@@ -62,12 +64,10 @@ class TestCourseManagement:
         expect(page).to_have_url(f"{self.course_create_page.base_url}/courses/")
         step("Ověřeno úspěšné odeslání formuláře a přesměrování na přehled kurzů (/courses/)")
 
-    def test_course_create_image_aspect_ratio_validation(self, page: Page, lector_user: dict):
+    def test_course_create_image_aspect_ratio_validation(self, page: Page, lector_user: dict, tmp_path: Path):
         """[US-14] Ověření validace poměru stran náhledového obrázku kurzu (požadován 16:9 s tolerancí 5 %)."""
-        from utils.image_generator import create_png_image
-
-        invalid_img = create_png_image("data/test_1_1.png", width=100, height=100)
-        valid_img = create_png_image("data/test_16_9.png", width=160, height=90)
+        invalid_img = create_png_image(tmp_path / "test_1_1.png", width=100, height=100)
+        valid_img = create_png_image(tmp_path / "test_16_9.png", width=160, height=90)
 
         self._login(page, lector_user)
         self.course_create_page.navigate()

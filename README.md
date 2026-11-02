@@ -28,9 +28,7 @@ Architektura projektu odpovídá osvědčenému modelu **Test Project Structure*
 │   ├── README.md                # TEST DATA DOCS – Dokumentace testovacích účtů a jejich rolí
 │   ├── test_user.json           # TEST DATA – Uložené přihlašovací údaje zákazníka / studenta
 │   ├── lector_user.json         # TEST DATA – Přihlašovací údaje lektora (správa kurzů)
-│   ├── invalid_emails.json      # TEST DATA – Statická testovací data pro parametrizované testy
-│   ├── test_16_9.png            # TEST DATA – Validní náhledový obrázek s poměrem stran 16:9
-│   └── test_1_1.png             # TEST DATA – Nevalidní náhledový obrázek (čtverec 1:1)
+│   └── invalid_emails.json      # TEST DATA – Statická testovací data pro parametrizované testy
 ├── utils/
 │   ├── __init__.py
 │   ├── data_generator.py        # UTILITIES – Nezávislé generátory (unikátní data, IČO modulo 11)
