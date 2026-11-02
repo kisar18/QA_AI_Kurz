@@ -84,7 +84,7 @@ class TestCoursesCatalog:
         self.courses_page.navigate()
         self.courses_page.open_first_course_detail()
 
-        expect(page).to_have_url(re.compile(r"http://testovani\.kitner\.cz/courses/\d+"))
+        expect(page).to_have_url(re.compile(rf"^{re.escape(self.courses_page.base_url)}/courses/\d+$"))
         step("Ověřeno přesměrování na detail kurzu (/courses/:id)")
 
         expect(self.courses_page.course_detail).to_be_visible()
