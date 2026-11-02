@@ -22,8 +22,4 @@ Při vytváření nových testů nebo úpravě stávajících testů a assertů 
 
 # Pravidla pro lokátory
 
-Při práci s lokátory (tvorba, oprava, audit) se řiď skillem **`locator-strategy`**:
-
-1. **Tvrdý zákaz lokátorů v testech:** v `tests/` nesmí být žádný lokátor (`page.locator()`, `page.get_by_*()`, CSS/XPath). Testy používají pouze atributy a metody Page Objectů.
-2. **Priorita:** `get_by_test_id` první. Pokud `data-testid` chybí, povoleno `get_by_role` / label / placeholder s komentářem `# TODO(testid): ...` a požadavkem na vývojáře.
-3. **Audit:** `python .agents/skills/locator-strategy/scripts/audit_locators.py pages tests`
+Pravidla pro lokátory (tvrdý zákaz lokátorů v `tests/`, priorita `data-testid`, postup při chybějícím testid a audit) jsou jednotně v kořenovém [AGENTS.md](../AGENTS.md) a ve skillu `locator-strategy`. Zde se neopakují.
