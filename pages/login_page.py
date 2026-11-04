@@ -16,16 +16,18 @@ class LoginPage(BasePage):
         self.error_message: Locator = page.get_by_test_id("email_input_errors")
         self.forgot_password_link: Locator = page.get_by_test_id("forgot_password_link")
         self.register_link: Locator = page.get_by_test_id("register_link")
-        self.nav_login_link: Locator = page.get_by_test_id("login_link")
-        self.nav_courses_link: Locator = page.get_by_test_id("courses_link")
-        self.logout_button: Locator = page.get_by_test_id("logout_button")
-        self.profile_link: Locator = page.get_by_test_id("courses_profile")
+
+        # Sdílené prvky navigace jsou delegovány na komponentu Navbar (self.navbar)
+        self.nav_login_link: Locator = self.navbar.login_link
+        self.nav_courses_link: Locator = self.navbar.courses_link
+        self.logout_button: Locator = self.navbar.logout_button
+        self.profile_link: Locator = self.navbar.profile_link
 
     def navigate_via_courses(self):
         """Přejde na /courses a odtud klikne na odkaz 'Přihlásit se' v navigaci."""
         self.page.goto(f"{self.base_url}/courses")
         self.page.wait_for_load_state("networkidle")
-        self.nav_login_link.click()
+        self.navbar.login_link.click()
         self.page.wait_for_url("**/login")
 
     def login(self, email: str, password: str):
@@ -59,8 +61,7 @@ class LoginPage(BasePage):
 
     def logout(self):
         """Odhlásí přihlášeného uživatele kliknutím na 'Odhlásit se'."""
-        self.logout_button.click()
-        self.nav_login_link.wait_for(state="visible")
+        self.navbar.logout()
 
     def get_error_message(self) -> str:
         """Vrátí text zobrazené chybové hlášky."""

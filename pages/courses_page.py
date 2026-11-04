@@ -17,18 +17,19 @@ class CoursesPage(BasePage):
         self.course_prices: Locator = page.get_by_test_id("course_price")
         self.course_images: Locator = page.get_by_test_id("course_image")
         self.course_capacities: Locator = page.get_by_test_id("course_capacity")
-        self.detail_buttons: Locator = page.locator("button[data-testid='registration_link']")
+        # TODO(testid): aplikace má duplicitní data-testid='registration_link' pro button i odkaz
+        self.detail_buttons: Locator = page.get_by_test_id("registration_link").and_(page.get_by_role("button"))
         self.see_more_buttons: Locator = self.detail_buttons  # Tlačítka 'Chci vidět více'
 
         # Výzva k registraci pro nepřihlášené v katalogu i na detailu
         self.interest_title: Locator = page.get_by_test_id("interest_title")
-        self.registration_link: Locator = page.locator("a[data-testid='registration_link']")
+        self.registration_link: Locator = page.get_by_test_id("registration_link").and_(page.get_by_role("link"))
         self.registration_prompt: Locator = page.get_by_test_id("registration_prompt")
 
         # Prvky na detailu kurzu (/courses/:id)
         self.course_detail: Locator = page.get_by_test_id("course_detail")
         self.iterations_heading: Locator = page.get_by_test_id("iterations_heading")
-        self.iteration_cards: Locator = page.locator("[data-testid^='iteration_']")
+        self.iteration_cards: Locator = page.get_by_test_id(re.compile(r"^iteration_"))
         self.enroll_buttons: Locator = page.get_by_role("button", name="Nezávazná registrace")
 
         # Lektorská akční tlačítka
@@ -38,7 +39,8 @@ class CoursesPage(BasePage):
 
     def open_first_course_detail(self):
         """Proklikne na detail prvního kurzu v katalogu."""
-        self.detail_buttons.first.click()
+        # Výběr prvního kurzu v katalogu pro ověření přechodu na detail libovolného kurzu
+        self.detail_buttons.first.click()  # Povolený výběr libovolného kurzu v katalogu
         self.page.wait_for_url(re.compile(r".*/courses/\d+"))
         self.page.wait_for_load_state("networkidle")
 
