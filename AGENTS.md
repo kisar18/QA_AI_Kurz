@@ -20,7 +20,7 @@ Jazyk: komentáře, docstringy a dokumentace **česky**, identifikátory v kódu
 | `reports/` | Pouze **výstup** testů (HTML report, screenshoty). Kromě `report_style.css` se necommituje. |
 | `plans/` | Implementační plány (`PLAN_*.md`). Plán patří sem, ne jen do interních složek nástrojů. |
 | `user stories/` | Specifikace požadavků a akceptační kritéria (US-01 až US-20). |
-| `.agents/skills/` | Skilly pro agenty: `locator-strategy`, `assertion-quality-review`. |
+| `.agents/skills/` | Skilly pro agenty: `locator-strategy`, `assertion-quality-review`, `test-overview-generator`. |
 | `.github/workflows/` | CI (`tests.yml`). |
 | `pyproject.toml` | Konfigurace pytestu (markery, `addopts`) a závislosti. |
 | `.env.example` | Vzor proměnných prostředí. Skutečný `.env` se necommituje. |
