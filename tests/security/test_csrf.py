@@ -49,9 +49,10 @@ class TestCsrfAndSessionIntegrity:
         auth_cookies = page.context.cookies()
         auth_session = next((c["value"] for c in auth_cookies if "session" in c["name"].lower()), None)
 
-        if anon_session and auth_session:
-            assert anon_session != auth_session, "Session cookie nebyla po přihlášení regenerována (Session Fixation riziko)"
-            step("Ověřena úspěšná regenerace sezení při přihlášení uživatele")
+        assert anon_session is not None, "Anonymní session cookie nebyla po načtení stránky nalezena"
+        assert auth_session is not None, "Autentizovaná session cookie nebyla po přihlášení nalezena"
+        assert anon_session != auth_session, "Session cookie nebyla po přihlášení regenerována (Session Fixation riziko)"
+        step("Ověřena úspěšná regenerace sezení při přihlášení uživatele")
 
         # 4. Bezpečné odhlášení
         login_page.logout()
@@ -60,6 +61,6 @@ class TestCsrfAndSessionIntegrity:
         post_logout_cookies = page.context.cookies()
         post_logout_session = next((c["value"] for c in post_logout_cookies if "session" in c["name"].lower()), None)
 
-        if auth_session and post_logout_session:
-            assert auth_session != post_logout_session, "Session cookie nebyla po odhlášení změněna/zneplatněna"
-            step("Ověřeno zneplatnění sezení po odhlášení uživatele")
+        assert post_logout_session is not None, "Session cookie nebyla po odhlášení nalezena"
+        assert auth_session != post_logout_session, "Session cookie nebyla po odhlášení změněna/zneplatněna"
+        step("Ověřeno zneplatnění sezení po odhlášení uživatele")

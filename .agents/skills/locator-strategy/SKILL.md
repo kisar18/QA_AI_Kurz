@@ -2,10 +2,11 @@
 name: locator-strategy
 description: >-
   Aktivuj a použij tento skill v následujících situacích:
-  1. Tvorba nového lokátoru nebo celého Page Objectu (výběr nejstabilnější strategie, konvence data-testid).
-  2. Oprava nebo refaktoring rozbitého či křehkého lokátoru (test padá na strict mode violation, timeoutu nebo po změně UI).
-  3. Požadavek na audit, revizi nebo kontrolu lokátorů v pages/ a tests/ (zakázané vzory, lokátory v testech).
-  4. Prvek, který potřebuji v testu použít, nemá data-testid (postup pro chybějící lokátor).
+  1. Psaní, generování, doplňování nebo úprava automatizovaných testů (např. testy přihlášení, kurzů, profilu atd. v tests/).
+  2. Tvorba nového lokátoru nebo celého Page Objectu (výběr nejstabilnější strategie, konvence data-testid).
+  3. Oprava nebo refaktoring rozbitého či křehkého lokátoru (test padá na strict mode violation, timeoutu nebo po změně UI).
+  4. Požadavek na audit, revizi nebo kontrolu lokátorů v pages/ a tests/ (zakázané vzory, lokátory v testech).
+  5. Prvek, který potřebuji v testu použít, nemá data-testid (postup pro chybějící lokátor).
 ---
 
 # Locator Strategy Skill
@@ -18,6 +19,11 @@ Standard pro tvorbu, opravu a audit lokátorů v Page Objectech (Playwright + py
 ---
 
 ## 1. Režimy aktivace
+
+### Režim 0: Psaní, generování nebo úprava testů (např. "Napiš test pro přihlášení")
+- **Pravidlo č. 1:** V testech (`tests/`) se nesmí objevit žádné lokátory (`page.locator()`, `page.get_by_*()`, CSS, XPath).
+- Všechny prvky a interakce musí vést přes metody a atributy příslušného Page Objectu v `pages/`.
+- Pokud v Page Objectu prvek chybí, vytvoř jej podle pravidel tohoto skillu (kontrakt prvku, `data-testid`).
 
 ### Režim 1: Tvorba nového lokátoru / Page Objectu
 - Projdi rozhodovací strom (sekce 2).

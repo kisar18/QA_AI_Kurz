@@ -41,18 +41,12 @@ class TestForgotPassword:
     # -----------------------------------------------------------------------
     # TC-FP-03: Odeslání žádosti o obnovu hesla s platným e-mailem
     # -----------------------------------------------------------------------
+    @pytest.mark.xfail(
+        reason="Reálný backend testovani.kitner.cz selhává při odesílání e-mailu (SMTP TransportException / rate limit)",
+        strict=False,
+    )
     def test_submit_valid_email_shows_feedback(self, page: Page, registered_user: dict):
         """Ověří, že odeslání formuláře s platným registrovaným e-mailem zobrazí potvrzovací zprávu (US-05)."""
-        # Zachytíme /forgot-password pro deterministický test zobrazení UI hlášky
-        # (reálný Mailtrap na serveru testovani.kitner.cz pravidelně vyčerpává měsíční limit a vrací 500 TransportException)
-        page.route(
-            "**/forgot-password",
-            lambda route: route.fulfill(
-                status=200,
-                content_type="application/json",
-                json={"status": "Odkaz na obnovení hesla byl odeslán."},
-            ),
-        )
         self.forgot_page.request_password_reset(registered_user["email"])
 
         expect(self.forgot_page.status_message).to_be_visible()
@@ -64,6 +58,5 @@ class TestForgotPassword:
     def test_non_existent_email_shows_user_not_found_message(self):
         """Ověří, že zadání neexistujícího e-mailu zobrazí chybovou hlášku (US-05)."""
         self.forgot_page.request_password_reset("non_existent_user_99999@example.com")
-        self.page.wait_for_timeout(1000)
 
         expect(self.forgot_page.user_not_found_message).to_be_visible()

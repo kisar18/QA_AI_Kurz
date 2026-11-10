@@ -98,9 +98,8 @@ class TestCourseEnrollment:
 
         # Ověření informací o zapsaném kurzu (US-13)
         expect(self.my_courses_page.courses_section).to_be_visible()
-        if self.my_courses_page.date_time_from.count() > 0:
-            expect(self.my_courses_page.date_time_from.first).to_be_visible()
-            expect(self.my_courses_page.date_time_to.first).to_be_visible()
-            expect(self.my_courses_page.day_information.first).to_be_visible()
-            expect(self.my_courses_page.place_information.first).to_be_visible()
-            step("Ověřeno zobrazení termínů lekcí, dne a místa konání zapsaného kurzu")
+        expect(self.my_courses_page.date_time_from.first).to_be_visible()
+        expect(self.my_courses_page.date_time_to.first).to_be_visible()
+        expect(self.my_courses_page.day_information.first).to_be_visible()
+        expect(self.my_courses_page.place_information.first).to_be_visible()
+        step("Ověřeno zobrazení termínů lekcí, dne a místa konání zapsaného kurzu")

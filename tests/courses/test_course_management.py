@@ -82,17 +82,17 @@ class TestCourseManagement:
         page.on("dialog", handle_dialog)
 
         self.course_create_page.image_input.set_input_files(str(invalid_img.resolve()))
-        page.wait_for_timeout(1000)
+        # Auto-retry čekání na vymazání inputu v UI po zamítnutí neplatného poměru stran
+        expect(self.course_create_page.image_input).to_have_value("")
 
         assert any("správný poměr stran" in msg for msg in alert_messages), f"Očekávané chybové hlášení v alertu se nezobrazilo: {alert_messages}"
-        assert self.course_create_page.image_input.input_value() == "", "Input souboru měl být po neplatném poměru stran vymazán"
         step("Ověřeno zamítnutí obrázku s neplatným poměrem stran (1:1) a zobrazení varovného alertu")
 
         # 2. Platný poměr stran (16:9) -> alert se nezobrazí a soubor zůstane nastaven
         alert_messages.clear()
         self.course_create_page.image_input.set_input_files(str(valid_img.resolve()))
-        page.wait_for_timeout(1000)
+        # Auto-retry čekání na nastavení souboru v inputu
+        expect(self.course_create_page.image_input).not_to_have_value("")
 
         assert len(alert_messages) == 0, f"Pro platný poměr stran 16:9 se neměl zobrazit žádný alert: {alert_messages}"
-        assert self.course_create_page.image_input.input_value() != "", "Platný obrázek 16:9 měl zůstat v inputu nastaven"
         step("Ověřeno úspěšné přijetí obrázku s poměrem stran 16:9")

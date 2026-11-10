@@ -3,15 +3,17 @@
 Skript 'Definice hotovo' pro manuální test casy (DoD Validator).
 
 Ověřuje:
-1. Existenci a strukturu souboru s test casy (povinná pole: ID, Cíl, AC, Typ, Předpoklady, Kroky, Očekávaný výsledek).
-2. Žádné nevyplněné placeholdery (TODO, TBD).
-3. Přítomnost pozitivních i negativních scénářů.
-4. 100% pokrytí akceptačních kritérií (AC) z příslušné User Story.
+1. Integritu specifikace User Story (zákaz neoprávněných úprav zdrojové US v gitu – Anti-Reward Hacking).
+2. Existenci a kompletní strukturu souboru s test casy (ID, Název, AC, Typ, Předpoklady, Kroky, Očekávaný výsledek).
+3. Žádné nevyplněné placeholdery (TODO, TBD, DOPLNIT, PLACEHOLDER).
+4. Přítomnost pozitivních i negativních/hraničních scénářů.
+5. 100% pokrytí akceptačních kritérií (AC) z příslušné User Story.
 """
 
 import argparse
 import os
 import re
+import subprocess
 import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple
@@ -28,6 +30,27 @@ class TestCase:
         self.steps: List[str] = []
         self.expected_result: List[str] = []
         self.raw_lines: List[str] = []
+
+
+def check_story_integrity(story_file: Path) -> Optional[str]:
+    """Zkontroluje, zda zdrojový soubor s User Stories nebyl lokálně modifikován (ochrana proti reward hackingu)."""
+    try:
+        res = subprocess.run(
+            ["git", "status", "--porcelain", str(story_file)],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace"
+        )
+        if res.returncode == 0 and res.stdout.strip():
+            return (
+                f"Zdrojový soubor '{story_file}' vykazuje necommitované změny v gitu! "
+                "Agent nesmí upravovat specifikaci User Stories za účelem usnadnění průchodu testů."
+            )
+    except Exception:
+        # Pokud git není dostupný, kontrola tiše projde
+        pass
+    return None
 
 
 def parse_test_cases(file_path: Path) -> Tuple[List[TestCase], Optional[str]]:
@@ -126,8 +149,7 @@ def extract_acceptance_criteria_from_story(story_file: Path, us_id: str) -> List
 
     content = story_file.read_text(encoding="utf-8")
 
-    # Hledáme blok dané User Story
-    # Např. #### US-02: Registrace ... až po další #### nebo konec sekce
+    # Hledáme blok dané User Story (např. #### US-02: Registrace ... až po další #### nebo konec)
     us_pattern = rf"####\s*{re.escape(us_id)}[:\s](.*?)(?=####\s*US-|\Z)"
     match = re.search(us_pattern, content, re.DOTALL | re.IGNORECASE)
     if not match:
@@ -165,6 +187,12 @@ def validate_dod(
     """
     errors: List[str] = []
     warnings: List[str] = []
+
+    # 0. Kontrola integrity User Story (Anti-Reward Hacking)
+    if story_file and story_file.exists():
+        integrity_error = check_story_integrity(story_file)
+        if integrity_error:
+            errors.append(integrity_error)
 
     test_cases, detected_us_id = parse_test_cases(tc_file)
     effective_us_id = us_id or detected_us_id
@@ -248,13 +276,13 @@ def validate_dod(
                 if placeholder_pattern.search(er):
                     errors.append(f"{prefix}: V očekávaném výsledku se nachází placeholder ({er}).")
 
-    # 3. Kontrola diverzity typů testů (Rozšíření)
+    # 3. Kontrola diverzity typů testů
     if metrics["positive_count"] == 0:
         errors.append("Sada neobsahuje žádný pozitivní test (Happy Path).")
     if (metrics["negative_count"] + metrics["boundary_count"]) == 0:
         errors.append("Sada neobsahuje žádný negativní ani hraniční scénář (nutné pro robustní testování).")
 
-    # 4. Kontrola 100% pokrytí akceptačních kritérií (pokud je dostupná zdrojová story)
+    # 4. Kontrola 100% pokrytí akceptačních kritérií
     if story_file and effective_us_id:
         ac_list = extract_acceptance_criteria_from_story(story_file, effective_us_id)
         metrics["ac_count"] = len(ac_list)
@@ -309,7 +337,7 @@ def main():
     if args.quiet:
         sys.exit(0 if is_passed else 1)
 
-    # Výpis hezkého přehledu do konzole
+    # Výpis přehledu do konzole
     print("=" * 70)
     print("📋 VALIDACE DEFINICE HOTOVO (DoD) – MANUÁLNÍ TEST CASY")
     print("=" * 70)
@@ -336,6 +364,7 @@ def main():
             print(f"   • {e}")
         print("=" * 70)
         print("💥 VÝSLEDEK: NENÍ HOTOVO – Agent musí opravit výše uvedené chyby.")
+        print("ℹ️  Pokud je chyba způsobena nejednoznačnou či neúplnou User Story, ohlaste stav BLOKOVÁNO.")
         print("=" * 70)
         sys.exit(1)
     else:
@@ -348,4 +377,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

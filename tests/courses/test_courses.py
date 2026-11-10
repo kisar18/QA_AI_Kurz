@@ -99,22 +99,20 @@ class TestCoursesCatalog:
         expect(self.courses_page.iterations_heading).to_be_visible()
         step("Ověřen nadpis 'Vypsané běhy kurzu:'")
 
-        # Ověření, že pokud existují běhy, zobrazují správný formát
-        iteration_count = self.courses_page.iteration_cards.count()
-        if iteration_count > 0:
-            first_iteration = self.courses_page.iteration_cards.first
-            expect(first_iteration).to_be_visible()
-            iteration_text = first_iteration.inner_text()
+        # Ověření, že běhy existují a zobrazují správný formát (striktní kontrola bez podmínky if)
+        first_iteration = self.courses_page.iteration_cards.first
+        expect(first_iteration).to_be_visible()
+        iteration_text = first_iteration.inner_text()
 
-            # Formát data zahájení a ukončení
-            assert "Zahájení:" in iteration_text
-            assert "Ukončení:" in iteration_text
-            step("Ověřeno zobrazení data zahájení a ukončení běhu kurzu")
+        # Formát data zahájení a ukončení
+        assert "Zahájení:" in iteration_text
+        assert "Ukončení:" in iteration_text
+        step("Ověřeno zobrazení data zahájení a ukončení běhu kurzu")
 
-            # Formát kapacity poměrem X/Y (např. "Kapacita: 0/15")
-            capacity_match = re.search(r"Kapacita:\s*\d+/\d+", iteration_text)
-            assert capacity_match, f"Formát kapacity X/Y nenalezen: {iteration_text}"
-            step(f"Ověřen správný formát poměru obsazenosti a kapacity: {capacity_match.group(0)}")
+        # Formát kapacity poměrem X/Y (např. "Kapacita: 0/15")
+        capacity_match = re.search(r"Kapacita:\s*\d+/\d+", iteration_text)
+        assert capacity_match, f"Formát kapacity X/Y nenalezen: {iteration_text}"
+        step(f"Ověřen správný formát poměru obsazenosti a kapacity: {capacity_match.group(0)}")
 
     def test_course_detail_iterations_anonymous_vs_authenticated(self, page: Page, registered_user: dict):
         """[US-10, US-11] Ověření, že termíny běhů kurzu se zobrazují anonymně a tlačítka zápisu se aktivují po přihlášení."""
@@ -142,24 +140,16 @@ class TestCoursesCatalog:
 
     def test_fully_booked_iteration_indication(self, page: Page):
         """[US-11] Ověření chování při plně obsazené kapacitě běhu kurzu (kapacita dosáhla maxima -> tlačítko zápisu je skryto/nedostupné)."""
-        # Načteme detail kurzu s mocknutým plně obsazeným během přes route intercept
-        def mock_full_capacity(route):
-            response = route.fetch()
-            data = response.json()
-            if "iterations" in data and len(data["iterations"]) > 0:
-                # Nastavíme users_count na úroveň kapacity (nebo vyšší)
-                data["iterations"][0]["users_count"] = data.get("capacity", 10)
-            route.fulfill(json=data)
-
-        page.route("**/api/courses/*/iterations", mock_full_capacity)
-
         self.courses_page.navigate()
         self.courses_page.open_first_course_detail()
 
-        # Ověříme, že poměr obsazenosti na prvním běhu ukazuje plnou kapacitu (např. 15/15)
+        # Ověříme, že poměr obsazenosti na prvním běhu ukazuje plnou nebo překročenou kapacitu
         first_iteration = self.courses_page.iteration_cards.first
         expect(first_iteration).to_be_visible()
-        assert re.search(r"Kapacita:\s*(\d+)/\1", first_iteration.inner_text()), "Běh by měl indikovat plnou obsazenost"
+        capacity_match = re.search(r"Kapacita:\s*(\d+)/(\d+)", first_iteration.inner_text())
+        assert capacity_match, "Formát kapacity X/Y nenalezen"
+        users_count, capacity = int(capacity_match.group(1)), int(capacity_match.group(2))
+        assert users_count >= capacity, f"Běh by měl indikovat plnou obsazenost (obsazeno: {users_count}, kapacita: {capacity})"
 
         # Tlačítko pro registraci nesmí být na plně obsazeném běhu dostupné
         enroll_btn = self.courses_page.get_iteration_enroll_button(first_iteration)

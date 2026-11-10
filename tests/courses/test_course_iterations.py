@@ -61,21 +61,14 @@ class TestCourseIterations:
 
         # Lektor má u běhů tlačítko 'Přihlášení'
         participants_button = self.courses_page.participants_buttons.first
-        if participants_button.count() > 0 and participants_button.is_visible():
-            participants_button.click()
-            page.wait_for_url(re.compile(r".*/courses/\d+/participants"))
+        expect(participants_button).to_be_visible()
+        participants_button.click()
+        page.wait_for_url(re.compile(r".*/courses/\d+/participants"))
 
-            expect(self.students_page.heading).to_be_visible()
-            expect(self.students_page.heading).to_have_text("Seznam přihlášených")
-            expect(self.students_page.participants_table).to_be_visible()
-            step("Ověřeno zobrazení tabulky přihlášených účastníků pro roli lektora")
-        else:
-            # Přímá navigace na endpoint účastníků
-            self.students_page.open_for_iteration(1)
-            expect(self.students_page.heading).to_be_visible()
-            expect(self.students_page.heading).to_have_text("Seznam přihlášených")
-            expect(self.students_page.participants_table).to_be_visible()
-            step("Ověřeno zobrazení tabulky účastníků na /courses/:id/participants")
+        expect(self.students_page.heading).to_be_visible()
+        expect(self.students_page.heading).to_have_text("Seznam přihlášených")
+        expect(self.students_page.participants_table).to_be_visible()
+        step("Ověřeno zobrazení tabulky přihlášených účastníků pro roli lektora")
 
     def test_student_cannot_access_participants_management(self, page: Page, registered_user: dict):
         """[US-16] Ověření, že běžný zákazník/student nemá přístup k lektorskému seznamu účastníků."""
