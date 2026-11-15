@@ -11,6 +11,8 @@ class ProfilePage(BasePage):
     ICO_ERROR_TEXT = "Neplatné IČO"
     PHONE_ERROR_TEXT = "Neplatné telefonní číslo"
     EMAIL_ERROR_TEXT = "Neplatný email"
+    NAME_REQUIRED_ERROR_TEXT = "Uživatelské jméno je povinné"
+    EMAIL_COLLISION_ERROR_TEXT = "Zadaný e-mail je již v systému používán"
 
     def __init__(self, page: Page):
         super().__init__(page)
@@ -25,6 +27,9 @@ class ProfilePage(BasePage):
         self.ico_error: Locator = page.get_by_text(self.ICO_ERROR_TEXT)
         self.phone_error: Locator = page.get_by_text(self.PHONE_ERROR_TEXT)
         self.email_error: Locator = page.get_by_text(self.EMAIL_ERROR_TEXT)
+        # TODO(testid): validační hlášky pro povinné jméno a kolizi e-mailu nemají data-testid
+        self.name_error: Locator = page.get_by_text(self.NAME_REQUIRED_ERROR_TEXT)
+        self.email_collision_error: Locator = page.get_by_text(self.EMAIL_COLLISION_ERROR_TEXT)
 
     def update_profile(self, name: str = None, email: str = None, phone: str = None, ico: str = None):
         """Vyplní formulář profilu a klikne na Uložit."""

@@ -18,6 +18,8 @@ class ForgotPasswordPage(BasePage):
         self.user_not_found_message: Locator = page.get_by_text(self.USER_NOT_FOUND_TEXT)
         self.status_message: Locator = page.get_by_test_id("status_div")
         self.email_error: Locator = page.get_by_test_id("email_input_errors")
+        # TODO(testid): chybí data-testid pro informační text formuláře
+        self.description_text: Locator = page.get_by_text("Zapoměli jste své heslo?")
 
     def request_password_reset(self, email: str):
         """Vyplní e-mail a odešle žádost o obnovení hesla."""

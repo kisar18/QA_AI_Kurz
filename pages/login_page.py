@@ -56,8 +56,9 @@ class LoginPage(BasePage):
         else:
             self.password_input.clear()
 
-        with self.page.expect_response(lambda res: "/login" in res.url and res.request.method == "POST"):
+        with self.page.expect_response(lambda res: "/login" in res.url and res.request.method == "POST") as resp_info:
             self.login_button.click()
+        return resp_info.value
 
     def logout(self):
         """Odhlásí přihlášeného uživatele kliknutím na 'Odhlásit se'."""

@@ -3,7 +3,7 @@ from pages.base_page import BasePage
 
 
 class RegisterPage(BasePage):
-    """Page Object Model pro registrační stránku."""
+    """Page Object Model pro registrační stránku (/register)."""
 
     PATH = "/register"
 
@@ -14,7 +14,15 @@ class RegisterPage(BasePage):
         self.password_input: Locator = page.get_by_test_id("password_input")
         self.password_again_input: Locator = page.get_by_test_id("password_again_input")
         self.register_button: Locator = page.get_by_test_id("register_button")
-        self.login_link: Locator = page.get_by_test_id("login_link")
+        
+        # Odkaz na přihlášení pod formulářem (zúžen přes kontejner login_p pro vyloučení kolize s navigační lištou)
+        self.login_container: Locator = page.get_by_test_id("login_p")
+        self.login_link: Locator = self.login_container.get_by_test_id("login_link")
+        
+        # Odkaz na zapomenuté heslo
+        self.forgot_password_link: Locator = page.get_by_test_id("forgot_password_link")
+        
+        # Validační chybové hlášky
         self.name_error: Locator = page.get_by_test_id("name_input_errors")
         self.password_error: Locator = page.get_by_test_id("password_input_errors")
         self.email_error: Locator = page.get_by_test_id("email_input_errors")

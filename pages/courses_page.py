@@ -28,6 +28,8 @@ class CoursesPage(BasePage):
 
         # Prvky na detailu kurzu (/courses/:id)
         self.course_detail: Locator = page.get_by_test_id("course_detail")
+        # TODO(testid): chybějící data-testid pro obrázek kurzu na detailu kurzu
+        self.course_detail_image: Locator = self.course_detail.get_by_role("img")
         self.iterations_heading: Locator = page.get_by_test_id("iterations_heading")
         self.iteration_cards: Locator = page.get_by_test_id(re.compile(r"^iteration_"))
         self.enroll_buttons: Locator = page.get_by_role("button", name="Nezávazná registrace")
@@ -36,6 +38,10 @@ class CoursesPage(BasePage):
         self.add_course_button: Locator = page.get_by_role("button", name="Přidat kurz")
         self.add_iteration_buttons: Locator = page.get_by_test_id("add_iteration_button")
         self.participants_buttons: Locator = page.get_by_role("button", name="Přihlášení")
+
+    def navigate_to_detail(self, course_id: int | str = 1):
+        """Přejde přímo na detail konkrétního kurzu (/courses/:id)."""
+        self.navigate(f"/courses/{course_id}")
 
     def open_first_course_detail(self):
         """Proklikne na detail prvního kurzu v katalogu."""

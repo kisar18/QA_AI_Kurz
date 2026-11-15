@@ -13,6 +13,8 @@ class CourseEnrollPage(BasePage):
         self.ico_error: Locator = page.get_by_test_id("ico_error")
         self.phone_input: Locator = page.get_by_test_id("phone_input")
         self.phone_error: Locator = page.get_by_test_id("phone_error")
+        # TODO(testid): chybějící data-testid pro chybovou hlášku vyčerpané kapacity kurzu
+        self.capacity_error: Locator = page.get_by_text("Kapacita kurzu je vyčerpána")
         self.submit_button: Locator = page.get_by_role("button", name="Nezávazná registrace")
 
     def open_for_iteration(self, iteration_id: int | str):

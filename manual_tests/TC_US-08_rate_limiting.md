@@ -46,7 +46,7 @@
 - **Očekávaný výsledek:**
   - 6. pokus je systémem okamžitě zablokován ochranným mechanismem Rate Limiting.
   - V rozhraní se zobrazí výstražná chybová zpráva o překročení počtu pokusů s konkrétním počtem sekund, po které je nutné vyčkat (např. `Too many login attempts. Please try again in 60 seconds.`).
-  - Server vrací HTTP stavový kód 429 s hlavičkou `Retry-After` odpovídající zobrazenému času.
+  - Server vrací validační stavový kód 422 (případně 429) s chybovou zprávou odpovídající zobrazenému času.
   - Systém odmítne přihlášení i v případě, že uživatel během aktivní doby blokace zadá správné heslo.
 
 ---
