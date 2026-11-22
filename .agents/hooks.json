@@ -1,0 +1,11 @@
+{
+  "bug-reporting-dod": {
+    "Stop": [
+      {
+        "type": "command",
+        "command": "python scripts/check_bug_reporting_dod.py",
+        "timeout": 30
+      }
+    ]
+  }
+}

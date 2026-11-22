@@ -17,11 +17,16 @@ env/
 reports/*.html
 reports/*.png
 reports/*.jpg
+reports/*.json
+reports/*.xml
+reports/.bug_reporting_active
+reports/evidence/
 test-results/
 playwright-report/
 blob-report/
 
 # IDE & Editor files
+*.log
 .vscode/
 .idea/
 *.swp
