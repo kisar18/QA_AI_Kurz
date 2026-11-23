@@ -347,10 +347,10 @@ class HtmlCoverageReportGenerator:
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-primary);
             color: var(--text-primary);
-            padding: 2rem;
+            padding: 1.5rem 1rem;
             line-height: 1.5;
         }}
-        .container {{ max-width: 1440px; margin: 0 auto; }}
+        .container {{ width: 100%; max-width: 1600px; margin: 0 auto; }}
         header {{
             margin-bottom: 2rem;
             padding-bottom: 1.5rem;
@@ -432,6 +432,21 @@ class HtmlCoverageReportGenerator:
             border: 1px solid var(--border);
             border-radius: 12px;
             background: var(--bg-secondary);
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent) var(--bg-secondary);
+        }}
+        .table-responsive::-webkit-scrollbar {{
+            height: 8px;
+        }}
+        .table-responsive::-webkit-scrollbar-track {{
+            background: var(--bg-secondary);
+        }}
+        .table-responsive::-webkit-scrollbar-thumb {{
+            background-color: var(--border);
+            border-radius: 4px;
+        }}
+        .table-responsive::-webkit-scrollbar-thumb:hover {{
+            background-color: var(--accent);
         }}
         table {{
             width: 100%;
@@ -475,6 +490,7 @@ class HtmlCoverageReportGenerator:
             font-family: monospace;
             font-size: 0.75rem;
             margin-top: 0.25rem;
+            word-break: break-all;
         }}
 
         /* Badges */
@@ -526,6 +542,7 @@ class HtmlCoverageReportGenerator:
             font-weight: 700;
             color: #38bdf8;
             font-size: 0.88rem;
+            white-space: nowrap;
         }}
         .tc-meta {{ color: #94a3b8; font-size: 0.75rem; }}
         .tc-mapped-tests {{
@@ -534,14 +551,50 @@ class HtmlCoverageReportGenerator:
             border-top: 1px dashed rgba(71, 85, 105, 0.4);
             font-family: monospace;
             font-size: 0.8rem;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+        }}
+        .tc-mapped-tests code {{
+            word-break: break-word;
+            overflow-wrap: anywhere;
         }}
         .test-item {{
-            margin-bottom: 0.4rem;
-            font-family: monospace;
+            margin-bottom: 0.6rem;
+            padding-bottom: 0.45rem;
+            border-bottom: 1px dashed rgba(71, 85, 105, 0.25);
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
             color: #cbd5e1;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+            line-height: 1.35;
         }}
-        .test-meta {{ color: #64748b; font-size: 0.75rem; }}
+        .test-item:last-child {{
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }}
+        .test-class {{
+            display: inline-block;
+            color: #38bdf8;
+            font-size: 0.74rem;
+            font-weight: 600;
+            margin-bottom: 0.15rem;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+        }}
+        .test-name {{
+            word-break: break-word;
+            overflow-wrap: anywhere;
+            color: #f1f5f9;
+        }}
+        .test-meta {{
+            color: #64748b;
+            font-size: 0.72rem;
+            margin-top: 0.2rem;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+        }}
 
         footer {{
             margin-top: 2rem;
@@ -609,13 +662,13 @@ class HtmlCoverageReportGenerator:
             <table id="coverageTable">
                 <thead>
                     <tr>
-                        <th style="width: 110px;">User Story</th>
-                        <th style="width: 210px;">Modul & Soubor</th>
-                        <th>Schválené manuální Test Casy (manual_tests/) ⟷ Pokrytí automatizovanými testy</th>
-                        <th style="width: 120px; text-align: center;">Pokrytí TC</th>
-                        <th style="width: 90px; text-align: center;">Počet AT</th>
-                        <th style="width: 140px; text-align: center;">Stav US</th>
-                        <th style="width: 300px;">Automatizované testy (AT)</th>
+                        <th style="width: 85px; min-width: 85px;">User Story</th>
+                        <th style="width: 175px; min-width: 160px;">Modul & Soubor</th>
+                        <th style="min-width: 340px;">Schválené manuální Test Casy (manual_tests/) ⟷ Pokrytí automatizovanými testy</th>
+                        <th style="width: 95px; min-width: 90px; text-align: center;">Pokrytí TC</th>
+                        <th style="width: 75px; min-width: 70px; text-align: center;">Počet AT</th>
+                        <th style="width: 115px; min-width: 110px; text-align: center;">Stav US</th>
+                        <th style="width: 320px; min-width: 260px;">Automatizované testy (AT)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -691,10 +744,13 @@ class HtmlCoverageReportGenerator:
             if story["tests"]:
                 test_items = []
                 for t in story["tests"]:
-                    cls_prefix = f"{t['class_name']}." if t["class_name"] else ""
+                    cls_badge = f"<span class='test-class'>{t['class_name']}</span>" if t["class_name"] else ""
                     test_items.append(
-                        f"<div class='test-item'>⚙️ <strong>{cls_prefix}{t['name']}</strong>"
-                        f"<div class='test-meta'>📁 {t['file']} | 🔍 {t['checks_count']} kontrol</div></div>"
+                        f"<div class='test-item'>"
+                        f"  {cls_badge}"
+                        f"  <div class='test-name'>⚙️ <strong>{t['name']}</strong></div>"
+                        f"  <div class='test-meta'>📁 {t['file']} | 🔍 {t['checks_count']} kontrol</div>"
+                        f"</div>"
                     )
                 tests_html = f"""
                 <details open>
