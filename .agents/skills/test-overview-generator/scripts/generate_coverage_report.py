@@ -8,7 +8,7 @@ a automatizované testy v projektu (Playwright + pytest v tests/).
 Mapování probíhá ČISTĚ a VÝHRADNĚ proti manuálním Test Casům (TC-ID např. [TC-US01-01]):
 - Každý schválený manuální test case je evidován pod svým jedinečným TC ID.
 - Každý automatizovaný test v tests/ je spárován s příslušným manuálním TC podle tagu [TC-USxx-yy] v docstringu.
-- Pokrytí se počítá jako poměr pokrytých manuálních test casů k celkovému počtu manuálních test casů.
+- Přehledné a moderní uspořádání matice sledovatelnosti bez redundantních sloupců a bez ořezaného textu.
 
 Výstup je ve výchozím stavu ukládán do docs/coverage_overview.html (verzovatelné v Gitu).
 
@@ -224,9 +224,7 @@ class TestAnalyzerForCoverage:
         class_name: Optional[str],
     ) -> Dict[str, Any]:
         docstring = ast.get_docstring(node) or ""
-        # Hledáme všechny identifikátory TC-[A-Za-z0-9_-]+ v docstringu i v názvu funkce
         tcs_in_doc = re.findall(r"\b(TC-[A-Za-z0-9_-]+)\b", docstring)
-        # Někdy je TC zmíněn v názvu funkce (např. test_tc_us12_01_...)
         name_tc_matches = re.findall(r"tc_(us\d+)_(\d+)", node.name, re.IGNORECASE)
         tcs_in_name = [f"TC-{m[0].upper()}-{int(m[1]):02d}" for m in name_tc_matches]
 
@@ -262,11 +260,9 @@ class TestAnalyzerForCoverage:
         for tc_id in test_info["assigned_tcs"]:
             if tc_id in all_tcs:
                 manual_tc = all_tcs[tc_id]
-                # Zabráníme duplicitnímu přiřazení téhož testu k témuž TC
                 if not any(t["name"] == test_info["name"] and t["file"] == test_info["file"] for t in manual_tc.covered_by):
                     manual_tc.covered_by.append(test_info)
 
-                # Přiřadíme test také k odpovídající User Story
                 us_id = manual_tc.us_id
                 if us_id in stories:
                     if not any(t["name"] == test_info["name"] and t["file"] == test_info["file"] for t in stories[us_id]["tests"]):
@@ -274,7 +270,7 @@ class TestAnalyzerForCoverage:
 
 
 class HtmlCoverageReportGenerator:
-    """Generuje čistou Traceability Matrix mapující manuální Test Casy na automatizované testy."""
+    """Generuje přehlednou a moderní Traceability Matrix propojující manuální TC a automatizované testy."""
 
     @staticmethod
     def generate(
@@ -289,12 +285,12 @@ class HtmlCoverageReportGenerator:
         total_us = len(stories)
         total_tc = len(all_tcs)
         total_at = len(all_tests)
+        total_checks = sum(t.get("checks_count", 0) for t in all_tests)
 
         covered_tcs_count = sum(1 for tc in all_tcs.values() if tc.is_covered)
         uncovered_tcs_count = total_tc - covered_tcs_count
         tc_coverage_pct = round(covered_tcs_count / total_tc * 100, 1) if total_tc else 0
 
-        # Vyhodnocení stavu pro jednotlivé User Stories podle pokrytí jejich manuálních TC
         fully_covered_us = 0
         partially_covered_us = 0
         uncovered_us = 0
@@ -305,6 +301,7 @@ class HtmlCoverageReportGenerator:
             st_covered_tc = sum(1 for tc in st_tcs if tc.is_covered)
             story["total_tc"] = st_total_tc
             story["covered_tc"] = st_covered_tc
+            story["checks_count"] = sum(t.get("checks_count", 0) for t in story["tests"])
 
             if st_covered_tc == 0 and st_total_tc > 0:
                 story["status"] = "uncovered"
@@ -322,7 +319,111 @@ class HtmlCoverageReportGenerator:
                 story["status_badge"] = "badge-warning"
                 partially_covered_us += 1
 
-        # Sestavení moderního HTML Traceability Matrix
+        # Sestavení karet jednotlivých User Stories s přehlednou Traceability tabulkou
+        story_cards_html = []
+        for us_id in sorted(stories.keys()):
+            story = stories[us_id]
+            st_tcs = story["test_cases"]
+            st_total_tc = story["total_tc"]
+            st_covered_tc = story["covered_tc"]
+            at_count = len(story["tests"])
+            checks_count = story["checks_count"]
+            pct_val = round(st_covered_tc / st_total_tc * 100) if st_total_tc else 0
+
+            # Řádky pro jednotlivé manuální test casy
+            tc_rows_html = []
+            for tc in st_tcs:
+                # Prioritní štítek
+                prio_class = "badge-prio-high" if tc.priority.lower() == "high" else ("badge-prio-med" if tc.priority.lower() == "medium" else "badge-prio-low")
+                prio_badge = f"<span class='badge-prio {prio_class}'>{tc.priority}</span>" if tc.priority else ""
+                type_badge = f"<span class='badge-type'>{tc.test_type}</span>" if tc.test_type else ""
+
+                # Pokrývající automatizované testy
+                if tc.is_covered:
+                    status_badge = "<span class='badge badge-success'>✓ Pokryto</span>"
+                    at_items = []
+                    for t in tc.covered_by:
+                        cls_part = f"<span class='at-class'>{t['class_name']}.</span>" if t["class_name"] else ""
+                        at_items.append(
+                            f"<div class='at-item'>"
+                            f"  <div class='at-name'>⚙️ {cls_part}<strong>{t['name']}</strong></div>"
+                            f"  <div class='at-meta'>📁 {t['file']}:{t['line']} &nbsp;•&nbsp; 🔍 {t['checks_count']} kontrol</div>"
+                            f"</div>"
+                        )
+                    tests_cell = "".join(at_items)
+                else:
+                    status_badge = "<span class='badge badge-danger'>✗ Nepokryto</span>"
+                    tests_cell = "<span class='at-uncovered'>Zatím žádný automatizovaný test nepokrývá tento test case</span>"
+
+                ac_note = f"<div class='tc-ac-note'>Pokrývá kritérium: <strong>{tc.ac_covered}</strong></div>" if tc.ac_covered else ""
+
+                tc_rows_html.append(
+                    f"<tr>"
+                    f"  <td class='tc-id-col'>"
+                    f"    <span class='tc-id-pill'>{tc.tc_id}</span>"
+                    f"    <div class='tc-tags'>{prio_badge} {type_badge}</div>"
+                    f"  </td>"
+                    f"  <td class='tc-desc-col'>"
+                    f"    <div class='tc-title'>{tc.title}</div>"
+                    f"    {ac_note}"
+                    f"  </td>"
+                    f"  <td class='tc-status-col'>{status_badge}</td>"
+                    f"  <td class='tc-at-col'>{tests_cell}</td>"
+                    f"</tr>"
+                )
+
+            table_body = "".join(tc_rows_html)
+
+            story_cards_html.append(
+                f"""
+        <div class="story-card open" data-status="{story['status']}" data-us="{story['id']}">
+            <div class="story-card-header" onclick="toggleStory(this)">
+                <div class="header-left">
+                    <span class="us-id-pill">{story['id']}</span>
+                    <div class="header-titles">
+                        <h2 class="story-title">{story['title']}</h2>
+                        <div class="story-meta-pills">
+                            <span class="meta-pill module-pill">{story['module']}</span>
+                            <span class="meta-pill file-pill">📄 {story['source_file']}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="story-stat-box">
+                        <span class="stat-num">{st_covered_tc}/{st_total_tc} TC</span>
+                        <span class="stat-lbl">Pokrytí ({pct_val} %)</span>
+                    </div>
+                    <div class="story-stat-box">
+                        <span class="stat-num">{at_count} AT</span>
+                        <span class="stat-lbl">{checks_count} kontrol</span>
+                    </div>
+                    <span class="badge {story['status_badge']}">{story['status_label']}</span>
+                    <span class="chevron">▼</span>
+                </div>
+            </div>
+            <div class="story-card-body">
+                <div class="table-wrapper">
+                    <table class="traceability-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 140px;">Test Case ID</th>
+                                <th>Schválený manuální Test Case (manual_tests/)</th>
+                                <th style="width: 110px; text-align: center;">Stav</th>
+                                <th style="width: 48%;">Pokrývající automatizovaný test (Playwright)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {table_body}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+                """
+            )
+
+        cards_rendered = "\n".join(story_cards_html)
+
         html = f"""<!DOCTYPE html>
 <html lang="cs">
 <head>
@@ -331,44 +432,75 @@ class HtmlCoverageReportGenerator:
     <title>Traceability Matrix: Pokrytí manuálních Test Casů automatizovanými testy</title>
     <style>
         :root {{
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --bg-card: #334155;
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
+            --bg-page: #0b1120;
+            --bg-card: #151e32;
+            --bg-card-header: #1e293b;
+            --bg-table-head: #111827;
+            --bg-row-hover: #1e293b80;
+            --border-card: #334155;
+            --border-row: rgba(51, 65, 85, 0.45);
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --text-dim: #64748b;
             --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.15);
             --success: #22c55e;
+            --success-bg: rgba(34, 197, 94, 0.12);
+            --success-border: rgba(34, 197, 94, 0.35);
             --warning: #f59e0b;
+            --warning-bg: rgba(245, 158, 11, 0.12);
+            --warning-border: rgba(245, 158, 11, 0.35);
             --danger: #ef4444;
-            --border: #475569;
+            --danger-bg: rgba(239, 68, 68, 0.12);
+            --danger-border: rgba(239, 68, 68, 0.35);
         }}
         * {{ box-sizing: border-box; margin: 0; padding: 0; }}
         body {{
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-            padding: 1.5rem 1rem;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            padding: 1.5rem 2rem;
             line-height: 1.5;
         }}
-        .container {{ width: 100%; max-width: 1600px; margin: 0 auto; }}
+        .container {{
+            max-width: 1560px;
+            margin: 0 auto;
+        }}
+
+        /* Header */
         header {{
             margin-bottom: 2rem;
             padding-bottom: 1.5rem;
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid var(--border-card);
         }}
-        h1 {{ font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; }}
-        .meta-info {{ color: var(--text-secondary); font-size: 0.95rem; }}
-        .badge-source {{
-            display: inline-block;
-            background: rgba(56, 189, 248, 0.15);
+        h1 {{
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }}
+        h1 span.title-icon {{ color: var(--accent); }}
+        .header-meta {{
+            color: var(--text-sub);
+            font-size: 0.95rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.25rem;
+        }}
+        .header-meta strong {{ color: var(--text-main); }}
+        .meta-tag-src {{
+            background: var(--accent-glow);
             color: var(--accent);
-            padding: 0.2rem 0.6rem;
+            padding: 0.15rem 0.55rem;
             border-radius: 6px;
             font-family: monospace;
             font-size: 0.85rem;
         }}
-        
-        /* KPI Cards */
+
+        /* KPI Dashboard */
         .kpi-grid {{
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
@@ -376,22 +508,34 @@ class HtmlCoverageReportGenerator:
             margin-bottom: 2rem;
         }}
         .kpi-card {{
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
             border-radius: 12px;
             padding: 1.25rem;
             text-align: center;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+            transition: transform 0.15s ease;
         }}
-        .kpi-value {{ font-size: 2.2rem; font-weight: 800; margin-bottom: 0.25rem; }}
-        .kpi-label {{ color: var(--text-secondary); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.05em; }}
+        .kpi-card:hover {{ transform: translateY(-2px); }}
+        .kpi-value {{
+            font-size: 2.2rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 0.35rem;
+        }}
+        .kpi-label {{
+            color: var(--text-sub);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+        }}
         .text-accent {{ color: var(--accent); }}
-        .text-success {{ color: var(--success); }}
-        .text-warning {{ color: var(--warning); }}
-        .text-danger {{ color: var(--danger); }}
+        .text-success {{ color: #4ade80; }}
+        .text-danger {{ color: #f87171; }}
 
-        /* Controls */
-        .controls {{
+        /* Action Toolbar */
+        .toolbar {{
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -399,207 +543,334 @@ class HtmlCoverageReportGenerator:
             gap: 1rem;
             margin-bottom: 1.5rem;
         }}
-        .filter-buttons {{ display: flex; gap: 0.5rem; }}
+        .toolbar-left {{
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }}
         .filter-btn {{
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            color: var(--text-primary);
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            color: var(--text-main);
             padding: 0.5rem 1rem;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             font-weight: 600;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
         }}
         .filter-btn:hover, .filter-btn.active {{
             background: var(--accent);
-            color: #0f172a;
+            color: #0b1120;
             border-color: var(--accent);
         }}
+        .action-btn {{
+            background: transparent;
+            border: 1px solid var(--border-card);
+            color: var(--text-sub);
+            padding: 0.5rem 0.85rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }}
+        .action-btn:hover {{
+            background: var(--bg-card-header);
+            color: var(--text-main);
+        }}
+        .toolbar-right {{
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }}
         .search-box input {{
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            color: var(--text-primary);
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            color: var(--text-main);
             padding: 0.55rem 1rem;
             border-radius: 8px;
             font-size: 0.9rem;
-            width: 280px;
-        }}
-
-        /* Table */
-        .table-responsive {{
-            overflow-x: auto;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            background: var(--bg-secondary);
-            scrollbar-width: thin;
-            scrollbar-color: var(--accent) var(--bg-secondary);
-        }}
-        .table-responsive::-webkit-scrollbar {{
-            height: 8px;
-        }}
-        .table-responsive::-webkit-scrollbar-track {{
-            background: var(--bg-secondary);
-        }}
-        .table-responsive::-webkit-scrollbar-thumb {{
-            background-color: var(--border);
-            border-radius: 4px;
-        }}
-        .table-responsive::-webkit-scrollbar-thumb:hover {{
-            background-color: var(--accent);
-        }}
-        table {{
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-        }}
-        th {{
-            background: #182234;
-            color: var(--text-secondary);
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            padding: 1rem;
-            border-bottom: 1px solid var(--border);
-        }}
-        td {{
-            padding: 1rem;
-            border-bottom: 1px solid rgba(71, 85, 105, 0.4);
-            font-size: 0.95rem;
-            vertical-align: top;
-        }}
-        tr:hover td {{ background: rgba(51, 65, 85, 0.5); }}
-        .us-id {{
-            font-family: monospace;
-            font-weight: 700;
-            color: var(--accent);
-            white-space: nowrap;
-        }}
-        .module-tag {{
-            display: inline-block;
-            background: rgba(56, 189, 248, 0.1);
-            color: var(--accent);
-            padding: 0.2rem 0.5rem;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            margin-top: 0.35rem;
-        }}
-        .source-file-tag {{
-            display: inline-block;
-            color: #64748b;
-            font-family: monospace;
-            font-size: 0.75rem;
-            margin-top: 0.25rem;
-            word-break: break-all;
-        }}
-
-        /* Badges */
-        .badge {{
-            display: inline-block;
-            padding: 0.35rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            text-align: center;
-            white-space: nowrap;
-        }}
-        .badge-success {{ background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.4); }}
-        .badge-warning {{ background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }}
-        .badge-danger {{ background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }}
-
-        /* Collapsible details */
-        details summary {{
-            cursor: pointer;
-            color: var(--accent);
-            font-size: 0.85rem;
-            font-weight: 600;
+            width: 320px;
             outline: none;
-            margin-top: 0.4rem;
+            transition: border-color 0.2s ease;
         }}
-        details summary:hover {{ text-decoration: underline; }}
-        .tc-list, .tests-list {{
-            margin-top: 0.75rem;
-            list-style: none;
-            padding-left: 0;
+        .search-box input:focus {{
+            border-color: var(--accent);
         }}
-        .tc-item {{
-            margin-bottom: 0.75rem;
-            padding: 0.65rem 0.85rem;
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(71, 85, 105, 0.5);
-            border-radius: 8px;
+
+        /* Story Cards */
+        .story-card {{
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.15);
+            transition: border-color 0.2s ease;
         }}
-        .tc-header {{
+        .story-card:hover {{ border-color: rgba(56, 189, 248, 0.4); }}
+        
+        .story-card-header {{
+            background: var(--bg-card-header);
+            padding: 1rem 1.35rem;
+            cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-bottom: 0.25rem;
+            gap: 1rem;
+            user-select: none;
+            border-bottom: 1px solid transparent;
+            transition: background-color 0.2s ease;
         }}
-        .tc-id-badge {{
+        .story-card.open .story-card-header {{
+            border-bottom-color: var(--border-card);
+        }}
+        .story-card-header:hover {{
+            background: #243247;
+        }}
+
+        .header-left {{
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+            min-width: 300px;
+        }}
+        .us-id-pill {{
+            background: rgba(56, 189, 248, 0.2);
+            color: var(--accent);
+            border: 1px solid rgba(56, 189, 248, 0.4);
             font-family: monospace;
-            font-weight: 700;
-            color: #38bdf8;
-            font-size: 0.88rem;
+            font-weight: 800;
+            font-size: 1.05rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 8px;
             white-space: nowrap;
         }}
-        .tc-meta {{ color: #94a3b8; font-size: 0.75rem; }}
-        .tc-mapped-tests {{
-            margin-top: 0.4rem;
-            padding-top: 0.4rem;
-            border-top: 1px dashed rgba(71, 85, 105, 0.4);
+        .header-titles {{
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }}
+        .story-title {{
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }}
+        .story-meta-pills {{
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }}
+        .meta-pill {{
+            font-size: 0.75rem;
+            padding: 0.15rem 0.5rem;
+            border-radius: 6px;
+        }}
+        .module-pill {{
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent);
+        }}
+        .file-pill {{
+            background: rgba(148, 163, 184, 0.1);
+            color: var(--text-sub);
             font-family: monospace;
+        }}
+
+        .header-right {{
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }}
+        .story-stat-box {{
+            text-align: right;
+            line-height: 1.2;
+        }}
+        .story-stat-box .stat-num {{
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-main);
+            display: block;
+        }}
+        .story-stat-box .stat-lbl {{
+            font-size: 0.75rem;
+            color: var(--text-sub);
+        }}
+        .chevron {{
             font-size: 0.8rem;
+            color: var(--accent);
+            transition: transform 0.25s ease;
+        }}
+        .story-card.open .chevron {{
+            transform: rotate(180deg);
+        }}
+
+        .story-card-body {{
+            display: none;
+            padding: 0;
+        }}
+        .story-card.open .story-card-body {{
+            display: block;
+        }}
+
+        /* Table inside card */
+        .table-wrapper {{
+            overflow-x: auto;
+        }}
+        .traceability-table {{
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }}
+        .traceability-table th {{
+            background: var(--bg-table-head);
+            color: var(--text-sub);
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.85rem 1.25rem;
+            border-bottom: 1px solid var(--border-card);
+        }}
+        .traceability-table td {{
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border-row);
+            font-size: 0.92rem;
+            vertical-align: top;
+        }}
+        .traceability-table tr:last-child td {{
+            border-bottom: none;
+        }}
+        .traceability-table tr:hover td {{
+            background: var(--bg-row-hover);
+        }}
+
+        /* Column details */
+        .tc-id-col {{
+            white-space: nowrap;
+        }}
+        .tc-id-pill {{
+            font-family: monospace;
+            font-weight: 700;
+            color: var(--accent);
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-bottom: 0.35rem;
+        }}
+        .tc-tags {{
+            display: flex;
+            gap: 0.35rem;
+            flex-wrap: wrap;
+        }}
+        .badge-prio {{
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.1rem 0.45rem;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }}
+        .badge-prio-high {{ background: rgba(239, 68, 68, 0.2); color: #f87171; }}
+        .badge-prio-med {{ background: rgba(245, 158, 11, 0.2); color: #fbbf24; }}
+        .badge-prio-low {{ background: rgba(56, 189, 248, 0.15); color: #38bdf8; }}
+        .badge-type {{
+            background: rgba(148, 163, 184, 0.15);
+            color: var(--text-sub);
+            font-size: 0.7rem;
+            padding: 0.1rem 0.45rem;
+            border-radius: 4px;
+        }}
+
+        .tc-desc-col {{
             word-break: break-word;
             overflow-wrap: anywhere;
         }}
-        .tc-mapped-tests code {{
+        .tc-title {{
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 0.25rem;
+            line-height: 1.4;
+        }}
+        .tc-ac-note {{
+            font-size: 0.78rem;
+            color: var(--text-sub);
+        }}
+        .tc-ac-note strong {{ color: #cbd5e1; }}
+
+        .tc-status-col {{
+            text-align: center;
+            white-space: nowrap;
+        }}
+
+        .tc-at-col {{
             word-break: break-word;
             overflow-wrap: anywhere;
         }}
-        .test-item {{
+        .at-item {{
             margin-bottom: 0.6rem;
-            padding-bottom: 0.45rem;
-            border-bottom: 1px dashed rgba(71, 85, 105, 0.25);
+            padding-bottom: 0.5rem;
+            border-bottom: 1px dashed rgba(71, 85, 105, 0.3);
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-            color: #cbd5e1;
             font-size: 0.82rem;
-            word-break: break-word;
-            overflow-wrap: anywhere;
-            line-height: 1.35;
+            line-height: 1.4;
         }}
-        .test-item:last-child {{
+        .at-item:last-child {{
             border-bottom: none;
             margin-bottom: 0;
             padding-bottom: 0;
         }}
-        .test-class {{
-            display: inline-block;
-            color: #38bdf8;
-            font-size: 0.74rem;
+        .at-class {{
+            color: var(--accent);
             font-weight: 600;
-            margin-bottom: 0.15rem;
-            word-break: break-word;
-            overflow-wrap: anywhere;
         }}
-        .test-name {{
-            word-break: break-word;
-            overflow-wrap: anywhere;
+        .at-name {{
             color: #f1f5f9;
+            margin-bottom: 0.15rem;
         }}
-        .test-meta {{
-            color: #64748b;
-            font-size: 0.72rem;
-            margin-top: 0.2rem;
-            word-break: break-word;
-            overflow-wrap: anywhere;
+        .at-meta {{
+            color: var(--text-dim);
+            font-size: 0.74rem;
+        }}
+        .at-uncovered {{
+            color: #f87171;
+            font-style: italic;
+            font-size: 0.85rem;
+        }}
+
+        /* General Badges */
+        .badge {{
+            display: inline-block;
+            padding: 0.3rem 0.7rem;
+            border-radius: 9999px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-align: center;
+            white-space: nowrap;
+        }}
+        .badge-success {{
+            background: var(--success-bg);
+            color: #4ade80;
+            border: 1px solid var(--success-border);
+        }}
+        .badge-warning {{
+            background: var(--warning-bg);
+            color: #fbbf24;
+            border: 1px solid var(--warning-border);
+        }}
+        .badge-danger {{
+            background: var(--danger-bg);
+            color: #f87171;
+            border: 1px solid var(--danger-border);
         }}
 
         footer {{
-            margin-top: 2rem;
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-card);
             text-align: center;
-            color: var(--text-secondary);
+            color: var(--text-dim);
             font-size: 0.85rem;
         }}
     </style>
@@ -607,13 +878,13 @@ class HtmlCoverageReportGenerator:
 <body>
     <div class="container">
         <header>
-            <h1>📊 Traceability Matrix: Manuální Test Casy ➔ Automatizované testy</h1>
-            <p class="meta-info">
-                Projekt: <strong>testovani.kitner.cz</strong> | 
-                Zdroj test casů: <span class="badge-source">manual_tests/TC_*.md</span> | 
-                Výstup: <code>docs/coverage_overview.html</code> | 
-                Vygenerováno: <strong>{now_str}</strong>
-            </p>
+            <h1><span class="title-icon">📊</span> Traceability Matrix: Manuální Test Casy ➔ Automatizované testy</h1>
+            <div class="header-meta">
+                <div>Projekt: <strong>testovani.kitner.cz</strong></div>
+                <div>Zdroj manuálních TC: <span class="meta-tag-src">manual_tests/TC_*.md</span></div>
+                <div>Výstup: <code>docs/coverage_overview.html</code></div>
+                <div>Vygenerováno: <strong>{now_str}</strong></div>
+            </div>
         </header>
 
         <!-- KPI Metriky -->
@@ -644,183 +915,84 @@ class HtmlCoverageReportGenerator:
             </div>
         </div>
 
-        <!-- Ovládací prvky a filtry -->
-        <div class="controls">
-            <div class="filter-buttons">
+        <!-- Akční lišta -->
+        <div class="toolbar">
+            <div class="toolbar-left">
                 <button class="filter-btn active" data-filter="all">Všechny US ({total_us})</button>
                 <button class="filter-btn" data-filter="covered">🟢 100% Pokryto ({fully_covered_us})</button>
                 <button class="filter-btn" data-filter="partial">🟡 Částečně ({partially_covered_us})</button>
                 <button class="filter-btn" data-filter="uncovered">🔴 Nepokryto ({uncovered_us})</button>
+                <button class="action-btn" onclick="expandAll()">⬇️ Rozbalit vše</button>
+                <button class="action-btn" onclick="collapseAll()">⬆️ Sbalit vše</button>
             </div>
-            <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Filtrovat podle textu / TC-ID..." onkeyup="filterTable()">
+            <div class="toolbar-right">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="🔍 Hledat podle US, TC ID, názvu testu..." onkeyup="filterStories()">
+                </div>
             </div>
         </div>
 
-        <!-- Tabulka Traceability Matrix -->
-        <div class="table-responsive">
-            <table id="coverageTable">
-                <thead>
-                    <tr>
-                        <th style="width: 85px; min-width: 85px;">User Story</th>
-                        <th style="width: 175px; min-width: 160px;">Modul & Soubor</th>
-                        <th style="min-width: 340px;">Schválené manuální Test Casy (manual_tests/) ⟷ Pokrytí automatizovanými testy</th>
-                        <th style="width: 95px; min-width: 90px; text-align: center;">Pokrytí TC</th>
-                        <th style="width: 75px; min-width: 70px; text-align: center;">Počet AT</th>
-                        <th style="width: 115px; min-width: 110px; text-align: center;">Stav US</th>
-                        <th style="width: 320px; min-width: 260px;">Automatizované testy (AT)</th>
-                    </tr>
-                </thead>
-                <tbody>
-"""
-
-        for us_id in sorted(stories.keys()):
-            story = stories[us_id]
-            st_tcs = story["test_cases"]
-            total_st_tc = story["total_tc"]
-            covered_st_tc = story["covered_tc"]
-            at_count = len(story["tests"])
-
-            # Sestavení detailního seznamu manuálních test casů
-            tc_items_html = []
-            for tc in st_tcs:
-                if tc.is_covered:
-                    test_links = ", ".join(
-                        f"<code style='color: #4ade80;'>{t['name']}</code>" for t in tc.covered_by
-                    )
-                    status_badge = (
-                        f"<span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>"
-                        f"✓ Pokryto ({len(tc.covered_by)} AT)</span>"
-                    )
-                    mapped_info = (
-                        f"<div class='tc-mapped-tests'>"
-                        f"<span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> {test_links}"
-                        f"</div>"
-                    )
-                else:
-                    status_badge = (
-                        "<span class='badge badge-danger' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>"
-                        "✗ Nepokryto</span>"
-                    )
-                    mapped_info = (
-                        "<div class='tc-mapped-tests' style='color: #f87171;'>"
-                        "Zatím žádný automatizovaný test nepokrývá tento test case!"
-                        "</div>"
-                    )
-
-                meta_parts = []
-                if tc.priority:
-                    meta_parts.append(f"Priorita: {tc.priority}")
-                if tc.test_type:
-                    meta_parts.append(f"Typ: {tc.test_type}")
-                if tc.ac_covered:
-                    meta_parts.append(f"Kritérium: {tc.ac_covered}")
-                meta_str = f" • {' • '.join(meta_parts)}" if meta_parts else ""
-
-                tc_items_html.append(
-                    f"<li class='tc-item'>"
-                    f"  <div class='tc-header'>"
-                    f"    <div>"
-                    f"      <span class='tc-id-badge'>[{tc.tc_id}]</span> "
-                    f"      <strong>{tc.title}</strong>"
-                    f"      <span class='tc-meta'>{meta_str}</span>"
-                    f"    </div>"
-                    f"    <div>{status_badge}</div>"
-                    f"  </div>"
-                    f"  {mapped_info}"
-                    f"</li>"
-                )
-
-            tc_list_rendered = "".join(tc_items_html)
-            tc_block_html = f"""
-            <strong>{story['title']}</strong>
-            <details open style="margin-top: 0.5rem;">
-                <summary>Zobrazit {total_st_tc} manuálních test casů (pokryto {covered_st_tc}/{total_st_tc})</summary>
-                <ul class="tc-list">{tc_list_rendered}</ul>
-            </details>
-            """
-
-            # Seznam automatizovaných testů
-            if story["tests"]:
-                test_items = []
-                for t in story["tests"]:
-                    cls_badge = f"<span class='test-class'>{t['class_name']}</span>" if t["class_name"] else ""
-                    test_items.append(
-                        f"<div class='test-item'>"
-                        f"  {cls_badge}"
-                        f"  <div class='test-name'>⚙️ <strong>{t['name']}</strong></div>"
-                        f"  <div class='test-meta'>📁 {t['file']} | 🔍 {t['checks_count']} kontrol</div>"
-                        f"</div>"
-                    )
-                tests_html = f"""
-                <details open>
-                    <summary>Přiřazené testy ({at_count})</summary>
-                    <div class="tests-list">{"".join(test_items)}</div>
-                </details>
-                """
-            else:
-                tests_html = "<span style='color: var(--text-secondary); font-style: italic;'>Žádný automatizovaný test zatím nepřiřazen</span>"
-
-            ratio_text = f"{covered_st_tc}/{total_st_tc} TC"
-            pct_val = round(covered_st_tc / total_st_tc * 100) if total_st_tc else 0
-
-            html += f"""
-                    <tr class="story-row" data-status="{story['status']}">
-                        <td><span class="us-id">{story['id']}</span></td>
-                        <td>
-                            <span class="module-tag">{story['module']}</span><br>
-                            <span class="source-file-tag">📄 {story['source_file']}</span>
-                        </td>
-                        <td>{tc_block_html}</td>
-                        <td style="text-align: center; font-weight: 700; white-space: nowrap;">
-                            {ratio_text}<br>
-                            <span style="font-size: 0.8rem; color: #94a3b8;">({pct_val} %)</span>
-                        </td>
-                        <td style="text-align: center; font-weight: 700; color: var(--accent);">{at_count}</td>
-                        <td style="text-align: center;">
-                            <span class="badge {story['status_badge']}">{story['status_label']}</span>
-                        </td>
-                        <td>{tests_html}</td>
-                    </tr>
-"""
-
-        html += f"""
-                </tbody>
-            </table>
+        <!-- Seznam karet User Stories -->
+        <div id="storiesContainer">
+            {cards_rendered}
         </div>
 
         <footer>
-            <p>Antigravity E2E Testing Suite • Deterministická Matice sledovatelnosti (Traceability Matrix) dle schválených manuálních test casů</p>
+            <p>Antigravity E2E Testing Suite • Deterministická Matice sledovatelnosti (Traceability Matrix) mapující schválené manuální test casy na automatizované testy</p>
         </footer>
     </div>
 
     <script>
-        // Filtrace podle tlačítek
+        // Rozbalení / sbalení konkrétní karty
+        function toggleStory(headerElem) {{
+            const card = headerElem.closest('.story-card');
+            card.classList.toggle('open');
+        }}
+
+        // Rozbalit vše
+        function expandAll() {{
+            document.querySelectorAll('.story-card').forEach(c => c.classList.add('open'));
+        }}
+
+        // Sbalit vše
+        function collapseAll() {{
+            document.querySelectorAll('.story-card').forEach(c => c.classList.remove('open'));
+        }}
+
+        // Filtrace podle tlačítek stavu
         const filterButtons = document.querySelectorAll('.filter-btn');
+        let currentFilter = 'all';
+
         filterButtons.forEach(btn => {{
             btn.addEventListener('click', () => {{
                 filterButtons.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                const filter = btn.getAttribute('data-filter');
-                const rows = document.querySelectorAll('.story-row');
-                rows.forEach(row => {{
-                    if (filter === 'all' || row.getAttribute('data-status') === filter) {{
-                        row.style.display = '';
-                    }} else {{
-                        row.style.display = 'none';
-                    }}
-                }});
+                currentFilter = btn.getAttribute('data-filter');
+                applyFilters();
             }});
         }});
 
-        // Vyhledávání v tabulce
-        function filterTable() {{
-            const input = document.getElementById('searchInput');
-            const filter = input.value.toLowerCase();
-            const rows = document.querySelectorAll('.story-row');
-            rows.forEach(row => {{
-                const text = row.innerText.toLowerCase();
-                row.style.display = text.includes(filter) ? '' : 'none';
+        // Vyhledávání v textu
+        function filterStories() {{
+            applyFilters();
+        }}
+
+        function applyFilters() {{
+            const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.story-card');
+
+            cards.forEach(card => {{
+                const status = card.getAttribute('data-status');
+                const text = card.innerText.toLowerCase();
+
+                const matchesStatus = (currentFilter === 'all' || status === currentFilter);
+                const matchesSearch = (!searchVal || text.includes(searchVal));
+
+                if (matchesStatus && matchesSearch) {{
+                    card.style.display = '';
+                }} else {{
+                    card.style.display = 'none';
+                }}
             }});
         }}
     </script>
@@ -830,7 +1002,7 @@ class HtmlCoverageReportGenerator:
         output_path.write_text(html, encoding="utf-8")
         print(f"[OK] HTML Traceability Matrix byla úspěšně vygenerována do: {output_path}")
         print(f"     Manuálních Test Casů celkem: {total_tc} | Pokryto: {covered_tcs_count} (100 %) | Nepokryto: {uncovered_tcs_count}")
-        print(f"     User Stories: {total_us} | Plně pokryto: {fully_covered_us} | Automatizovaných testů celkem: {total_at}")
+        print(f"     User Stories: {total_us} | Plně pokryto: {fully_covered_us} | Automatizovaných testů celkem: {total_at} ({total_checks} kontrol)")
 
 
 def generate_coverage_html(
