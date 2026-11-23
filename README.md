@@ -72,9 +72,10 @@ Projekt odpovídá doporučenému standardu pro automatizované testování v Py
 │   ├── profile/                 # Profil klienta, editace, validace (US-18)
 │   ├── security/                # Bezpečnost: RBAC a CSRF ochrana (US-19, US-20)
 │   └── navigation/              # Navigační prokliky
+├── docs/                        # DOKUMENTACE A PŘEHLEDY POKRYTÍ (verzováno v Gitu)
+│   └── coverage_overview.html   # Přehled pokrytí User Stories a test casů
 └── reports/                     # VÝSTUPY TESTŮ (necommitují se s výjimkou stylů)
     ├── report.html              # HTML report z exekuce pytestu
-    ├── coverage_overview.html   # Přehled pokrytí User Stories a test casů
     └── report_style.css         # Moderní design reportu
 ```
 
@@ -192,5 +193,5 @@ Všechny tyto případy jsou transparentně zdokumentovány, např.:
 
 Po spuštění testovací sady nebo generátorů jsou k dispozici:
 1. **`reports/report.html`**: Kompletní grafický HTML report s logem kroků a screenshoty.
-2. **`reports/coverage_overview.html`**: Matice pokrytí User Stories a Test Casů.
+2. **`docs/coverage_overview.html`**: Matice pokrytí User Stories a Test Casů (schválené test casy z `manual_tests/`).
 3. **`TEST_OVERVIEW.md`**: Detailní Markdown katalog všech 127 testů a 626 kontrol.

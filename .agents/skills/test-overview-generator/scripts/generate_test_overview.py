@@ -349,12 +349,12 @@ def main():
     parser.add_argument(
         "--html",
         action="store_true",
-        help="Vygeneruje také HTML přehled pokrytí User Stories (do reports/coverage_overview.html)",
+        help="Vygeneruje také HTML přehled pokrytí User Stories (do docs/coverage_overview.html)",
     )
     parser.add_argument(
         "--html-output",
-        default="reports/coverage_overview.html",
-        help="Cesta k výstupnímu HTML přehledu (výchozí: reports/coverage_overview.html)",
+        default="docs/coverage_overview.html",
+        help="Cesta k výstupnímu HTML přehledu (výchozí: docs/coverage_overview.html)",
     )
     args = parser.parse_args()
 

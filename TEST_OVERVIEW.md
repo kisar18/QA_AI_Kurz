@@ -1,7 +1,7 @@
 # Přehled automatizovaných testů (Test Catalog)
 
 > Automaticky vygenerovaný přehled všech testů, kroků a kontrol v projektu.
-> Datum vygenerování: **2026-11-15 18:38:34**
+> Datum vygenerování: **2026-11-23 17:11:28**
 
 ## Souhrnná statistika
 

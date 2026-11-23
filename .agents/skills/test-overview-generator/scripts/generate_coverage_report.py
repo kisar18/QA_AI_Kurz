@@ -2,12 +2,14 @@
 """
 Generate Coverage Report
 ------------------------
-Analyzuje User Stories (specifikaci požadavků a akceptační kritéria / test casy)
+Analyzuje manuální Test Casy (ze složky manual_tests/ nebo souhrnné User Stories)
 a automatizované testy v projektu (Playwright + pytest).
-Generuje ucelený HTML přehled mapování požadavků na testy (Traceability Matrix).
+Generuje ucelený HTML přehled mapování požadavků a test casů na testy (Traceability Matrix).
+
+Výstup je ve výchozím stavu ukládán do docs/coverage_overview.html (vhodné pro commit do repozitáře).
 
 Použití:
-    python generate_coverage_report.py [--output reports/coverage_overview.html]
+    python generate_coverage_report.py [--output docs/coverage_overview.html]
 """
 
 import argparse
@@ -25,9 +27,36 @@ if hasattr(sys.stdout, "reconfigure"):
 if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8")
 
+US_MODULE_MAP = {
+    "US-01": "Modul 0: Úvodní navigační rozcestník (Linktree)",
+    "US-02": "Modul 1: Autentizace a správa sezení (Authentication)",
+    "US-03": "Modul 1: Autentizace a správa sezení (Authentication)",
+    "US-04": "Modul 1: Autentizace a správa sezení (Authentication)",
+    "US-05": "Modul 1: Autentizace a správa sezení (Authentication)",
+    "US-06": "Modul 1: Autentizace a správa sezení (Authentication)",
+    "US-07": "Modul 1: Autentizace a správa sezení (Authentication)",
+    "US-08": "Modul 1: Autentizace a správa sezení (Authentication)",
+    "US-09": "Modul 2: Katalog a detail kurzů (Courses)",
+    "US-10": "Modul 2: Katalog a detail kurzů (Courses)",
+    "US-11": "Modul 2: Katalog a detail kurzů (Courses)",
+    "US-12": "Modul 3: Zápis a Moje kurzy (Enrollment)",
+    "US-13": "Modul 3: Zápis a Moje kurzy (Enrollment)",
+    "US-14": "Modul 4: Správa kurzů a běhů (Lector)",
+    "US-15": "Modul 4: Správa kurzů a běhů (Lector)",
+    "US-16": "Modul 4: Správa kurzů a běhů (Lector)",
+    "US-17": "Modul 5: Profil a domovská nástěnka (Dashboard)",
+    "US-18": "Modul 5: Profil a domovská nástěnka (Dashboard)",
+    "US-19": "Modul 6: Bezpečnost a autorizace (Security)",
+    "US-20": "Modul 6: Bezpečnost a autorizace (Security)",
+}
+
 
 class UserStoryParser:
-    """Parsuje specifikaci User Stories a jejich akceptační kritéria (test casy)."""
+    """Parsuje specifikaci User Stories a jejich test casy.
+    
+    Přednostně parsuje schválené test casy ze složky manual_tests/ (TC_US-*.md),
+    případně podporuje i soubor požadavků ve formátu Markdown.
+    """
 
     def __init__(self, stories_path: Path):
         self.stories_path = stories_path
@@ -35,34 +64,97 @@ class UserStoryParser:
     def parse(self) -> Dict[str, Dict[str, Any]]:
         """Vrátí slovník {US-ID: metadata}."""
         if not self.stories_path.exists():
-            print(f"[VAROVÁNÍ] Soubor s User Stories neexistuje: {self.stories_path}", file=sys.stderr)
+            print(f"[VAROVÁNÍ] Zdroj specifikace/testů neexistuje: {self.stories_path}", file=sys.stderr)
             return {}
 
-        content = self.stories_path.read_text(encoding="utf-8")
-        stories: Dict[str, Dict[str, Any]] = {}
-        current_module = "Obecné"
+        if self.stories_path.is_dir():
+            return self._parse_manual_tests_dir(self.stories_path)
+        else:
+            return self._parse_single_markdown(self.stories_path)
 
-        # Detekce modulů v textu
+    def _parse_manual_tests_dir(self, directory: Path) -> Dict[str, Dict[str, Any]]:
+        """Parsuje jednotlivé Markdown soubory se schválenými Test Casy z manual_tests/."""
+        stories: Dict[str, Dict[str, Any]] = {}
+        tc_files = sorted(directory.glob("TC_*.md"))
+        if not tc_files:
+            tc_files = sorted(directory.glob("*.md"))
+
+        for tc_file in tc_files:
+            content = tc_file.read_text(encoding="utf-8")
+            us_match = re.search(r"Zdrojová User Story:\*\*\s*(US-\d+)", content)
+            if not us_match:
+                m = re.search(r"TC_(US-\d+)", tc_file.name)
+                us_id = m.group(1) if m else None
+            else:
+                us_id = us_match.group(1)
+
+            if not us_id:
+                continue
+
+            title_match = re.search(r"^#\s+Test Casy:\s*(.+)", content, re.MULTILINE)
+            raw_title = title_match.group(1).strip() if title_match else tc_file.stem
+            title = re.sub(r"^US-\d+\s*", "", raw_title)
+
+            module = US_MODULE_MAP.get(us_id, "Obecné")
+
+            # Extrakce test casů
+            test_cases: List[Dict[str, Any]] = []
+            tc_sections = re.split(r"###\s+\[(TC-[^\]]+)\]", content)
+            for i in range(1, len(tc_sections), 2):
+                tc_id = tc_sections[i]
+                body = tc_sections[i + 1]
+                first_line = body.strip().splitlines()[0].strip() if body.strip() else ""
+
+                ac_match = re.search(r"-\s+\*\*Pokrývá kritérium:\*\*\s*(.+)", body)
+                type_match = re.search(r"-\s+\*\*Typ testu:\*\*\s*(.+)", body)
+                prio_match = re.search(r"-\s+\*\*Priorita:\*\*\s*(.+)", body)
+
+                test_cases.append({
+                    "id": tc_id,
+                    "title": first_line,
+                    "ac_covered": ac_match.group(1).strip() if ac_match else "",
+                    "test_type": type_match.group(1).strip() if type_match else "",
+                    "priority": prio_match.group(1).strip() if prio_match else "",
+                    "tests": [],
+                })
+
+            stories[us_id] = {
+                "id": us_id,
+                "title": title,
+                "module": module,
+                "role": "",
+                "want": "",
+                "goal": "",
+                "test_cases": test_cases,
+                "test_cases_count": len(test_cases),
+                "criteria": [f"[{tc['id']}] {tc['title']}" for tc in test_cases],
+                "tests": [],
+                "source_file": tc_file.name,
+            }
+
+        return stories
+
+    def _parse_single_markdown(self, file_path: Path) -> Dict[str, Dict[str, Any]]:
+        """Fallback pro parsování souhrnného souboru specifikace požadavků."""
+        content = file_path.read_text(encoding="utf-8")
+        stories: Dict[str, Dict[str, Any]] = {}
+
         module_positions: List[Tuple[int, str]] = []
         for match in re.finditer(r"###\s+(Modul\s+\d+:\s*[^\n]+)", content):
             module_positions.append((match.start(), match.group(1).strip()))
 
-        # Parsování jednotlivých US
         sections = re.split(r"####\s+(US-\d+):", content)
-        # sections[0] je úvod před prvním US, pak se střídají (us_id, body)
         for i in range(1, len(sections), 2):
             us_id = sections[i]
             body = sections[i + 1]
             title_line = body.strip().splitlines()[0].strip()
 
-            # Přiřazení odpovídajícího modulu podle pozice v textu
             us_pos = content.find(f"#### {us_id}:")
-            module_name = "Obecné"
+            module_name = US_MODULE_MAP.get(us_id, "Obecné")
             for pos, mod_title in module_positions:
                 if pos < us_pos:
                     module_name = mod_title
 
-            # Extrakce akceptačních kritérií (test casů)
             criteria: List[str] = []
             ac_match = re.search(
                 r"-\s+\*\*Akceptační kritéria:\*\*(.*?)(?=\n---|\n###|\n####|\Z)",
@@ -77,7 +169,6 @@ class UserStoryParser:
                         if bullet_text:
                             criteria.append(bullet_text)
 
-            # Extrakce rolí / cílů (Jako, Chci, Abych)
             role_match = re.search(r"-\s+\*\*Jako:\*\*\s*(.+)", body)
             want_match = re.search(r"-\s+\*\*Chci:\*\*\s*(.+)", body)
             goal_match = re.search(r"-\s+\*\*Abych:\*\*\s*(.+)", body)
@@ -92,15 +183,15 @@ class UserStoryParser:
                 "criteria": criteria,
                 "test_cases_count": len(criteria),
                 "tests": [],
+                "source_file": file_path.name,
             }
 
         return stories
 
 
 class TestAnalyzerForCoverage:
-    """Prochází automatizované testy v tests/ a mapuje je na User Stories."""
+    """Prochází automatizované testy v tests/ a mapuje je na User Stories a Test Casy."""
 
-    # Kontextové mapování souborů na US (pokud test nemá explicitní značku v docstringu)
     FILE_FALLBACK_MAP = {
         "test_login.py": ["US-03"],
         "test_register.py": ["US-02"],
@@ -144,7 +235,7 @@ class TestAnalyzerForCoverage:
         self.project_root = project_root
 
     def discover_and_map(self, stories: Dict[str, Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """Projistí testy a přiřadí je do odpovídajících User Stories."""
+        """Projistí testy a přiřadí je do odpovídajících User Stories a Test Casů."""
         test_files = sorted(self.tests_dir.rglob("test_*.py"))
         all_found_tests: List[Dict[str, Any]] = []
 
@@ -205,9 +296,17 @@ class TestAnalyzerForCoverage:
         inherited_us: List[str],
     ) -> Dict[str, Any]:
         docstring = ast.get_docstring(node) or ""
+        explicit_tcs = re.findall(r"\b(TC-[A-Za-z0-9_-]+)\b", docstring)
         explicit_us = self._extract_us_tags(docstring) + self._extract_us_tags(node.name)
 
-        # Explicitní tag v docstringu testu má přednost; pokud není, dědí se z třídy/souboru
+        # Odvození US z nalezených TC identifikátorů (např. TC-US01-01 -> US-01)
+        for tc in explicit_tcs:
+            parts = tc.split("-")
+            if len(parts) >= 2:
+                num = re.sub(r"\D", "", parts[1])
+                if num:
+                    explicit_us.append(f"US-{int(num):02d}")
+
         assigned_us = sorted(list(set(explicit_us if explicit_us else inherited_us)))
 
         # Spočítáme ověření (expect / assert)
@@ -227,6 +326,7 @@ class TestAnalyzerForCoverage:
             "class_name": class_name,
             "docstring": docstring.strip(),
             "assigned_us": assigned_us,
+            "assigned_tcs": explicit_tcs,
             "checks_count": checks_count,
         }
 
@@ -236,6 +336,12 @@ class TestAnalyzerForCoverage:
                 # Zabráníme duplikaci téhož testu u US
                 if not any(t["name"] == test_info["name"] and t["file"] == test_info["file"] for t in stories[us_id]["tests"]):
                     stories[us_id]["tests"].append(test_info)
+
+                # Propojení s konkrétními test casy v US
+                for tc in stories[us_id].get("test_cases", []):
+                    if tc["id"] in test_info.get("assigned_tcs", []):
+                        if not any(t["name"] == test_info["name"] and t["file"] == test_info["file"] for t in tc.setdefault("tests", [])):
+                            tc["tests"].append(test_info)
 
 
 class HtmlCoverageReportGenerator:
@@ -282,7 +388,7 @@ class HtmlCoverageReportGenerator:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Přehled pokrytí User Stories automatizovanými testy</title>
+    <title>Přehled pokrytí User Stories a Test Casů automatizovanými testy</title>
     <style>
         :root {{
             --bg-primary: #0f172a;
@@ -445,7 +551,7 @@ class HtmlCoverageReportGenerator:
             font-size: 0.85rem;
             color: var(--text-secondary);
         }}
-        .criteria-list li {{ margin-bottom: 0.25rem; }}
+        .criteria-list li {{ margin-bottom: 0.5rem; }}
         .test-item {{
             margin-bottom: 0.35rem;
             font-family: monospace;
@@ -464,10 +570,11 @@ class HtmlCoverageReportGenerator:
 <body>
     <div class="container">
         <header>
-            <h1>📊 Přehled pokrytí User Stories automatizovanými testy</h1>
+            <h1>📊 Přehled pokrytí User Stories a Test Casů automatizovanými testy</h1>
             <p class="meta-info">
                 Projekt: <strong>testovani.kitner.cz</strong> | 
-                Zdroj specifikace: <code>user stories/požadavky_ust_podle_src.md</code> | 
+                Zdroj specifikace: <code>manual_tests/</code> | 
+                Výstup: <code>docs/coverage_overview.html</code> | 
                 Vygenerováno: <strong>{now_str}</strong> (opakovatelný běh)
             </p>
         </header>
@@ -496,7 +603,7 @@ class HtmlCoverageReportGenerator:
             </div>
             <div class="kpi-card">
                 <div class="kpi-value">{total_tc}</div>
-                <div class="kpi-label">Akceptačních test casů</div>
+                <div class="kpi-label">Schválených Test Casů</div>
             </div>
             <div class="kpi-card">
                 <div class="kpi-value">{total_at}</div>
@@ -524,7 +631,7 @@ class HtmlCoverageReportGenerator:
                     <tr>
                         <th style="width: 100px;">User Story</th>
                         <th style="width: 200px;">Modul</th>
-                        <th>Název & Akceptační kritéria (Test Casy)</th>
+                        <th>Název & Schválené Test Casy (manual_tests/)</th>
                         <th style="width: 120px; text-align: center;">Test Casů</th>
                         <th style="width: 110px; text-align: center;">Počet AT</th>
                         <th style="width: 140px; text-align: center;">Stav pokrytí</th>
@@ -539,9 +646,41 @@ class HtmlCoverageReportGenerator:
             at_count = len(story["tests"])
             tc_count = story["test_cases_count"]
 
-            # Generování seznamu akceptačních kritérií
+            # Generování seznamu test casů / kritérií
             criteria_html = ""
-            if story["criteria"]:
+            if story.get("test_cases"):
+                tc_items = []
+                for tc in story["test_cases"]:
+                    tc_tests = tc.get("tests", [])
+                    if tc_tests:
+                        test_names = ", ".join(t["name"] for t in tc_tests)
+                        cov_status = f"<span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto ({test_names})</span>"
+                    else:
+                        cov_status = "<span class='badge badge-danger' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✗ Nepokryto</span>"
+
+                    meta_parts = []
+                    if tc.get("ac_covered"):
+                        meta_parts.append(tc["ac_covered"])
+                    if tc.get("priority"):
+                        meta_parts.append(f"Priorita: {tc['priority']}")
+                    if tc.get("test_type"):
+                        meta_parts.append(f"Typ: {tc['test_type']}")
+                    meta_str = f" <span style='color: #94a3b8; font-size: 0.8em;'>[{', '.join(meta_parts)}]</span>" if meta_parts else ""
+
+                    tc_items.append(
+                        f"<li>"
+                        f"<strong>[{tc['id']}]</strong> {tc['title']}{meta_str}<br>"
+                        f"<div style='margin-top: 0.2rem;'>{cov_status}</div>"
+                        f"</li>"
+                    )
+
+                criteria_html = f"""
+                <details>
+                    <summary>Zobrazit {tc_count} schválených Test Casů (manual_tests/)</summary>
+                    <ul class="criteria-list">{''.join(tc_items)}</ul>
+                </details>
+                """
+            elif story.get("criteria"):
                 items = "".join(f"<li>{c}</li>" for c in story["criteria"])
                 criteria_html = f"""
                 <details>
@@ -633,7 +772,7 @@ class HtmlCoverageReportGenerator:
 """
         output_path.write_text(html, encoding="utf-8")
         print(f"[OK] HTML přehled pokrytí byl úspěšně vygenerován do: {output_path}")
-        print(f"     User Stories celkem: {total_us} | Plně pokryto: {covered_us} | Částečně: {partial_us} | Nepokryto: {uncovered_us}")
+        print(f"     User Stories celkem: {total_us} | Schválených TC: {total_tc} | Plně pokryto: {covered_us} | Částečně: {partial_us} | Nepokryto: {uncovered_us}")
 
 
 def generate_coverage_html(
@@ -651,11 +790,15 @@ def generate_coverage_html(
                 project_root = candidate
 
     if stories_path is None:
-        stories_path = project_root / "user stories" / "požadavky_ust_podle_src.md"
+        if (project_root / "manual_tests").exists():
+            stories_path = project_root / "manual_tests"
+        else:
+            stories_path = project_root / "user stories" / "požadavky_ust_podle_src.md"
+
     if tests_dir is None:
         tests_dir = project_root / "tests"
     if output_path is None:
-        output_path = project_root / "reports" / "coverage_overview.html"
+        output_path = project_root / "docs" / "coverage_overview.html"
 
     stories = UserStoryParser(stories_path).parse()
     all_tests = TestAnalyzerForCoverage(tests_dir=tests_dir, project_root=project_root).discover_and_map(stories)
@@ -665,18 +808,20 @@ def generate_coverage_html(
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Generuje přehled pokrytí User Stories automatizovanými testy v HTML (Traceability Matrix)."
+        description="Generuje přehled pokrytí User Stories a Test Casů automatizovanými testy v HTML (Traceability Matrix)."
     )
     parser.add_argument(
         "--stories",
-        default="user stories/požadavky_ust_podle_src.md",
-        help="Cesta k souboru se specifikací User Stories",
+        "--manual-tests-dir",
+        dest="stories",
+        default="manual_tests",
+        help="Cesta ke složce s manuálními test casy (výchozí: manual_tests) nebo k souboru User Stories",
     )
-    parser.add_argument("--tests-dir", default="tests", help="Složka s testy")
+    parser.add_argument("--tests-dir", default="tests", help="Složka s testy (výchozí: tests)")
     parser.add_argument(
         "--output",
-        default="reports/coverage_overview.html",
-        help="Cesta k výstupnímu HTML souboru (výchozí: reports/coverage_overview.html)",
+        default="docs/coverage_overview.html",
+        help="Cesta k výstupnímu HTML souboru (výchozí: docs/coverage_overview.html)",
     )
     parser.add_argument("--project-root", default=".", help="Kořenový adresář projektu")
     args = parser.parse_args()
@@ -692,7 +837,7 @@ def main():
     tests_dir = (project_root / args.tests_dir).resolve()
     output_path = (project_root / args.output).resolve()
 
-    print(f"[INFO] Analyzuji User Stories z: {stories_path}")
+    print(f"[INFO] Analyzuji specifikaci/test casy z: {stories_path}")
     stories_parser = UserStoryParser(stories_path)
     stories = stories_parser.parse()
 

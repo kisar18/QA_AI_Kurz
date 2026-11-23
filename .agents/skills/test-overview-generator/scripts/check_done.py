@@ -249,13 +249,19 @@ class OverviewChecker:
 
     def _check_html_coverage_report(self):
         """Kritérium: HTML přehled pokrytí User Stories existuje a je aktuální."""
-        html_path = self.project_root / "reports" / "coverage_overview.html"
+        html_path = self.project_root / "docs" / "coverage_overview.html"
         if not html_path.exists():
-            self.warnings.append("HTML přehled pokrytí (reports/coverage_overview.html) neexistuje. Spusť generátor s --html.")
-            return
+            # Zpětná kompatibilita pro původní cestu reports/coverage_overview.html
+            legacy_path = self.project_root / "reports" / "coverage_overview.html"
+            if legacy_path.exists():
+                html_path = legacy_path
+            else:
+                self.warnings.append("HTML přehled pokrytí (docs/coverage_overview.html) neexistuje. Spusť generátor s --html.")
+                return
 
+        rel_path = html_path.relative_to(self.project_root).as_posix()
         if html_path.stat().st_size == 0:
-            self.errors.append("HTML přehled pokrytí (reports/coverage_overview.html) je prázdný.")
+            self.errors.append(f"HTML přehled pokrytí ({rel_path}) je prázdný.")
             return
 
         overview_mtime = html_path.stat().st_mtime
@@ -269,7 +275,7 @@ class OverviewChecker:
                 f"HTML přehled pokrytí může být neaktuální ({len(newer_files)} testovacích souborů je novějších než report)."
             )
         else:
-            self.passed_checks.append("HTML přehled pokrytí User Stories existuje a je aktuální (reports/coverage_overview.html)")
+            self.passed_checks.append(f"HTML přehled pokrytí User Stories existuje a je aktuální ({rel_path})")
 
     def _build_result(self, is_done: bool) -> Dict[str, Any]:
         return {
