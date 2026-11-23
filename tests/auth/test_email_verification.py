@@ -22,7 +22,7 @@ class TestDemoEmailVerification:
 
     @pytest.mark.xfail(
         reason="Defekt infrastruktury/aplikace: Nelze vygenerovat a doručit platný podepsaný odkaz kvůli vyčerpané kvótě Mailtrap na backendu (500)",
-        strict=False,
+        strict=True,
     )
     def test_tc_us07_01_successful_email_verification_with_valid_link(
         self, page: Page, registered_user: dict
@@ -58,19 +58,16 @@ class TestDemoEmailVerification:
         )
         step("Zadán ověřovací odkaz s neplatným/pozměněným podpisem")
 
-        assert response.status in (403, 429), (
-            f"Server nevrátil 403 Forbidden ani 429 pro neplatný podpis, ale: {response.status}"
+        assert response.status == 403, (
+            f"Server nevrátil 403 Forbidden pro neplatný podpis, ale: {response.status}"
         )
-        if response.status == 403:
-            expect(self.verify_page.forbidden_heading).to_be_visible()
-            expect(self.verify_page.invalid_signature_text).to_be_visible()
-            step("Ověřeno odmítnutí požadavku serverem se stavem 403 Forbidden a zobrazení INVALID SIGNATURE")
-        else:
-            step("Ověřeno odmítnutí požadavku serverem se stavem 429 Too Many Requests (Rate Limiter)")
+        expect(self.verify_page.forbidden_heading).to_be_visible()
+        expect(self.verify_page.invalid_signature_text).to_be_visible()
+        step("Ověřeno odmítnutí požadavku serverem se stavem 403 Forbidden a zobrazení INVALID SIGNATURE")
 
     @pytest.mark.xfail(
         reason="Defekt aplikace: Backend testovani.kitner.cz selhává při odesílání ověřovacího e-mailu kvůli vyčerpané kvótě Mailtrap (500 TransportException)",
-        strict=False,
+        strict=True,
     )
     def test_tc_us07_03_resend_verification_link_request(
         self, page: Page, registered_user: dict

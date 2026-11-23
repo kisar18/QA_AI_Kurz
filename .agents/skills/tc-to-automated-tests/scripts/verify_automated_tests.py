@@ -14,6 +14,7 @@ Návratový kód:
 """
 
 import argparse
+import ast
 import re
 import subprocess
 import sys
@@ -78,10 +79,48 @@ def check_tc_coverage(tc_ids: list[str], test_file: Path) -> tuple[list[str], li
     return covered, missing
 
 
+class ConditionalAssertionVisitor(ast.NodeVisitor):
+    """AST návštěvník detekující podmíněné aserce uvnitř if/else."""
+
+    def __init__(self):
+        self.findings: list[tuple[int, str]] = []
+        self.if_depth = 0
+
+    def visit_If(self, node: ast.If):
+        self.if_depth += 1
+        for item in node.body:
+            self.visit(item)
+        for item in node.orelse:
+            self.visit(item)
+        self.if_depth -= 1
+
+    def visit_Assert(self, node: ast.Assert):
+        if self.if_depth > 0:
+            self.findings.append((node.lineno, "Podmíněný assert uvnitř bloku if/else – asserty musí běžet bezpodmínečně"))
+        self.generic_visit(node)
+
+    def visit_Call(self, node: ast.Call):
+        if self.if_depth > 0 and self._is_expect(node):
+            self.findings.append((node.lineno, "Podmíněný expect(...) uvnitř bloku if/else – asserty musí běžet bezpodmínečně"))
+        self.generic_visit(node)
+
+    def _is_expect(self, node: ast.Call) -> bool:
+        curr = node
+        while isinstance(curr, ast.Call):
+            if isinstance(curr.func, ast.Name) and curr.func.id == "expect":
+                return True
+            if isinstance(curr.func, ast.Attribute):
+                curr = curr.func.value
+            else:
+                break
+        return False
+
+
 def audit_test_file(test_file: Path) -> list[tuple[int, str]]:
-    """Provede statický audit testovacího souboru na zakázané vzory."""
+    """Provede statický audit testovacího souboru na zakázané vzory a podmíněné aserce."""
     findings: list[tuple[int, str]] = []
-    lines = test_file.read_text(encoding="utf-8").splitlines()
+    content = test_file.read_text(encoding="utf-8")
+    lines = content.splitlines()
 
     for line_num, line in enumerate(lines, start=1):
         stripped = line.strip()
@@ -92,7 +131,34 @@ def audit_test_file(test_file: Path) -> list[tuple[int, str]]:
             if pattern.search(line):
                 findings.append((line_num, description))
 
-    return findings
+    # AST kontrola na podmíněné aserce uvnitř if bloků
+    try:
+        tree = ast.parse(content, filename=str(test_file))
+        ast_visitor = ConditionalAssertionVisitor()
+        ast_visitor.visit(tree)
+        findings.extend(ast_visitor.findings)
+    except Exception as e:
+        findings.append((0, f"Chyba při AST parsování testovacího souboru: {e}"))
+
+    return sorted(findings, key=lambda x: x[0])
+
+
+def check_tc_uniqueness_across_project(test_file: Path, tc_ids: list[str], tests_dir: Path) -> list[str]:
+    """Zkontroluje, zda test casy v test_file nejsou již implementovány v jiném testovacím souboru (prevence duplicit)."""
+    collisions: list[str] = []
+    if not tests_dir.exists():
+        return collisions
+    for other_file in tests_dir.rglob("test_*.py"):
+        if other_file.resolve() == test_file.resolve():
+            continue
+        try:
+            other_content = other_file.read_text(encoding="utf-8")
+        except Exception:
+            continue
+        for tc_id in tc_ids:
+            if re.search(rf"\b{re.escape(tc_id)}\b", other_content):
+                collisions.append(f"Duplicita TC: '{tc_id}' je již implementován v souboru {other_file.as_posix()}")
+    return collisions
 
 
 def audit_page_files(pages_dir: Path) -> list[tuple[Path, int, str]]:
@@ -185,6 +251,18 @@ def main() -> int:
                 print(" [OK] 100% pokrytí: Každý schválený Test Case má svůj implementovaný test.")
         except Exception as e:
             errors.append(f"Chyba při kontrole testovacího souboru: {e}")
+
+        # Kontrola unikátnosti TC napříč celým projektem (prevence vzniku duplicitních testů)
+        try:
+            tests_root = Path("tests")
+            duplicates = check_tc_uniqueness_across_project(args.test_file, tc_ids, tests_root)
+            if duplicates:
+                for dup_err in duplicates:
+                    errors.append(dup_err)
+            else:
+                print(" [OK] Unikátnost TC: Žádný z test casů není duplicitně implementován v jiném souboru.")
+        except Exception as e:
+            errors.append(f"Chyba při kontrole unikátnosti TC: {e}")
 
     # 3. Statický audit testovacího souboru
     try:

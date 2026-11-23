@@ -46,7 +46,7 @@ class TestCsrfAndSessionIntegrity:
 
     @pytest.mark.xfail(
         reason="Bezpečnostní defekt aplikace: Server neověřuje platnost CSRF tokenu a akceptuje POST požadavky s neplatným či chybějícím tokenem (vrací HTTP 200 namísto 419/403)",
-        strict=False,
+        strict=True,
     )
     def test_tc_us20_02_rejection_of_request_with_missing_or_invalid_csrf_token(self, page: Page):
         """[TC-US20-02] Odmítnutí formulářového požadavku s chybějícím nebo neplatným CSRF tokenem."""

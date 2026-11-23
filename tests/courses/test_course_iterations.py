@@ -79,7 +79,7 @@ class TestCourseIterations:
 
     @pytest.mark.xfail(
         reason="Defekt aplikace: Formulář vypsání termínu postrádá validaci povinných polí a odešle i prázdný termín",
-        strict=False,
+        strict=True,
     )
     def test_tc_us15_02_validation_of_required_fields_empty_form(self, page: Page, lector_user: dict):
         """[TC-US15-02] Validace povinných polí při odeslání prázdného nebo neúplného formuláře."""
@@ -102,7 +102,7 @@ class TestCourseIterations:
 
     @pytest.mark.xfail(
         reason="Defekt aplikace (RBAC): Běžný zákazník má přístup k formuláři vypsání nového termínu běhu kurzu",
-        strict=False,
+        strict=True,
     )
     def test_tc_us15_03_prevention_of_iteration_creation_for_student_and_guest_rbac(
         self, page: Page, registered_user: dict
@@ -122,7 +122,7 @@ class TestCourseIterations:
 
     @pytest.mark.xfail(
         reason="Defekt aplikace: Formulář postrádá logickou validaci časové souslednosti (umožní konec před začátkem)",
-        strict=False,
+        strict=True,
     )
     def test_tc_us15_04_logical_validation_of_chronological_sequence(self, page: Page, lector_user: dict):
         """[TC-US15-04] Logická validace časové souslednosti termínu kurzu."""
@@ -187,7 +187,7 @@ class TestCourseIterations:
 
     @pytest.mark.xfail(
         reason="Defekt aplikace: Systém nevaliduje datum zahájení a umožní vypsat termín v minulosti",
-        strict=False,
+        strict=True,
     )
     def test_tc_us15_07_validation_of_past_start_date(self, page: Page, lector_user: dict):
         """[TC-US15-07] Validace data zahájení v minulosti."""
@@ -210,7 +210,7 @@ class TestCourseIterations:
 
     @pytest.mark.xfail(
         reason="Defekt aplikace / nepodporováno: V aplikaci neexistuje rozlišení vlastnictví kurzu mezi lektory a chybí autorizační kontrola",
-        strict=False,
+        strict=True,
     )
     def test_tc_us15_08_restriction_of_iteration_creation_for_foreign_course(
         self, page: Page, lector_user: dict

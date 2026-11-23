@@ -29,6 +29,7 @@ blob-report/
 *.log
 .vscode/
 .idea/
+.gemini/
 *.swp
 *.swo
 

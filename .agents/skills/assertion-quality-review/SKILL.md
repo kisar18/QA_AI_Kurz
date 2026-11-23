@@ -9,7 +9,7 @@ description: >-
 
 # Assertion Quality Review Skill
 
-Standard pro tvorbu, refaktoring a audit assertů v Playwright + pytest.
+Standard pro tvorbu, refaktoring a deterministický audit assertů v Playwright + pytest.
 
 > **Klíčový cíl:**
 > Asserty musí mít **vysokou schopnost odhalovat chyby (Fault Detection Power)**. Test nesmí projít zeleně, pokud v aplikaci nastala chyba (eliminace falešné pozitivity).
@@ -23,8 +23,8 @@ Standard pro tvorbu, refaktoring a audit assertů v Playwright + pytest.
    - ❌ **ZÁKAZ:** statické `assert locator.is_visible()`, `assert page.url == ...` (nečekají na asynchronní DOM a způsobují flakiness).
 
 2. **ZÁKAZ podmínek `if` / `else` kolem assertů:**
-   - ❌ **ZÁKAZ:** `if count > 0: expect(...)` nebo větvení `if ...: expect(...) else: ...`.
-   - Pokud podmínka neplatí, test tiše projde zeleně bez ověření. Asserty musí běžet **bezpodmínečně**.
+   - ❌ **ZÁKAZ:** Jakékoliv větvení `if` kolem `expect(...)` nebo `assert`.
+   - Pokud podmínka neplatí, kontrola se tiše přeskočí a test projde falešně zelený. Asserty musí běžet **bezpodmínečně**.
 
 3. **ZÁKAZ `time.sleep()` a `wait_for_timeout()`:**
    - ❌ **ZÁKAZ:** Umělé pauzy před asserty. Playwright `expect(...)` automaticky čeká na splnění podmínky.
@@ -47,14 +47,21 @@ Standard pro tvorbu, refaktoring a audit assertů v Playwright + pytest.
 | **Viditelnost** | `assert locator.is_visible()` | `expect(locator).to_be_visible()` |
 | **Skrytí prvku** | `assert not locator.is_visible()` | `expect(locator).not_to_be_visible()` |
 | **Podmíněné ověření** | `if items.count() > 0: expect(...)` | `expect(items.first).to_be_visible()` |
+| **Větvení HTTP statusu** | `if res.status == 403: expect(...) else: ...` | `assert res.status == 403`<br>`expect(heading).to_be_visible()` |
+| **Existence objektu/cookie** | `if cookie_after: assert cookie_after["val"] != ...` | `assert cookie_after is None or cookie_after["val"] != orig_val` |
+| **Atribut prvku** | `if attr == "_blank": expect(l).to_have_attribute("rel", ...)` | `assert attr != "_blank" or "noopener" in (rel or "")` |
 | **Hodnota pole** | `assert locator.input_value() == "x"` | `expect(locator).to_have_value("x")` |
 | **Text v prvku** | `assert "ok" in locator.inner_text()` | `expect(locator).to_contain_text("ok")` |
 | **URL stránky** | `page.wait_for_timeout(1000)`<br>`assert page.url == "/target"` | `expect(page).to_have_url(re.compile(r"/target$"))` |
 
 ---
 
-## 3. Postup při revizi existujících testů
-1. **Identifikuj tichá selhání:** Hledej `if`, `is_visible()`, `count() > 0` bez následného striktního expectu.
-2. **Odstraň umělá čekání:** Nahraď `wait_for_timeout` za web-first `expect`.
-3. **Doplň chybějící post-conditions:** Ověř reálný dopad akce na data a UI.
-4. Podrobný kontrolní checklist najdeš v [references/checklist.md](./references/checklist.md).
+## 3. Strojová pojistka: Deterministický audit asercí
+
+Kvalita asercí je v projektu vynucována deterministickým AST skriptem:
+```powershell
+# Spuštění auditu všech testů na podmíněné aserce a zakázané vzory
+python .agents/skills/assertion-quality-review/scripts/audit_assertions.py tests
+```
+Skript selže (exit code 1), pokud nalezne jakýkoliv `assert` nebo `expect(...)` uvnitř bloku `if`/`else`.
+Tento audit je rovněž integrovanou součástí skriptu Definice hotovo (`verify_automated_tests.py`).

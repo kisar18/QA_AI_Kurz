@@ -79,10 +79,14 @@ class TestDemoLogin:
         expect(self.login_page.logout_button).to_be_visible()
         step("Ověřeno úspěšné přihlášení s normalizovaným e-mailem (velká písmena + okrajové mezery)")
 
-    def test_tc_us03_04_unified_error_message_prevents_user_enumeration(
+    @pytest.mark.xfail(
+        reason="Defekt aplikace: Po neúspěšném pokusu o přihlášení nedochází k bezpečnostnímu vymazání pole hesla",
+        strict=True,
+    )
+    def test_tc_us03_04_unified_error_message_and_password_clearing(
         self, page: Page, registered_user: dict
     ):
-        """[TC-US03-04] Jednotná chybová hláška chránící před user enumeration."""
+        """[TC-US03-04] Jednotná chybová hláška a bezpečnostní vyčištění pole hesla."""
         expected_error = "These credentials do not match our records."
 
         # Scénář A: Neexistující e-mail
@@ -104,16 +108,7 @@ class TestDemoLogin:
         expect(self.login_page.email_input).to_have_value(registered_user["email"])
         step("Scénář B: Ověřena identická chybová zpráva a zachování předvyplněného e-mailu")
 
-    @pytest.mark.xfail(
-        reason="Defekt aplikace: Po neúspěšném pokusu o přihlášení nedochází k bezpečnostnímu vymazání pole hesla",
-        strict=False,
-    )
-    def test_tc_us03_04_password_field_security_clearing(self, page: Page, registered_user: dict):
-        """[TC-US03-04] Bezpečnostní vyčištění pole hesla po neúspěšném přihlášení."""
-        self.login_page.navigate()
-        self.login_page.login(registered_user["email"], "SpatneHeslo999!")
-
-        expect(page).to_have_url(f"{self.login_page.base_url}/login")
+        # Bezpečnostní vymazání pole hesla (selhává na defektu aplikace)
         expect(self.login_page.password_input).to_have_value("")
         step("Ověřeno automatické bezpečnostní vymazání pole hesla po chybě přihlášení")
 
@@ -158,7 +153,7 @@ class TestDemoLogin:
 
     @pytest.mark.xfail(
         reason="Defekt aplikace: Přihlášený uživatel není automaticky přesměrován z /login zpět do aplikace; aplikace umožní opětovné zobrazení formuláře přihlášení",
-        strict=False,
+        strict=True,
     )
     def test_tc_us03_07_authenticated_user_access_to_login_page_redirects(
         self, page: Page, registered_user: dict

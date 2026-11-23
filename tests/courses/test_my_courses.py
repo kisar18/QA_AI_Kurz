@@ -155,7 +155,7 @@ class TestMyCourses:
 
     @pytest.mark.xfail(
         reason="Defekt aplikace: Nepřihlášený návštěvník při přístupu na /my-courses není přesměrován na /login ani informován o nutnosti přihlášení",
-        strict=False,
+        strict=True,
     )
     def test_tc_us13_04_prevention_of_unauthenticated_access_to_my_courses(self, page: Page):
         """[TC-US13-04] Zamezení přístupu do sekce 'Moje kurzy' pro nepřihlášeného návštěvníka."""
@@ -217,7 +217,7 @@ class TestMyCourses:
 
     @pytest.mark.xfail(
         reason="Defekt aplikace (RBAC): Lektor má v navigaci zákaznický odkaz 'Moje kurzy' a sekce pro něj není omezena ani přesměrována",
-        strict=False,
+        strict=True,
     )
     def test_tc_us13_07_restriction_of_my_courses_for_lector_rbac(self, page: Page):
         """[TC-US13-07] Omezení přístupu do sekce 'Moje kurzy' pro roli Lektor (RBAC)."""
@@ -234,7 +234,7 @@ class TestMyCourses:
 
     @pytest.mark.xfail(
         reason="Defekt aplikace: Zapsané kurzy na /my-courses nejsou řazeny vzestupně chronologicky od nejbližšího data",
-        strict=False,
+        strict=True,
     )
     def test_tc_us13_08_upcoming_courses_chronological_ordering(self, page: Page):
         """[TC-US13-08] Rozlišení nadcházejících kurzů a chronologické řazení termínů."""

@@ -267,15 +267,27 @@ class OverviewChecker:
             return
 
         covered_tcs: Set[str] = set()
+        tc_to_tests: Dict[str, List[str]] = {}
+        unmapped_tests: List[str] = []
+
         for file_info in test_data:
+            rel = file_info["path"]
             for test in file_info["tests"]:
                 doc = test.get("docstring", "")
                 name = test.get("name", "")
-                tcs = re.findall(r"\b(TC-[A-Za-z0-9_-]+)\b", doc)
+                tcs = set(re.findall(r"\b(TC-[A-Za-z0-9_-]+)\b", doc))
                 name_matches = re.findall(r"tc_(us\d+)_(\d+)", name, re.IGNORECASE)
-                tcs += [f"TC-{m[0].upper()}-{int(m[1]):02d}" for m in name_matches]
-                covered_tcs.update(tcs)
+                tcs.update(f"TC-{m[0].upper()}-{int(m[1]):02d}" for m in name_matches)
 
+                test_ref = f"{rel}::{name}"
+                if not tcs:
+                    unmapped_tests.append(test_ref)
+                else:
+                    for tc in tcs:
+                        tc_to_tests.setdefault(tc, []).append(test_ref)
+                    covered_tcs.update(tcs)
+
+        # 1. Kontrola 100% pokrytí schválených TC
         missing_tcs = all_manual_tcs - covered_tcs
         if missing_tcs:
             self.errors.append(
@@ -286,6 +298,25 @@ class OverviewChecker:
             self.passed_checks.append(
                 f"100% pokrytí manuálních test casů ({len(all_manual_tcs)}/{len(all_manual_tcs)} schválených TC z manual_tests/ má automatizovaný test)"
             )
+
+        # 2. Kontrola unikátnosti mapování 1:1 (zákaz duplicit)
+        duplicate_tcs = {tc: tests for tc, tests in tc_to_tests.items() if len(tests) > 1}
+        if duplicate_tcs:
+            self.errors.append(
+                f"Nalezeno {len(duplicate_tcs)} Test Casů s duplicitní implementací (porušení pravidla 1:1):\n"
+                + "\n".join(f"    - {tc} implementován v: {', '.join(tests)}" for tc, tests in sorted(duplicate_tcs.items()))
+            )
+        else:
+            self.passed_checks.append("Unikátnost mapování 1:1: Žádný Test Case není implementován duplicitně")
+
+        # 3. Kontrola Zero-Unmapped-Tests (zákaz ad-hoc netagovaných testů)
+        if unmapped_tests:
+            self.errors.append(
+                f"Nalezeno {len(unmapped_tests)} nezařazených/osiřelých testů bez vazby na schválený manuální TC (zákaz ad-hoc testů):\n"
+                + "\n".join(f"    - {t}" for t in unmapped_tests)
+            )
+        else:
+            self.passed_checks.append("Zero-Unmapped-Tests: Všechny testy v kódu mají platnou vazbu na schválený manuální TC")
 
     def _check_html_coverage_report(self):
         """Kritérium: HTML přehled pokrytí User Stories existuje a je aktuální."""

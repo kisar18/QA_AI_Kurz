@@ -83,7 +83,7 @@ class TestStudentsList:
 
     @pytest.mark.xfail(
         reason="Důsledek defektu US-12: Formulář přihlášky na kurz nedovolí odeslání bez IČO, v seznamu účastníků nelze ověřit hodnotu 'Neuvedeno'",
-        strict=False,
+        strict=True,
     )
     def test_tc_us16_02_placeholder_neuvedeno_for_empty_ico(self, page: Page, lector_user: dict):
         """[TC-US16-02] Zobrazení zástupné hodnoty 'Neuvedeno' při nevyplněném IČO studenta."""
@@ -125,7 +125,7 @@ class TestStudentsList:
 
     @pytest.mark.xfail(
         reason="Defekt aplikace: Aplikace postrádá informativní empty state hlášení při 0 přihlášených studentech a zobrazuje pouze prázdný tbody",
-        strict=False,
+        strict=True,
     )
     def test_tc_us16_04_empty_state_for_iteration_without_students(
         self, page: Page, lector_user: dict

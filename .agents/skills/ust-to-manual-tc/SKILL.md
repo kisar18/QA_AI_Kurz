@@ -1,9 +1,10 @@
 ---
 name: ust-to-manual-tc
 description: >-
-  Aktivuj tento skill, když uživatel požaduje vytvoření manuálních test casů z User Story (UST),
-  analýzu akceptačních kritérií a jejich převedení na testovací scénáře, nebo ověření kvality
-  manuálních testů pomocí skriptu Definice hotovo (DoD).
+  Aktivuj a použij tento skill v následujících situacích:
+  1. Tvorba, návrh, specifikace nebo analýza manuálních test casů z User Stories (UST) a akceptačních kritérií (AC).
+  2. Doplnění, revize, refaktoring nebo úprava testovacích scénářů v manual_tests/.
+  3. Nezávislý audit a ověření kvality manuálních testů pomocí skriptu Definice hotovo (DoD – verify_test_cases.py).
 ---
 
 # Pracovní postup: User Story -> Manuální Test Casy

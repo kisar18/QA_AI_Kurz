@@ -8,7 +8,7 @@ description: >-
 
 # Pracovní postup: Běh testů -> Analýza chyb -> HTML Bug Report
 
-Tento skill slouží k automatizovanému spuštění testů, zachycení důkazních materiálů (screenshotů a traces) a vygenerování standardizovaného HTML přehledu vad (`reports/bug_overview.html`).
+Tento skill slouží k automatizovanému spuštění testů, zachycení důkazních materiálů (screenshotů a traces) a vygenerování standardizovaného HTML přehledu vad (`docs/bug_overview.html`), který se verzuje v repozitáři na GitHubu.
 
 Kvalita a úplnost výstupu je **striktně vynucena hookem `Stop`**: agent nemůže ukončit práci, dokud není přehled vygenerován a neobsahuje kompletní report pro každý padající test.
 
@@ -48,7 +48,7 @@ Každý zaznamenaný pád testu musí v reportu obsahovat:
    ```powershell
    python .agents/skills/bug-reporting/scripts/generate_bug_overview.py
    ```
-   *Výstup:* Vytvoří se `reports/bug_overview.html`.
+   *Výstup:* Vytvoří se `docs/bug_overview.html`.
 
 4. **Předběžná kontrola Definice hotovo (DoD):**
    Spusť ověřovací skript:
@@ -59,4 +59,4 @@ Každý zaznamenaný pád testu musí v reportu obsahovat:
    - Pokud skončí s kódem `1` (`NENÍ HOTOVO`), oprav hlášené nedostatky. Jinak tě hook `Stop` nepustí odpověď dokončit.
 
 5. **Předání výsledku uživateli:**
-   Uživateli sděl souhrnné statistiky (počet testů celkem, úspěšných a selhaných) a předej klikací odkaz na vygenerovaný soubor [reports/bug_overview.html](file:///c:/Users/marti/Documents/VyvojAplikaci/QA_AI_kurz/Lekce1/reports/bug_overview.html).
+   Uživateli sděl souhrnné statistiky (počet testů celkem, úspěšných a selhaných) a předej klikací odkaz na vygenerovaný soubor [docs/bug_overview.html](file:///c:/Users/marti/Documents/VyvojAplikaci/QA_AI_kurz/Lekce1/docs/bug_overview.html).

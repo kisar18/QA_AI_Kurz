@@ -131,7 +131,7 @@ class TestCourseEnrollment:
 
     @pytest.mark.xfail(
         reason="Defekt aplikace: Pole IČO je v rozporu se specifikací validováno jako povinné (prázdné IČO vede na chybu 'Neplatné IČO')",
-        strict=False,
+        strict=True,
     )
     def test_tc_us12_05_successful_enrollment_without_optional_ico(self, page: Page, registered_user: dict):
         """[TC-US12-05] Úspěšný zápis na kurz bez vyplnění nepovinného pole IČO."""

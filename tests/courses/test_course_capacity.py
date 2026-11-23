@@ -104,7 +104,7 @@ class TestCourseCapacity:
 
     @pytest.mark.xfail(
         reason="Defekt aplikace: Backend neověřuje kapacitu a umožní odeslat registraci na plně obsazený běh bez zamítnutí",
-        strict=False,
+        strict=True,
     )
     def test_tc_us11_03_direct_url_access_to_fully_booked_iteration(self, page: Page, registered_user: dict):
         """[TC-US11-03] Zamezení přímého zápisu na plně obsazený běh přes přímou URL."""

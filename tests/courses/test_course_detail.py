@@ -106,7 +106,7 @@ class TestCourseDetail:
 
     @pytest.mark.xfail(
         reason="Aplikace pro neexistující kurz nevrací HTTP 404 Not Found ani chybovou stránku, ale vrací stavový kód 200 a prázdný kontejner",
-        strict=False,
+        strict=True,
     )
     def test_tc_us10_04_non_existent_course_id_handling(self, page: Page):
         """[TC-US10-04] Zpracování požadavku na neexistující ID kurzu."""

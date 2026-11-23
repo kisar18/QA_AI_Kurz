@@ -14,9 +14,10 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
 REPORTS_DIR = PROJECT_ROOT / "reports"
+DOCS_DIR = PROJECT_ROOT / "docs"
 RUN_DATA_FILE = REPORTS_DIR / "test_run_data.json"
 BUG_REPORTS_FILE = REPORTS_DIR / "bug_reports.json"
-HTML_OUTPUT_FILE = REPORTS_DIR / "bug_overview.html"
+HTML_OUTPUT_FILE = DOCS_DIR / "bug_overview.html"
 
 
 def generate_html(output_file: Path = HTML_OUTPUT_FILE) -> int:
@@ -41,8 +42,9 @@ def generate_html(output_file: Path = HTML_OUTPUT_FILE) -> int:
     env = run_data.get("environment", {})
     total = run_data.get("total", 0)
     passed = run_data.get("passed", 0)
-    failed = run_data.get("failed", len(bug_reports))
+    failed = run_data.get("failed", 0)
     skipped = run_data.get("skipped", 0)
+    total_defects = len(bug_reports)
     run_date = env.get("run_date", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
     # Generování karet jednotlivých chyb
@@ -55,7 +57,17 @@ def generate_html(output_file: Path = HTML_OUTPUT_FILE) -> int:
         expected = html.escape(str(bug.get("expected_result", "")))
         actual = html.escape(str(bug.get("actual_result", "")))
         environment_str = html.escape(str(bug.get("environment", "")))
+        status = str(bug.get("status", "FAILED")).upper()
         evidence = str(bug.get("evidence", "")).replace("\\", "/")
+
+        is_xfail = (status == "XFAIL")
+        status_data = "xfail" if is_xfail else "failed"
+        badge_cls = "badge-xfail" if is_xfail else "badge-bug"
+        status_badge = (
+            '<span class="badge badge-type badge-type-xfail">⚠️ Očekávané selhání (XFAIL)</span>'
+            if is_xfail
+            else '<span class="badge badge-type badge-type-failed">🔴 Selhání testu</span>'
+        )
 
         # Kroky k reprodukci
         steps_raw = bug.get("steps_to_reproduce", [])
@@ -82,10 +94,23 @@ def generate_html(output_file: Path = HTML_OUTPUT_FILE) -> int:
 
                 evidence_html = f"""
                 <div class="evidence-box">
-                    <span class="field-label">📸 Důkaz (Screenshot):</span>
-                    <a href="{html.escape(rel_evidence)}" target="_blank" class="evidence-link">
-                        <img src="{img_src}" alt="Důkaz {bug_id}" class="evidence-thumbnail" />
-                    </a>
+                    <div class="evidence-header">
+                        <span class="field-label">📸 Snímek z prohlížeče v momentu selhání:</span>
+                        <a href="{img_src}" target="_blank" class="btn-zoom">🔍 Otevřít screenshot v plné velikosti ↗</a>
+                    </div>
+                    <div class="browser-mockup">
+                        <div class="browser-bar">
+                            <span class="browser-dot dot-red"></span>
+                            <span class="browser-dot dot-yellow"></span>
+                            <span class="browser-dot dot-green"></span>
+                            <span class="browser-address-bar">http://testovani.kitner.cz/</span>
+                        </div>
+                        <div class="browser-canvas">
+                            <a href="{img_src}" target="_blank">
+                                <img src="{img_src}" alt="Důkaz {bug_id}" class="evidence-thumbnail" />
+                            </a>
+                        </div>
+                    </div>
                     <span class="evidence-path">{html.escape(evidence)}</span>
                 </div>
                 """
@@ -114,10 +139,11 @@ def generate_html(output_file: Path = HTML_OUTPUT_FILE) -> int:
             """
 
         card = f"""
-        <article class="bug-card" id="{bug_id}">
+        <article class="bug-card bug-card-{status_data}" id="{bug_id}" data-status="{status_data}">
             <header class="bug-card-header">
                 <div class="bug-title-group">
-                    <span class="badge badge-bug">{bug_id}</span>
+                    <span class="badge {badge_cls}">{bug_id}</span>
+                    {status_badge}
                     <h3 class="bug-title">{title}</h3>
                 </div>
                 <div class="bug-meta">
@@ -249,6 +275,8 @@ def generate_html(output_file: Path = HTML_OUTPUT_FILE) -> int:
         
         .kpi-card.failed {{ background: var(--danger-bg); border: 1px solid var(--danger-border); }}
         .kpi-card.passed {{ background: var(--success-bg); border: 1px solid var(--success-border); }}
+        .kpi-card.xfail {{ background: #fffbeb; border: 1px solid #fde68a; }}
+        .kpi-card.total-bugs {{ background: #eff6ff; border: 1px solid #bfdbfe; }}
         
         .kpi-value {{
             font-size: 2rem;
@@ -257,6 +285,8 @@ def generate_html(output_file: Path = HTML_OUTPUT_FILE) -> int:
         }}
         .kpi-card.failed .kpi-value {{ color: var(--danger-text); }}
         .kpi-card.passed .kpi-value {{ color: var(--success-text); }}
+        .kpi-card.xfail .kpi-value {{ color: #b45309; }}
+        .kpi-card.total-bugs .kpi-value {{ color: #1d4ed8; }}
         
         .kpi-label {{
             font-size: 0.85rem;
@@ -301,6 +331,67 @@ def generate_html(output_file: Path = HTML_OUTPUT_FILE) -> int:
         .badge-bug {{
             background: #ef4444;
             color: #ffffff;
+        }}
+        
+        .badge-xfail {{
+            background: #d97706;
+            color: #ffffff;
+        }}
+        
+        .badge-type {{
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.55rem;
+            border-radius: 4px;
+        }}
+        
+        .badge-type-failed {{
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }}
+        
+        .badge-type-xfail {{
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fcd34d;
+        }}
+        
+        .bug-card-xfail {{
+            border-left: 4px solid #f59e0b;
+        }}
+        
+        .bug-card-failed {{
+            border-left: 4px solid #ef4444;
+        }}
+        
+        .filter-bar {{
+            display: flex;
+            gap: 0.6rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }}
+        
+        .filter-btn {{
+            padding: 0.5rem 1.1rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            transition: all 0.2s ease;
+        }}
+        
+        .filter-btn:hover {{
+            background: #f1f5f9;
+        }}
+        
+        .filter-btn.active {{
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
         }}
         
         .bug-title {{
@@ -389,6 +480,82 @@ def generate_html(output_file: Path = HTML_OUTPUT_FILE) -> int:
             padding: 1rem;
         }}
         
+        .evidence-header {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }}
+        
+        .btn-zoom {{
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.8rem;
+            padding: 0.35rem 0.75rem;
+            background: var(--primary);
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: background 0.15s ease;
+        }}
+        .btn-zoom:hover {{
+            background: var(--primary-hover);
+        }}
+        
+        .browser-mockup {{
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #334155;
+            background: #0f172a;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.15);
+            margin: 0.5rem 0;
+        }}
+        
+        .browser-bar {{
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0.5rem 0.75rem;
+            background: #1e293b;
+            border-bottom: 1px solid #334155;
+        }}
+        
+        .browser-dot {{
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }}
+        .dot-red {{ background: #ef4444; }}
+        .dot-yellow {{ background: #f59e0b; }}
+        .dot-green {{ background: #10b981; }}
+        
+        .browser-address-bar {{
+            margin-left: 0.5rem;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            background: #0f172a;
+            padding: 0.2rem 0.7rem;
+            border-radius: 4px;
+            flex-grow: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }}
+        
+        .browser-canvas {{
+            background: #0f172a;
+            padding: 0.75rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }}
+        
         .evidence-box.warning {{
             background: #fffbeb;
             border-color: #fde68a;
@@ -398,16 +565,15 @@ def generate_html(output_file: Path = HTML_OUTPUT_FILE) -> int:
         .evidence-thumbnail {{
             display: block;
             max-width: 100%;
-            max-height: 350px;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
-            margin-top: 0.5rem;
+            max-height: 480px;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
             cursor: pointer;
             transition: transform 0.2s ease;
         }}
         
         .evidence-thumbnail:hover {{
-            transform: scale(1.01);
+            transform: scale(1.005);
         }}
         
         .evidence-path {{
@@ -488,14 +654,24 @@ def generate_html(output_file: Path = HTML_OUTPUT_FILE) -> int:
                 </div>
                 <div class="kpi-card failed">
                     <span class="kpi-value">{failed}</span>
-                    <span class="kpi-label">Padající testy (Chyby)</span>
+                    <span class="kpi-label">Selhání testů (Failed)</span>
                 </div>
-                <div class="kpi-card">
+                <div class="kpi-card xfail">
                     <span class="kpi-value">{skipped}</span>
-                    <span class="kpi-label">Přeskočené</span>
+                    <span class="kpi-label">Očekávaná selhání (XFail)</span>
+                </div>
+                <div class="kpi-card total-bugs">
+                    <span class="kpi-value">{total_defects}</span>
+                    <span class="kpi-label">Celkem defektů</span>
                 </div>
             </div>
         </header>
+        
+        <div class="filter-bar">
+            <button class="filter-btn active" onclick="filterBugs('all', this)">Všechny defekty ({total_defects})</button>
+            <button class="filter-btn" onclick="filterBugs('failed', this)">🔴 Pouze selhání testů ({failed})</button>
+            <button class="filter-btn" onclick="filterBugs('xfail', this)">⚠️ Pouze očekávaná selhání / XFAIL ({skipped})</button>
+        </div>
         
         <main class="bug-list">
             {cards_content}
@@ -505,6 +681,22 @@ def generate_html(output_file: Path = HTML_OUTPUT_FILE) -> int:
     <!-- Strojově čitelná metadata pro Stop hook a validační nástroje -->
     <script type="application/json" id="bug-reports-metadata">
 {metadata_json}
+    </script>
+
+    <script>
+        function filterBugs(type, btn) {{
+            document.querySelectorAll('.filter-btn').forEach(function(b) {{
+                b.classList.remove('active');
+            }});
+            btn.classList.add('active');
+            document.querySelectorAll('.bug-card').forEach(function(card) {{
+                if (type === 'all' || card.getAttribute('data-status') === type) {{
+                    card.style.display = 'block';
+                }} else {{
+                    card.style.display = 'none';
+                }}
+            }});
+        }}
     </script>
 </body>
 </html>

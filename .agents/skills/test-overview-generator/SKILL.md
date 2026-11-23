@@ -1,8 +1,10 @@
 ---
 name: test-overview-generator
 description: >-
-  Aktivuj tento skill, když uživatel požaduje přehled, katalog, soupis nebo revizi automatizovaných testů,
-  jejich kroků a kontrol, nebo přehled pokrytí User Stories a test casů v projektu (včetně HTML reportu).
+  Aktivuj a použij tento skill v následujících situacích:
+  1. Tvorba, aktualizace nebo generování katalogu automatizovaných testů (TEST_OVERVIEW.md) a přehledu pokrytí (docs/coverage_overview.html).
+  2. Audit a revize pokrytí User Stories a manuálních test casů automatizovanými testy (Traceability Matrix).
+  3. Ověření stavu Definition of Done (check_done.py) pro přehledy testů, 1:1 mapování a Zero-Unmapped-Tests.
 ---
 
 # Test Overview & Coverage Generator Skill

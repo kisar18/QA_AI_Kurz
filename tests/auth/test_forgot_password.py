@@ -16,7 +16,7 @@ class TestDemoForgotPassword:
 
     @pytest.mark.xfail(
         reason="Defekt aplikace: Backend testovani.kitner.cz selhává při odesílání e-mailu kvůli vyčerpané kvótě Mailtrap (500 Internal Server Error) nebo throttlingu (422)",
-        strict=False,
+        strict=True,
     )
     def test_tc_us05_01_successful_password_reset_request_for_registered_email(
         self, page: Page, registered_user: dict
@@ -57,7 +57,7 @@ class TestDemoForgotPassword:
 
     @pytest.mark.xfail(
         reason="Defekt aplikace: Prevence odhadování účtů (User Enumeration) selhává – systém vrací 'We can't find a user with that email address' namísto neutrálního potvrzení",
-        strict=False,
+        strict=True,
     )
     def test_tc_us05_04_non_existent_email_user_enumeration_prevention(self, page: Page):
         """[TC-US05-04] Odeslání žádosti pro neexistující e-mail a prevence odhadování účtů."""

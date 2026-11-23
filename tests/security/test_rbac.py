@@ -84,7 +84,7 @@ class TestRoleBasedAccessControl:
 
     @pytest.mark.xfail(
         reason="Defekt aplikace (RBAC): Nepřihlášený uživatel není při přístupu na chráněné URL přesměrován na /courses",
-        strict=False,
+        strict=True,
     )
     def test_tc_us19_02_prevention_of_unauthenticated_access_to_private_routes(self, page: Page):
         """[TC-US19-02] Zamezení přístupu a automatické přesměrování neautentizovaného uživatele na katalog kurzů."""
@@ -130,7 +130,7 @@ class TestRoleBasedAccessControl:
 
     @pytest.mark.xfail(
         reason="Defekt aplikace (RBAC): Zákazník má přímý přístup k lektorským formulářům /courses/create a /create-iteration",
-        strict=False,
+        strict=True,
     )
     def test_tc_us19_04_prevention_of_customer_access_to_lector_operations_ui(
         self, page: Page, registered_user: dict
@@ -164,7 +164,7 @@ class TestRoleBasedAccessControl:
 
     @pytest.mark.xfail(
         reason="Defekt aplikace (RBAC): Lektor má přímý přístup na registrační formulář /courses/:id/register",
-        strict=False,
+        strict=True,
     )
     def test_tc_us19_05_restriction_of_enrollment_for_lector_role(self, page: Page, lector_user: dict):
         """[TC-US19-05] Zamezení zápisu na běhy kurzů pro uživatele v roli Lektor (UI i API úroveň)."""
@@ -184,7 +184,7 @@ class TestRoleBasedAccessControl:
 
     @pytest.mark.xfail(
         reason="Defekt aplikace: Servisní trasy (např. /artisan, /system-cache, /_ignition) vracejí HTTP 200 místo 404/403 a /migrate vrací HTTP 500",
-        strict=False,
+        strict=True,
     )
     def test_tc_us19_06_unavailability_of_maintenance_interfaces(self):
         """[TC-US19-06] Nedostupnost servisních a údržbových rozhraní pro neautorizované návštěvníky."""
@@ -235,7 +235,7 @@ class TestRoleBasedAccessControl:
 
     @pytest.mark.xfail(
         reason="Defekt aplikace: Backend API postrádá serverovou autorizaci a umožní vytvoření kurzu i bez lektorské role",
-        strict=False,
+        strict=True,
     )
     def test_tc_us19_08_prevention_of_unauthorized_data_manipulation_via_api(
         self, page: Page, registered_user: dict

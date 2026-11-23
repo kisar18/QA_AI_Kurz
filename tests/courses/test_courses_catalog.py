@@ -78,7 +78,7 @@ class TestCoursesCatalog:
 
     @pytest.mark.xfail(
         reason="Aplikace neobsahuje fallback na výchozí neutrální obrázek při chybějícím souboru v úložišti (storage/app/public/... 404 vede na broken image)",
-        strict=False,
+        strict=True,
     )
     def test_tc_us09_02_default_image_for_course_without_thumbnail(self, page: Page):
         """[TC-US09-02] Zobrazení neutrálního výchozího obrázku u kurzu bez vlastního náhledu."""

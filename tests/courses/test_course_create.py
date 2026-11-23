@@ -79,7 +79,7 @@ class TestCourseCreate:
 
     @pytest.mark.xfail(
         reason="Defekt aplikace: Formulář postrádá klientskou i serverovou validaci povinných polí a ukládá prázdný kurz",
-        strict=False,
+        strict=True,
     )
     def test_tc_us14_02_validation_of_required_fields_and_numeric_values(
         self, page: Page, lector_user: dict
@@ -140,7 +140,7 @@ class TestCourseCreate:
 
     @pytest.mark.xfail(
         reason="Defekt aplikace (RBAC): Zákazník má neomezený přístup na formulář /courses/create",
-        strict=False,
+        strict=True,
     )
     def test_tc_us14_04_prevention_of_course_creation_for_customer_and_guest_rbac(
         self, page: Page, registered_user: dict
@@ -165,7 +165,7 @@ class TestCourseCreate:
 
     @pytest.mark.xfail(
         reason="Defekt aplikace: Kontrola poměru stran používá chybný vzorec Math.abs(g-w) < 0.05 místo relativní 5% tolerance, takže odmítá obrázek 1280x750 s relativní odchylkou ~4 %",
-        strict=False,
+        strict=True,
     )
     def test_tc_us14_05_acceptance_of_image_within_5_percent_aspect_ratio_tolerance(
         self, page: Page, lector_user: dict, tmp_path: Path

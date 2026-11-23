@@ -64,10 +64,9 @@ class TestDemoLogout:
         # Kontrola stavu cookies a úložiště po odhlášení
         cookies_after = context.cookies()
         session_cookie_after = next((c for c in cookies_after if "session" in c["name"].lower()), None)
-        if session_cookie_after:
-            assert session_cookie_after["value"] != session_cookie_before["value"], (
-                "Session cookie nebyla po odhlášení nahrazena anonymní relací"
-            )
+        assert session_cookie_after is None or session_cookie_after["value"] != session_cookie_before["value"], (
+            "Session cookie nebyla po odhlášení nahrazena anonymní relací ani smazána"
+        )
         token_storage = page.evaluate("() => localStorage.getItem('token') || sessionStorage.getItem('token')")
         assert not token_storage, "V klientském úložišti zůstal citlivý autentizační token"
         step("Ověřeno nahrazení/vymazání session cookie a absence citlivých tokenů v Web Storage")

@@ -1,9 +1,10 @@
 ---
 name: tc-to-automated-tests
 description: >-
-  Aktivuj tento skill, když uživatel požaduje převod schválených test casů (např. z manual_tests/TC_*.md)
-  do automatizovaných Playwright + pytest testů, revizi a ověření kvality generovaných testů,
-  nebo spuštění skriptu Definice hotovo (DoD) pro automatizované testy.
+  Aktivuj a použij tento skill v následujících situacích:
+  1. Převod, implementace, generování nebo doplňování automatizovaných testů (Playwright + pytest) ze schválených manuálních test casů (manual_tests/TC_*.md).
+  2. Úprava, refaktoring a sladění automatizovaných testů s Page Objecty a test casy.
+  3. Nezávislý audit kvality testů a spuštění skriptu Definice hotovo (DoD – verify_automated_tests.py).
 ---
 
 # Pracovní postup: Schválené Test Casy -> Automatizované Testy

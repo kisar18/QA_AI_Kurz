@@ -14,7 +14,7 @@ class TestDemoResetPassword:
 
     @pytest.mark.xfail(
         reason="Defekt infrastruktury/aplikace: Nelze vygenerovat a doručit platný resetovací token kvůli vyčerpané kvótě Mailtrap (500 na /forgot-password)",
-        strict=False,
+        strict=True,
     )
     def test_tc_us06_01_successful_password_reset_with_valid_token(
         self, page: Page, registered_user: dict
@@ -50,7 +50,7 @@ class TestDemoResetPassword:
 
     @pytest.mark.xfail(
         reason="Defekt aplikace: Frontend na /password-reset nezobrazuje v UI chybovou hlášku neplatného tokenu ('This password reset token is invalid'), ačkoliv server správně vrací 422",
-        strict=False,
+        strict=True,
     )
     def test_tc_us06_03_invalid_or_tampered_token_rejection(
         self, page: Page, registered_user: dict
@@ -78,7 +78,7 @@ class TestDemoResetPassword:
 
     @pytest.mark.xfail(
         reason="Defekt aplikace: Frontend na /password-reset nezobrazuje v UI chybovou hlášku expirovaného/použitého tokenu, ačkoliv server správně vrací 422",
-        strict=False,
+        strict=True,
     )
     def test_tc_us06_04_expired_or_already_used_token_rejection(
         self, page: Page, registered_user: dict

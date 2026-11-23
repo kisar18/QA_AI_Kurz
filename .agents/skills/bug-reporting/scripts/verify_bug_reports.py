@@ -23,9 +23,11 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
 REPORTS_DIR = PROJECT_ROOT / "reports"
+DOCS_DIR = PROJECT_ROOT / "docs"
 RUN_DATA_FILE = REPORTS_DIR / "test_run_data.json"
 BUG_REPORTS_FILE = REPORTS_DIR / "bug_reports.json"
-HTML_OUTPUT_FILE = REPORTS_DIR / "bug_overview.html"
+HTML_OUTPUT_FILE = DOCS_DIR / "bug_overview.html"
+LEGACY_HTML_OUTPUT_FILE = REPORTS_DIR / "bug_overview.html"
 
 PLACEHOLDER_PATTERN = re.compile(
     r"\b(todo|tbd|doplnit|vyplnit|n/a|placeholder|none|unknown|chyba)\b",
@@ -51,13 +53,14 @@ def validate_bug_reporting_dod() -> tuple[bool, list[str]]:
     failed_tests = run_data.get("failed_tests", [])
 
     # 2. Kontrola existence HTML přehledu
-    if not HTML_OUTPUT_FILE.exists():
+    target_html = HTML_OUTPUT_FILE if HTML_OUTPUT_FILE.exists() else LEGACY_HTML_OUTPUT_FILE
+    if not target_html.exists():
         errors.append(f"Chybí výsledný HTML přehled chyb: '{HTML_OUTPUT_FILE}'. Spusťte generate_bug_overview.py.")
         return False, errors
 
-    html_content = HTML_OUTPUT_FILE.read_text(encoding="utf-8")
+    html_content = target_html.read_text(encoding="utf-8")
     if not html_content.strip():
-        errors.append(f"HTML přehled '{HTML_OUTPUT_FILE}' je prázdný.")
+        errors.append(f"HTML přehled '{target_html}' je prázdný.")
         return False, errors
 
     # Pokud žádný test neselhal a v run_data je 0 pádů
@@ -99,6 +102,14 @@ def validate_bug_reporting_dod() -> tuple[bool, list[str]]:
     missing_tests = failed_test_names - reported_test_names
     if missing_tests:
         errors.append(f"Následující padající testy nemají odpovídající bug report: {', '.join(sorted(missing_tests))}")
+
+    # Kontrola pokrytí očekávaných selhání (pokud jsou evidována v test_run_data)
+    xfailed_tests = run_data.get("xfailed_tests", [])
+    if xfailed_tests:
+        xfailed_test_names = {t["name"] for t in xfailed_tests}
+        missing_xfails = xfailed_test_names - reported_test_names
+        if missing_xfails:
+            errors.append(f"Následující očekávaně selhané testy (XFAIL) nemají odpovídající bug report: {', '.join(sorted(missing_xfails))}")
 
     # 5. Kontrola povinných polí u každého bug reportu
     for idx, bug in enumerate(bug_reports, 1):

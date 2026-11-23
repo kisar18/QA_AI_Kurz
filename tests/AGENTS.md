@@ -16,6 +16,10 @@ Při vytváření nových testů nebo úpravě stávajících testů a assertů 
    - Vždy `expect(locator).to_be_visible()`, nikdy nestabilní `assert locator.is_visible()`.
 4. **Zákaz oslabování assertů:**
    - Při změně aplikace nebo pádu testu neřeš problém smazáním assertu nebo zvágněním podmínky. Vždy zachovej plnou hloubku ověření odpovídající novému chování.
+5. **Striktní vazba 1:1 na schválené Test Casy a zákaz duplicit:**
+   - Každá testovací funkce `def test_*` musí mít v docstringu a v názvu referenci na schválený manuální test case (např. `[TC-US02-01]`).
+   - Je zakázáno psát netagované ad-hoc testy bez předchozí specifikace v `manual_tests/`.
+   - Každé TC ID smí být implementováno právě jedním testem (zákaz duplicitních implementací). Dodržování je strojově kontrolováno skripty `check_done.py` a `verify_automated_tests.py`.
 
 
 ---

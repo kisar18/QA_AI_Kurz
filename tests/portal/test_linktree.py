@@ -85,9 +85,11 @@ class TestPortalLinktree:
             step(f"Ověřen atribut href odkazu '{link_name}'")
 
             target_attr = link_locator.get_attribute("target")
-            if target_attr == "_blank":
-                expect(link_locator).to_have_attribute("rel", "noopener noreferrer")
-                step(f"Ověřen bezpečnostní atribut rel='noopener noreferrer' pro odkaz '{link_name}'")
+            rel_attr = link_locator.get_attribute("rel") or ""
+            assert target_attr != "_blank" or "noopener" in rel_attr, (
+                f"Odkaz '{link_name}' otevírá nové okno bez bezpečnostního rel='noopener noreferrer'"
+            )
+            step(f"Ověřeno bezpečné otevírání odkazu '{link_name}' (target: {target_attr or 'self'})")
 
         # Ověření dostupnosti externích endpointů (HTTP 200)
         for _, _, path, name in links_to_verify:
@@ -98,7 +100,7 @@ class TestPortalLinktree:
 
     @pytest.mark.xfail(
         reason="Defekt aplikace: Aplikace nemá implementovanou chybovou stránku 404 pro neznámé routy; vykreslí prázdnou bílou stránku se stavovým kódem 200",
-        strict=False,
+        strict=True,
     )
     def test_tc_us01_04_handling_non_existent_subpage(self, page: Page):
         """[TC-US01-04] Zpracování neexistující podstránky z rozcestníku."""

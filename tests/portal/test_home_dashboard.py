@@ -93,7 +93,7 @@ class TestHomeDashboard:
 
     @pytest.mark.xfail(
         reason="Defekt aplikace: Nepřihlášený návštěvník při vstupu na /home není přesměrován na /login ani /courses, obsah katalogu se vykreslí přímo na URL /home",
-        strict=False,
+        strict=True,
     )
     def test_tc_us17_03_prevention_of_unauthenticated_access_to_dashboard(self, page: Page):
         """[TC-US17-03] Zamezení přístupu na domovskou nástěnku pro nepřihlášeného návštěvníka."""

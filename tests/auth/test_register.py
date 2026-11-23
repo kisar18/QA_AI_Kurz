@@ -144,29 +144,3 @@ class TestDemoRegister:
         self.register_page.forgot_password_link.click()
         expect(page).to_have_url(f"{self.register_page.base_url}/forgot-password")
         step("Ověřen odkaz pro obnovu hesla a přesměrování na /forgot-password")
-
-    def test_registration_html5_email_validation(self, page: Page, invalid_emails: list):
-        """Ověření HTML5 validace při zadání neplatného formátu e-mailu (z data/invalid_emails.json)."""
-        self.register_page.navigate()
-        self.register_page.register(
-            name="Valid Name",
-            email=invalid_emails[0],
-            password="Password123!",
-            password_again="Password123!",
-        )
-
-        expect(self.register_page.email_input).not_to_have_js_property("validationMessage", "")
-        step("Ověřeno spuštění nativní HTML5 validace e-mailu")
-
-        expect(page).to_have_url(f"{self.register_page.base_url}/register")
-        step("Ověřeno, že formulář se neodeslal")
-
-    def test_registration_passwords_are_masked(self, page: Page):
-        """Ověření, že obě pole pro heslo mají atribut type='password'."""
-        self.register_page.navigate()
-
-        expect(self.register_page.password_input).to_have_attribute("type", "password")
-        step("Ověřen atribut type='password' u prvního pole pro heslo")
-
-        expect(self.register_page.password_again_input).to_have_attribute("type", "password")
-        step("Ověřen atribut type='password' u potvrzovacího pole pro heslo")

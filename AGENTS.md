@@ -64,6 +64,12 @@ pytest --headed --slowmo 500
 
 # Audit lokátorů (nic nemění, jen vypisuje nálezy)
 python .agents/skills/locator-strategy/scripts/audit_locators.py pages tests
+
+# Audit kvality a bezpodmínečnosti asercí (AST kontrola, zákaz if kolem assertů)
+python .agents/skills/assertion-quality-review/scripts/audit_assertions.py tests
+
+# Rozhodnutí o stavu přehledu a testů (Definition of Done: 1:1 mapování, Zero-Unmapped-Tests)
+python .agents/skills/test-overview-generator/scripts/check_done.py
 ```
 
 - `pyproject.toml` už nastavuje Chromium a generování reportu `reports/report.html`. Tyto přepínače se nezadávají ručně.
@@ -85,14 +91,15 @@ python .agents/skills/locator-strategy/scripts/audit_locators.py pages tests
 5. **Nikdy neslabit asserty**, aby test zezelenal (mazání kontroly, zvágnění podmínky), ani používat statické kontroly typu `assert locator.is_visible()`. Vždy web-first `expect(locator)...`. Podrobná pravidla jsou v [tests/AGENTS.md](tests/AGENTS.md) a ve skillu `assertion-quality-review`.
 6. **Nikdy závislost testů na pořadí spuštění** ani na datech zbylých po jiném testu. Každý test si připraví vlastní stav.
 7. **Nikdy neukládat testy mimo `tests/`** ani testovací data mimo `data/`.
+8. **Nikdy netagovaný test bez TC ID ani duplicitní implementace.** Každý test musí povinně odkazovat na schválený manuální test case `[TC-USxx-yy]` z `manual_tests/` (striktní vazba 1:1). Žádný test case nesmí být implementován duplicitně ve více testech.
 
 ### Konfigurace a tajemství
-8. **Nikdy natvrdo URL aplikace** v testech ani Page Objectech. Používá se `BASE_URL` z `config/settings.py`.
-9. **Nikdy necommitovat `.env`**, tokeny ani osobní přihlašovací údaje. Výjimkou jsou veřejné testovací účty z `data/`.
-10. **Nikdy necommitovat vygenerované výstupy** z `reports/` (HTML reporty, screenshoty).
+9. **Nikdy natvrdo URL aplikace** v testech ani Page Objectech. Používá se `BASE_URL` z `config/settings.py`.
+10. **Nikdy necommitovat `.env`**, tokeny ani osobní přihlašovací údaje. Výjimkou jsou veřejné testovací účty z `data/`.
+11. **Nikdy necommitovat vygenerované výstupy** z `reports/` (HTML reporty, screenshoty).
 
 ### Git a změny
-11. **Nikdy `git push --force`** na `main` a nikdy nepřepisovat historii bez výslovného pokynu.
-12. **Nikdy nemazat ani neobcházet přihlášení ke GitHubu / CI.** Když push selže na autentizaci, nahlas to uživateli.
-13. **Nikdy neměnit cizí soubory mimo zadání** (např. cizí Page Objecty při psaní nového testu). Souvisejí-li změny, navrhni je zvlášť.
+12. **Nikdy `git push --force`** na `main` a nikdy nepřepisovat historii bez výslovného pokynu.
+13. **Nikdy nemazat ani neobcházet přihlášení ke GitHubu / CI.** Když push selže na autentizaci, nahlas to uživateli.
+14. **Nikdy neměnit cizí soubory mimo zadání** (např. cizí Page Objecty při psaní nového testu). Souvisejí-li změny, navrhni je zvlášť.
 
