@@ -99,6 +99,7 @@ class OverviewChecker:
         self._check_metrics_consistency(test_files_data, overview_text)
         self._check_tests_coverage(test_files_data, overview_text)
         self._check_tests_quality(test_files_data)
+        self._check_manual_tc_coverage(test_files_data)
         self._check_html_coverage_report()
 
         # Vyhodnocení výsledku:
@@ -246,6 +247,45 @@ class OverviewChecker:
             )
         else:
             self.passed_checks.append("Všechny testy mají vyplněný popis v docstringu")
+
+    def _check_manual_tc_coverage(self, test_data: List[Dict[str, Any]]):
+        """Kritérium: 100% pokrytí schválených manuálních test casů z manual_tests/."""
+        manual_tests_dir = self.project_root / "manual_tests"
+        if not manual_tests_dir.exists():
+            self.warnings.append("Složka manual_tests/ neexistuje, nelze ověřit pokrytí manuálních TC.")
+            return
+
+        tc_pattern = re.compile(r"###\s+\[(TC-[A-Za-z0-9_-]+)\]")
+        all_manual_tcs: Set[str] = set()
+        for tc_file in sorted(manual_tests_dir.glob("TC_*.md")):
+            content = tc_file.read_text(encoding="utf-8")
+            matches = tc_pattern.findall(content)
+            all_manual_tcs.update(m.strip() for m in matches)
+
+        if not all_manual_tcs:
+            self.warnings.append("V manual_tests/ nebyly nalezeny žádné schválené test casy.")
+            return
+
+        covered_tcs: Set[str] = set()
+        for file_info in test_data:
+            for test in file_info["tests"]:
+                doc = test.get("docstring", "")
+                name = test.get("name", "")
+                tcs = re.findall(r"\b(TC-[A-Za-z0-9_-]+)\b", doc)
+                name_matches = re.findall(r"tc_(us\d+)_(\d+)", name, re.IGNORECASE)
+                tcs += [f"TC-{m[0].upper()}-{int(m[1]):02d}" for m in name_matches]
+                covered_tcs.update(tcs)
+
+        missing_tcs = all_manual_tcs - covered_tcs
+        if missing_tcs:
+            self.errors.append(
+                f"Chybí automatizované testy pro {len(missing_tcs)} schválených manuálních test casů:\n"
+                + "\n".join(f"    - {tc}" for tc in sorted(missing_tcs))
+            )
+        else:
+            self.passed_checks.append(
+                f"100% pokrytí manuálních test casů ({len(all_manual_tcs)}/{len(all_manual_tcs)} schválených TC z manual_tests/ má automatizovaný test)"
+            )
 
     def _check_html_coverage_report(self):
         """Kritérium: HTML přehled pokrytí User Stories existuje a je aktuální."""

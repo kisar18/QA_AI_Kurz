@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Přehled pokrytí User Stories a Test Casů automatizovanými testy</title>
+    <title>Traceability Matrix: Pokrytí manuálních Test Casů automatizovanými testy</title>
     <style>
         :root {
             --bg-primary: #0f172a;
@@ -25,7 +25,7 @@
             padding: 2rem;
             line-height: 1.5;
         }
-        .container { max-width: 1400px; margin: 0 auto; }
+        .container { max-width: 1440px; margin: 0 auto; }
         header {
             margin-bottom: 2rem;
             padding-bottom: 1.5rem;
@@ -33,11 +33,20 @@
         }
         h1 { font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; }
         .meta-info { color: var(--text-secondary); font-size: 0.95rem; }
+        .badge-source {
+            display: inline-block;
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--accent);
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.85rem;
+        }
         
         /* KPI Cards */
         .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
             gap: 1.25rem;
             margin-bottom: 2rem;
         }
@@ -50,7 +59,7 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
         .kpi-value { font-size: 2.2rem; font-weight: 800; margin-bottom: 0.25rem; }
-        .kpi-label { color: var(--text-secondary); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        .kpi-label { color: var(--text-secondary); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.05em; }
         .text-accent { color: var(--accent); }
         .text-success { color: var(--success); }
         .text-warning { color: var(--warning); }
@@ -89,7 +98,7 @@
             padding: 0.55rem 1rem;
             border-radius: 8px;
             font-size: 0.9rem;
-            width: 260px;
+            width: 280px;
         }
 
         /* Table */
@@ -135,6 +144,13 @@
             font-size: 0.75rem;
             margin-top: 0.35rem;
         }
+        .source-file-tag {
+            display: inline-block;
+            color: #64748b;
+            font-family: monospace;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
 
         /* Badges */
         .badge {
@@ -160,17 +176,45 @@
             margin-top: 0.4rem;
         }
         details summary:hover { text-decoration: underline; }
-        .criteria-list, .tests-list {
-            margin-top: 0.5rem;
-            padding-left: 1.25rem;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
+        .tc-list, .tests-list {
+            margin-top: 0.75rem;
+            list-style: none;
+            padding-left: 0;
         }
-        .criteria-list li { margin-bottom: 0.5rem; }
+        .tc-item {
+            margin-bottom: 0.75rem;
+            padding: 0.65rem 0.85rem;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(71, 85, 105, 0.5);
+            border-radius: 8px;
+        }
+        .tc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+        .tc-id-badge {
+            font-family: monospace;
+            font-weight: 700;
+            color: #38bdf8;
+            font-size: 0.88rem;
+        }
+        .tc-meta { color: #94a3b8; font-size: 0.75rem; }
+        .tc-mapped-tests {
+            margin-top: 0.4rem;
+            padding-top: 0.4rem;
+            border-top: 1px dashed rgba(71, 85, 105, 0.4);
+            font-family: monospace;
+            font-size: 0.8rem;
+        }
         .test-item {
-            margin-bottom: 0.35rem;
+            margin-bottom: 0.4rem;
             font-family: monospace;
             color: #cbd5e1;
+            font-size: 0.85rem;
         }
         .test-meta { color: #64748b; font-size: 0.75rem; }
 
@@ -185,57 +229,53 @@
 <body>
     <div class="container">
         <header>
-            <h1>📊 Přehled pokrytí User Stories a Test Casů automatizovanými testy</h1>
+            <h1>📊 Traceability Matrix: Manuální Test Casy ➔ Automatizované testy</h1>
             <p class="meta-info">
                 Projekt: <strong>testovani.kitner.cz</strong> | 
-                Zdroj specifikace: <code>manual_tests/</code> | 
+                Zdroj test casů: <span class="badge-source">manual_tests/TC_*.md</span> | 
                 Výstup: <code>docs/coverage_overview.html</code> | 
-                Vygenerováno: <strong>2026-11-23 17:11:28</strong> (opakovatelný běh)
+                Vygenerováno: <strong>2026-11-23 17:18:55</strong>
             </p>
         </header>
 
         <!-- KPI Metriky -->
         <div class="kpi-grid">
             <div class="kpi-card">
-                <div class="kpi-value text-accent">20</div>
-                <div class="kpi-label">Celkem User Stories</div>
+                <div class="kpi-value text-accent">110</div>
+                <div class="kpi-label">Manuálních Test Casů</div>
             </div>
             <div class="kpi-card">
-                <div class="kpi-value text-success">20</div>
-                <div class="kpi-label">Plně pokryto</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-value text-warning">0</div>
-                <div class="kpi-label">Částečně pokryto</div>
+                <div class="kpi-value text-success">110</div>
+                <div class="kpi-label">Pokrytých manuálních TC</div>
             </div>
             <div class="kpi-card">
                 <div class="kpi-value text-danger">0</div>
-                <div class="kpi-label">Nepokryto</div>
+                <div class="kpi-label">Nepokrytých manuálních TC</div>
             </div>
             <div class="kpi-card">
                 <div class="kpi-value text-accent">100.0%</div>
-                <div class="kpi-label">Celkové pokrytí</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-value">110</div>
-                <div class="kpi-label">Schválených Test Casů</div>
+                <div class="kpi-label">Pokrytí manuálních TC</div>
             </div>
             <div class="kpi-card">
                 <div class="kpi-value">127</div>
                 <div class="kpi-label">Automatizovaných testů (AT)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value text-success">20/20</div>
+                <div class="kpi-label">Plně pokrytých User Stories</div>
             </div>
         </div>
 
         <!-- Ovládací prvky a filtry -->
         <div class="controls">
             <div class="filter-buttons">
-                <button class="filter-btn active" data-filter="all">Všechny (20)</button>
-                <button class="filter-btn" data-filter="covered">🟢 Pokryto (20)</button>
+                <button class="filter-btn active" data-filter="all">Všechny US (20)</button>
+                <button class="filter-btn" data-filter="covered">🟢 100% Pokryto (20)</button>
                 <button class="filter-btn" data-filter="partial">🟡 Částečně (0)</button>
                 <button class="filter-btn" data-filter="uncovered">🔴 Nepokryto (0)</button>
             </div>
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Filtrovat podle textu / US..." onkeyup="filterTable()">
+                <input type="text" id="searchInput" placeholder="Filtrovat podle textu / TC-ID..." onkeyup="filterTable()">
             </div>
         </div>
 
@@ -244,33 +284,37 @@
             <table id="coverageTable">
                 <thead>
                     <tr>
-                        <th style="width: 100px;">User Story</th>
-                        <th style="width: 200px;">Modul</th>
-                        <th>Název & Schválené Test Casy (manual_tests/)</th>
-                        <th style="width: 120px; text-align: center;">Test Casů</th>
-                        <th style="width: 110px; text-align: center;">Počet AT</th>
-                        <th style="width: 140px; text-align: center;">Stav pokrytí</th>
-                        <th style="width: 320px;">Automatizované testy (AT)</th>
+                        <th style="width: 110px;">User Story</th>
+                        <th style="width: 210px;">Modul & Soubor</th>
+                        <th>Schválené manuální Test Casy (manual_tests/) ⟷ Pokrytí automatizovanými testy</th>
+                        <th style="width: 120px; text-align: center;">Pokrytí TC</th>
+                        <th style="width: 90px; text-align: center;">Počet AT</th>
+                        <th style="width: 140px; text-align: center;">Stav US</th>
+                        <th style="width: 300px;">Automatizované testy (AT)</th>
                     </tr>
                 </thead>
                 <tbody>
 
                     <tr class="story-row" data-status="covered">
                         <td><span class="us-id">US-01</span></td>
-                        <td><span class="module-tag">Modul 0: Úvodní navigační rozcestník (Linktree)</span></td>
                         <td>
-                            <strong>Úvodní navigační rozcestník testovacích aplikací</strong>
-                            
-                <details>
-                    <summary>Zobrazit 6 schválených Test Casů (manual_tests/)</summary>
-                    <ul class="criteria-list"><li><strong>[TC-US01-01]</strong> Zobrazení rozcestníku, metadat stránky a přítomnost všech navigačních odkazů <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-2, AC-3, Priorita: High, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us01_01_linktree_elements_and_metadata_display)</span></div></li><li><strong>[TC-US01-02]</strong> Navigace přes odkaz 'Demo-login' přímo do katalogu kurzů <span style='color: #94a3b8; font-size: 0.8em;'>[AC-3, Priorita: High, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us01_02_demo_login_navigation_to_courses)</span></div></li><li><strong>[TC-US01-03]</strong> Funkčnost, cílové adresy a bezpečnostní atributy externích odkazů <span style='color: #94a3b8; font-size: 0.8em;'>[AC-2, Priorita: High, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us01_03_external_links_functionality_and_attributes)</span></div></li><li><strong>[TC-US01-04]</strong> Zpracování neexistující podstránky z rozcestníku <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, Priorita: Low, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us01_04_handling_non_existent_subpage)</span></div></li><li><strong>[TC-US01-05]</strong> Responzivní zobrazení a čitelnost rozcestníku na mobilním zařízení <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-3, Priorita: Medium, Typ: Hraniční]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us01_05_responsive_mobile_viewport)</span></div></li><li><strong>[TC-US01-06]</strong> Přístupnost a navigace rozcestníku pomocí klávesnice <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-3, Priorita: Medium, Typ: Hraniční]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us01_06_keyboard_accessibility_and_navigation)</span></div></li></ul>
-                </details>
-                
+                            <span class="module-tag">Modul 0: Úvodní navigační rozcestník (Linktree)</span><br>
+                            <span class="source-file-tag">📄 TC_US-01_rozcestnik.md</span>
                         </td>
-                        <td style="text-align: center; font-weight: 700;">6</td>
+                        <td>
+            <strong>Úvodní navigační rozcestník testovacích aplikací</strong>
+            <details open style="margin-top: 0.5rem;">
+                <summary>Zobrazit 6 manuálních test casů (pokryto 6/6)</summary>
+                <ul class="tc-list"><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US01-01]</span>       <strong>Zobrazení rozcestníku, metadat stránky a přítomnost všech navigačních odkazů</strong>      <span class='tc-meta'> • Priorita: High • Typ: Pozitivní • Kritérium: AC-1, AC-2, AC-3</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us01_01_linktree_elements_and_metadata_display</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US01-02]</span>       <strong>Navigace přes odkaz 'Demo-login' přímo do katalogu kurzů</strong>      <span class='tc-meta'> • Priorita: High • Typ: Pozitivní • Kritérium: AC-3</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us01_02_demo_login_navigation_to_courses</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US01-03]</span>       <strong>Funkčnost, cílové adresy a bezpečnostní atributy externích odkazů</strong>      <span class='tc-meta'> • Priorita: High • Typ: Pozitivní • Kritérium: AC-2</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us01_03_external_links_functionality_and_attributes</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US01-04]</span>       <strong>Zpracování neexistující podstránky z rozcestníku</strong>      <span class='tc-meta'> • Priorita: Low • Typ: Negativní • Kritérium: AC-1</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us01_04_handling_non_existent_subpage</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US01-05]</span>       <strong>Responzivní zobrazení a čitelnost rozcestníku na mobilním zařízení</strong>      <span class='tc-meta'> • Priorita: Medium • Typ: Hraniční • Kritérium: AC-1, AC-3</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us01_05_responsive_mobile_viewport</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US01-06]</span>       <strong>Přístupnost a navigace rozcestníku pomocí klávesnice</strong>      <span class='tc-meta'> • Priorita: Medium • Typ: Hraniční • Kritérium: AC-1, AC-3</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us01_06_keyboard_accessibility_and_navigation</code></div></li></ul>
+            </details>
+            </td>
+                        <td style="text-align: center; font-weight: 700; white-space: nowrap;">
+                            6/6 TC<br>
+                            <span style="font-size: 0.8rem; color: #94a3b8;">(100 %)</span>
+                        </td>
                         <td style="text-align: center; font-weight: 700; color: var(--accent);">6</td>
                         <td style="text-align: center;">
-                            <span class="badge badge-success">Plně pokryto (6/6)</span>
+                            <span class="badge badge-success">Plně pokryto</span>
                         </td>
                         <td>
                 <details open>
@@ -282,45 +326,53 @@
 
                     <tr class="story-row" data-status="covered">
                         <td><span class="us-id">US-02</span></td>
-                        <td><span class="module-tag">Modul 1: Autentizace a správa sezení (Authentication)</span></td>
                         <td>
-                            <strong>Registrace zákaznického účtu s automatickým přihlášením</strong>
-                            
-                <details>
-                    <summary>Zobrazit 6 schválených Test Casů (manual_tests/)</summary>
-                    <ul class="criteria-list"><li><strong>[TC-US02-01]</strong> Úspěšná registrace nového uživatele a automatické přihlášení <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-7, Priorita: High, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us02_01_successful_registration)</span></div></li><li><strong>[TC-US02-02]</strong> Validace povinných polí při odeslání prázdného formuláře <span style='color: #94a3b8; font-size: 0.8em;'>[AC-2, AC-6, Priorita: High, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us02_02_empty_form_validation)</span></div></li><li><strong>[TC-US02-03]</strong> Pokus o registraci s již existujícím e-mailem <span style='color: #94a3b8; font-size: 0.8em;'>[AC-3, Priorita: High, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us02_03_registration_duplicate_email)</span></div></li><li><strong>[TC-US02-04]</strong> Normalizace e-mailu a case-insensitivity unikátnosti <span style='color: #94a3b8; font-size: 0.8em;'>[AC-4, Priorita: Medium, Typ: Hraniční]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us02_04_duplicate_email_case_insensitive_and_whitespace)</span></div></li><li><strong>[TC-US02-05]</strong> Neshoda hesla a potvrzení hesla <span style='color: #94a3b8; font-size: 0.8em;'>[AC-5, AC-6, Priorita: Medium, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us02_05_password_mismatch)</span></div></li><li><strong>[TC-US02-06]</strong> Ověření navigačních odkazů na stránce registrace <span style='color: #94a3b8; font-size: 0.8em;'>[AC-8, Priorita: Low, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us02_06_navigation_links)</span></div></li></ul>
-                </details>
-                
+                            <span class="module-tag">Modul 1: Autentizace a správa sezení (Authentication)</span><br>
+                            <span class="source-file-tag">📄 TC_US-02_registrace.md</span>
                         </td>
-                        <td style="text-align: center; font-weight: 700;">6</td>
-                        <td style="text-align: center; font-weight: 700; color: var(--accent);">8</td>
+                        <td>
+            <strong>Registrace zákaznického účtu s automatickým přihlášením</strong>
+            <details open style="margin-top: 0.5rem;">
+                <summary>Zobrazit 6 manuálních test casů (pokryto 6/6)</summary>
+                <ul class="tc-list"><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US02-01]</span>       <strong>Úspěšná registrace nového uživatele a automatické přihlášení</strong>      <span class='tc-meta'> • Priorita: High • Typ: Pozitivní • Kritérium: AC-1, AC-7</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us02_01_successful_registration</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US02-02]</span>       <strong>Validace povinných polí při odeslání prázdného formuláře</strong>      <span class='tc-meta'> • Priorita: High • Typ: Negativní • Kritérium: AC-2, AC-6</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us02_02_empty_form_validation</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US02-03]</span>       <strong>Pokus o registraci s již existujícím e-mailem</strong>      <span class='tc-meta'> • Priorita: High • Typ: Negativní • Kritérium: AC-3</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us02_03_registration_duplicate_email</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US02-04]</span>       <strong>Normalizace e-mailu a case-insensitivity unikátnosti</strong>      <span class='tc-meta'> • Priorita: Medium • Typ: Hraniční • Kritérium: AC-4</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us02_04_duplicate_email_case_insensitive_and_whitespace</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US02-05]</span>       <strong>Neshoda hesla a potvrzení hesla</strong>      <span class='tc-meta'> • Priorita: Medium • Typ: Negativní • Kritérium: AC-5, AC-6</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us02_05_password_mismatch</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US02-06]</span>       <strong>Ověření navigačních odkazů na stránce registrace</strong>      <span class='tc-meta'> • Priorita: Low • Typ: Pozitivní • Kritérium: AC-8</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us02_06_navigation_links</code></div></li></ul>
+            </details>
+            </td>
+                        <td style="text-align: center; font-weight: 700; white-space: nowrap;">
+                            6/6 TC<br>
+                            <span style="font-size: 0.8rem; color: #94a3b8;">(100 %)</span>
+                        </td>
+                        <td style="text-align: center; font-weight: 700; color: var(--accent);">6</td>
                         <td style="text-align: center;">
-                            <span class="badge badge-success">Plně pokryto (8/6)</span>
+                            <span class="badge badge-success">Plně pokryto</span>
                         </td>
                         <td>
                 <details open>
-                    <summary>Přiřazené testy (8)</summary>
-                    <div class="tests-list"><div class='test-item'>⚙️ <strong>TestDemoRegister.test_tc_us02_01_successful_registration</strong><div class='test-meta'>📁 tests/auth/test_register.py | 🔍 14 kontrol</div></div><div class='test-item'>⚙️ <strong>TestDemoRegister.test_tc_us02_02_empty_form_validation</strong><div class='test-meta'>📁 tests/auth/test_register.py | 🔍 13 kontrol</div></div><div class='test-item'>⚙️ <strong>TestDemoRegister.test_tc_us02_03_registration_duplicate_email</strong><div class='test-meta'>📁 tests/auth/test_register.py | 🔍 7 kontrol</div></div><div class='test-item'>⚙️ <strong>TestDemoRegister.test_tc_us02_04_duplicate_email_case_insensitive_and_whitespace</strong><div class='test-meta'>📁 tests/auth/test_register.py | 🔍 7 kontrol</div></div><div class='test-item'>⚙️ <strong>TestDemoRegister.test_tc_us02_05_password_mismatch</strong><div class='test-meta'>📁 tests/auth/test_register.py | 🔍 7 kontrol</div></div><div class='test-item'>⚙️ <strong>TestDemoRegister.test_tc_us02_06_navigation_links</strong><div class='test-meta'>📁 tests/auth/test_register.py | 🔍 7 kontrol</div></div><div class='test-item'>⚙️ <strong>TestDemoRegister.test_registration_html5_email_validation</strong><div class='test-meta'>📁 tests/auth/test_register.py | 🔍 4 kontrol</div></div><div class='test-item'>⚙️ <strong>TestDemoRegister.test_registration_passwords_are_masked</strong><div class='test-meta'>📁 tests/auth/test_register.py | 🔍 4 kontrol</div></div></div>
+                    <summary>Přiřazené testy (6)</summary>
+                    <div class="tests-list"><div class='test-item'>⚙️ <strong>TestDemoRegister.test_tc_us02_01_successful_registration</strong><div class='test-meta'>📁 tests/auth/test_register.py | 🔍 14 kontrol</div></div><div class='test-item'>⚙️ <strong>TestDemoRegister.test_tc_us02_02_empty_form_validation</strong><div class='test-meta'>📁 tests/auth/test_register.py | 🔍 13 kontrol</div></div><div class='test-item'>⚙️ <strong>TestDemoRegister.test_tc_us02_03_registration_duplicate_email</strong><div class='test-meta'>📁 tests/auth/test_register.py | 🔍 7 kontrol</div></div><div class='test-item'>⚙️ <strong>TestDemoRegister.test_tc_us02_04_duplicate_email_case_insensitive_and_whitespace</strong><div class='test-meta'>📁 tests/auth/test_register.py | 🔍 7 kontrol</div></div><div class='test-item'>⚙️ <strong>TestDemoRegister.test_tc_us02_05_password_mismatch</strong><div class='test-meta'>📁 tests/auth/test_register.py | 🔍 7 kontrol</div></div><div class='test-item'>⚙️ <strong>TestDemoRegister.test_tc_us02_06_navigation_links</strong><div class='test-meta'>📁 tests/auth/test_register.py | 🔍 7 kontrol</div></div></div>
                 </details>
                 </td>
                     </tr>
 
                     <tr class="story-row" data-status="covered">
                         <td><span class="us-id">US-03</span></td>
-                        <td><span class="module-tag">Modul 1: Autentizace a správa sezení (Authentication)</span></td>
                         <td>
-                            <strong>Přihlášení do aplikace</strong>
-                            
-                <details>
-                    <summary>Zobrazit 7 schválených Test Casů (manual_tests/)</summary>
-                    <ul class="criteria-list"><li><strong>[TC-US03-01]</strong> Úspěšné přihlášení s platnými údaji a adaptace horní navigace podle role <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-5, AC-6, Priorita: High, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us03_01_successful_login_and_role_navigation_adaptation)</span></div></li><li><strong>[TC-US03-02]</strong> Validace povinných polí a neplatného formátu e-mailu <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-2, Priorita: High, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us03_02_validation_mandatory_fields_and_invalid_email_format)</span></div></li><li><strong>[TC-US03-03]</strong> Tolerance k velikosti písmen a automatické ořezávání mezer v e-mailu <span style='color: #94a3b8; font-size: 0.8em;'>[AC-3, AC-5, Priorita: Medium, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us03_03_case_insensitivity_and_whitespace_trimming)</span></div></li><li><strong>[TC-US03-04]</strong> Jednotná chybová hláška a bezpečnostní vyčištění pole hesla <span style='color: #94a3b8; font-size: 0.8em;'>[AC-4, Priorita: High, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us03_04_unified_error_message_prevents_user_enumeration, test_tc_us03_04_password_field_security_clearing)</span></div></li><li><strong>[TC-US03-05]</strong> Přístupné ovládání přihlašovacího formuláře z klávesnice <span style='color: #94a3b8; font-size: 0.8em;'>[AC-7, Priorita: Medium, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us03_05_keyboard_accessibility_and_navigation)</span></div></li><li><strong>[TC-US03-06]</strong> Maskování zadaného hesla a doprovodné navigační odkazy formuláře <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-4, Priorita: Medium, Typ: Hraniční]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us03_06_password_masking_and_navigation_links)</span></div></li><li><strong>[TC-US03-07]</strong> Chování při pokusu o otevření stránky přihlášení již přihlášeným uživatelem <span style='color: #94a3b8; font-size: 0.8em;'>[AC-5, AC-6, Priorita: Low, Typ: Hraniční]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us03_07_authenticated_user_access_to_login_page_redirects)</span></div></li></ul>
-                </details>
-                
+                            <span class="module-tag">Modul 1: Autentizace a správa sezení (Authentication)</span><br>
+                            <span class="source-file-tag">📄 TC_US-03_prihlaseni.md</span>
                         </td>
-                        <td style="text-align: center; font-weight: 700;">7</td>
+                        <td>
+            <strong>Přihlášení do aplikace</strong>
+            <details open style="margin-top: 0.5rem;">
+                <summary>Zobrazit 7 manuálních test casů (pokryto 7/7)</summary>
+                <ul class="tc-list"><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US03-01]</span>       <strong>Úspěšné přihlášení s platnými údaji a adaptace horní navigace podle role</strong>      <span class='tc-meta'> • Priorita: High • Typ: Pozitivní • Kritérium: AC-1, AC-5, AC-6</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us03_01_successful_login_and_role_navigation_adaptation</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US03-02]</span>       <strong>Validace povinných polí a neplatného formátu e-mailu</strong>      <span class='tc-meta'> • Priorita: High • Typ: Negativní • Kritérium: AC-1, AC-2</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us03_02_validation_mandatory_fields_and_invalid_email_format</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US03-03]</span>       <strong>Tolerance k velikosti písmen a automatické ořezávání mezer v e-mailu</strong>      <span class='tc-meta'> • Priorita: Medium • Typ: Pozitivní • Kritérium: AC-3, AC-5</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us03_03_case_insensitivity_and_whitespace_trimming</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US03-04]</span>       <strong>Jednotná chybová hláška a bezpečnostní vyčištění pole hesla</strong>      <span class='tc-meta'> • Priorita: High • Typ: Negativní • Kritérium: AC-4</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (2 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us03_04_unified_error_message_prevents_user_enumeration</code>, <code style='color: #4ade80;'>test_tc_us03_04_password_field_security_clearing</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US03-05]</span>       <strong>Přístupné ovládání přihlašovacího formuláře z klávesnice</strong>      <span class='tc-meta'> • Priorita: Medium • Typ: Pozitivní • Kritérium: AC-7</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us03_05_keyboard_accessibility_and_navigation</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US03-06]</span>       <strong>Maskování zadaného hesla a doprovodné navigační odkazy formuláře</strong>      <span class='tc-meta'> • Priorita: Medium • Typ: Hraniční • Kritérium: AC-1, AC-4</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us03_06_password_masking_and_navigation_links</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US03-07]</span>       <strong>Chování při pokusu o otevření stránky přihlášení již přihlášeným uživatelem</strong>      <span class='tc-meta'> • Priorita: Low • Typ: Hraniční • Kritérium: AC-5, AC-6</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us03_07_authenticated_user_access_to_login_page_redirects</code></div></li></ul>
+            </details>
+            </td>
+                        <td style="text-align: center; font-weight: 700; white-space: nowrap;">
+                            7/7 TC<br>
+                            <span style="font-size: 0.8rem; color: #94a3b8;">(100 %)</span>
+                        </td>
                         <td style="text-align: center; font-weight: 700; color: var(--accent);">8</td>
                         <td style="text-align: center;">
-                            <span class="badge badge-success">Plně pokryto (8/7)</span>
+                            <span class="badge badge-success">Plně pokryto</span>
                         </td>
                         <td>
                 <details open>
@@ -332,20 +384,24 @@
 
                     <tr class="story-row" data-status="covered">
                         <td><span class="us-id">US-04</span></td>
-                        <td><span class="module-tag">Modul 1: Autentizace a správa sezení (Authentication)</span></td>
                         <td>
-                            <strong>Bezpečné odhlášení ze systému</strong>
-                            
-                <details>
-                    <summary>Zobrazit 6 schválených Test Casů (manual_tests/)</summary>
-                    <ul class="criteria-list"><li><strong>[TC-US04-01]</strong> Úspěšné odhlášení přihlášeného uživatele přes horní navigaci <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-3, Priorita: High, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us04_01_successful_logout_via_navbar)</span></div></li><li><strong>[TC-US04-02]</strong> Okamžité zneplatnění uživatelského sezení a smazání klientského úložiště <span style='color: #94a3b8; font-size: 0.8em;'>[AC-2, Priorita: High, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us04_02_session_invalidation_and_storage_cleanup)</span></div></li><li><strong>[TC-US04-03]</strong> Zamezení přístupu k privátním funkcím a profilu po odhlášení přes přímou URL <span style='color: #94a3b8; font-size: 0.8em;'>[AC-4, Priorita: High, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us04_03_restricted_private_routes_access_after_logout)</span></div></li><li><strong>[TC-US04-04]</strong> Zabezpečení proti neoprávněnému návratu pomocí tlačítka Zpět v prohlížeči <span style='color: #94a3b8; font-size: 0.8em;'>[AC-2, AC-4, Priorita: Medium, Typ: Hraniční]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us04_04_browser_back_button_security)</span></div></li><li><strong>[TC-US04-05]</strong> Trvalá dostupnost tlačítka odhlášení na všech typech stránek a rozlišení <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, Priorita: Medium, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us04_05_permanent_availability_of_logout_button)</span></div></li><li><strong>[TC-US04-06]</strong> Odhlášení v jedné záložce a souběžná interakce v druhé otevřené záložce <span style='color: #94a3b8; font-size: 0.8em;'>[AC-2, AC-4, Priorita: High, Typ: Hraniční]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us04_06_concurrent_tabs_logout_invalidation)</span></div></li></ul>
-                </details>
-                
+                            <span class="module-tag">Modul 1: Autentizace a správa sezení (Authentication)</span><br>
+                            <span class="source-file-tag">📄 TC_US-04_odhlaseni.md</span>
                         </td>
-                        <td style="text-align: center; font-weight: 700;">6</td>
+                        <td>
+            <strong>Bezpečné odhlášení ze systému</strong>
+            <details open style="margin-top: 0.5rem;">
+                <summary>Zobrazit 6 manuálních test casů (pokryto 6/6)</summary>
+                <ul class="tc-list"><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US04-01]</span>       <strong>Úspěšné odhlášení přihlášeného uživatele přes horní navigaci</strong>      <span class='tc-meta'> • Priorita: High • Typ: Pozitivní • Kritérium: AC-1, AC-3</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us04_01_successful_logout_via_navbar</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US04-02]</span>       <strong>Okamžité zneplatnění uživatelského sezení a smazání klientského úložiště</strong>      <span class='tc-meta'> • Priorita: High • Typ: Pozitivní • Kritérium: AC-2</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us04_02_session_invalidation_and_storage_cleanup</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US04-03]</span>       <strong>Zamezení přístupu k privátním funkcím a profilu po odhlášení přes přímou URL</strong>      <span class='tc-meta'> • Priorita: High • Typ: Negativní • Kritérium: AC-4</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us04_03_restricted_private_routes_access_after_logout</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US04-04]</span>       <strong>Zabezpečení proti neoprávněnému návratu pomocí tlačítka Zpět v prohlížeči</strong>      <span class='tc-meta'> • Priorita: Medium • Typ: Hraniční • Kritérium: AC-2, AC-4</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us04_04_browser_back_button_security</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US04-05]</span>       <strong>Trvalá dostupnost tlačítka odhlášení na všech typech stránek a rozlišení</strong>      <span class='tc-meta'> • Priorita: Medium • Typ: Pozitivní • Kritérium: AC-1</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us04_05_permanent_availability_of_logout_button</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US04-06]</span>       <strong>Odhlášení v jedné záložce a souběžná interakce v druhé otevřené záložce</strong>      <span class='tc-meta'> • Priorita: High • Typ: Hraniční • Kritérium: AC-2, AC-4</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us04_06_concurrent_tabs_logout_invalidation</code></div></li></ul>
+            </details>
+            </td>
+                        <td style="text-align: center; font-weight: 700; white-space: nowrap;">
+                            6/6 TC<br>
+                            <span style="font-size: 0.8rem; color: #94a3b8;">(100 %)</span>
+                        </td>
                         <td style="text-align: center; font-weight: 700; color: var(--accent);">6</td>
                         <td style="text-align: center;">
-                            <span class="badge badge-success">Plně pokryto (6/6)</span>
+                            <span class="badge badge-success">Plně pokryto</span>
                         </td>
                         <td>
                 <details open>
@@ -357,20 +413,24 @@
 
                     <tr class="story-row" data-status="covered">
                         <td><span class="us-id">US-05</span></td>
-                        <td><span class="module-tag">Modul 1: Autentizace a správa sezení (Authentication)</span></td>
                         <td>
-                            <strong>Žádost o obnovu zapomenutého hesla</strong>
-                            
-                <details>
-                    <summary>Zobrazit 4 schválených Test Casů (manual_tests/)</summary>
-                    <ul class="criteria-list"><li><strong>[TC-US05-01]</strong> Úspěšné odeslání žádosti o reset hesla pro registrovaný e-mail <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-4, Priorita: High, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us05_01_successful_password_reset_request_for_registered_email)</span></div></li><li><strong>[TC-US05-02]</strong> Validace povinného pole při odeslání prázdného formuláře <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-2, AC-3, Priorita: High, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us05_02_validation_mandatory_email_field)</span></div></li><li><strong>[TC-US05-03]</strong> Validace neplatného formátu e-mailové adresy <span style='color: #94a3b8; font-size: 0.8em;'>[AC-2, AC-3, Priorita: Medium, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us05_03_validation_invalid_email_format)</span></div></li><li><strong>[TC-US05-04]</strong> Odeslání žádosti pro neexistující e-mail a prevence odhadování účtů <span style='color: #94a3b8; font-size: 0.8em;'>[AC-3, AC-4, Priorita: High, Typ: Hraniční]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us05_04_non_existent_email_user_enumeration_prevention)</span></div></li></ul>
-                </details>
-                
+                            <span class="module-tag">Modul 1: Autentizace a správa sezení (Authentication)</span><br>
+                            <span class="source-file-tag">📄 TC_US-05_zadost_o_obnovu_hesla.md</span>
                         </td>
-                        <td style="text-align: center; font-weight: 700;">4</td>
+                        <td>
+            <strong>Žádost o obnovu zapomenutého hesla</strong>
+            <details open style="margin-top: 0.5rem;">
+                <summary>Zobrazit 4 manuálních test casů (pokryto 4/4)</summary>
+                <ul class="tc-list"><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US05-01]</span>       <strong>Úspěšné odeslání žádosti o reset hesla pro registrovaný e-mail</strong>      <span class='tc-meta'> • Priorita: High • Typ: Pozitivní • Kritérium: AC-1, AC-4</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us05_01_successful_password_reset_request_for_registered_email</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US05-02]</span>       <strong>Validace povinného pole při odeslání prázdného formuláře</strong>      <span class='tc-meta'> • Priorita: High • Typ: Negativní • Kritérium: AC-1, AC-2, AC-3</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us05_02_validation_mandatory_email_field</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US05-03]</span>       <strong>Validace neplatného formátu e-mailové adresy</strong>      <span class='tc-meta'> • Priorita: Medium • Typ: Negativní • Kritérium: AC-2, AC-3</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us05_03_validation_invalid_email_format</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US05-04]</span>       <strong>Odeslání žádosti pro neexistující e-mail a prevence odhadování účtů</strong>      <span class='tc-meta'> • Priorita: High • Typ: Hraniční • Kritérium: AC-3, AC-4</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us05_04_non_existent_email_user_enumeration_prevention</code></div></li></ul>
+            </details>
+            </td>
+                        <td style="text-align: center; font-weight: 700; white-space: nowrap;">
+                            4/4 TC<br>
+                            <span style="font-size: 0.8rem; color: #94a3b8;">(100 %)</span>
+                        </td>
                         <td style="text-align: center; font-weight: 700; color: var(--accent);">4</td>
                         <td style="text-align: center;">
-                            <span class="badge badge-success">Plně pokryto (4/4)</span>
+                            <span class="badge badge-success">Plně pokryto</span>
                         </td>
                         <td>
                 <details open>
@@ -382,20 +442,24 @@
 
                     <tr class="story-row" data-status="covered">
                         <td><span class="us-id">US-06</span></td>
-                        <td><span class="module-tag">Modul 1: Autentizace a správa sezení (Authentication)</span></td>
                         <td>
-                            <strong>Dokončení změny hesla pomocí tokenu</strong>
-                            
-                <details>
-                    <summary>Zobrazit 5 schválených Test Casů (manual_tests/)</summary>
-                    <ul class="criteria-list"><li><strong>[TC-US06-01]</strong> Úspěšné nastavení nového hesla s platným tokenem <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-2, AC-3, AC-4, Priorita: High, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us06_01_successful_password_reset_with_valid_token)</span></div></li><li><strong>[TC-US06-02]</strong> Validace neshody nového hesla a kontrolního potvrzení <span style='color: #94a3b8; font-size: 0.8em;'>[AC-2, AC-3, Priorita: High, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us06_02_validation_password_mismatch)</span></div></li><li><strong>[TC-US06-03]</strong> Pokus o nastavení hesla s neplatným nebo pozměněným tokenem <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-5, Priorita: High, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us06_03_invalid_or_tampered_token_rejection)</span></div></li><li><strong>[TC-US06-04]</strong> Pokus o použití vypršeného nebo již jednou použitého tokenu <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-5, Priorita: High, Typ: Hraniční]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us06_04_expired_or_already_used_token_rejection)</span></div></li><li><strong>[TC-US06-05]</strong> Kontrola bezpečnostních pravidel pro minimální sílu hesla <span style='color: #94a3b8; font-size: 0.8em;'>[AC-2, AC-3, Priorita: Medium, Typ: Hraniční]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us06_05_security_rules_minimum_password_strength)</span></div></li></ul>
-                </details>
-                
+                            <span class="module-tag">Modul 1: Autentizace a správa sezení (Authentication)</span><br>
+                            <span class="source-file-tag">📄 TC_US-06_dokonceni_zmeny_hesla.md</span>
                         </td>
-                        <td style="text-align: center; font-weight: 700;">5</td>
+                        <td>
+            <strong>Dokončení změny hesla pomocí tokenu</strong>
+            <details open style="margin-top: 0.5rem;">
+                <summary>Zobrazit 5 manuálních test casů (pokryto 5/5)</summary>
+                <ul class="tc-list"><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US06-01]</span>       <strong>Úspěšné nastavení nového hesla s platným tokenem</strong>      <span class='tc-meta'> • Priorita: High • Typ: Pozitivní • Kritérium: AC-1, AC-2, AC-3, AC-4</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us06_01_successful_password_reset_with_valid_token</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US06-02]</span>       <strong>Validace neshody nového hesla a kontrolního potvrzení</strong>      <span class='tc-meta'> • Priorita: High • Typ: Negativní • Kritérium: AC-2, AC-3</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us06_02_validation_password_mismatch</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US06-03]</span>       <strong>Pokus o nastavení hesla s neplatným nebo pozměněným tokenem</strong>      <span class='tc-meta'> • Priorita: High • Typ: Negativní • Kritérium: AC-1, AC-5</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us06_03_invalid_or_tampered_token_rejection</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US06-04]</span>       <strong>Pokus o použití vypršeného nebo již jednou použitého tokenu</strong>      <span class='tc-meta'> • Priorita: High • Typ: Hraniční • Kritérium: AC-1, AC-5</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us06_04_expired_or_already_used_token_rejection</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US06-05]</span>       <strong>Kontrola bezpečnostních pravidel pro minimální sílu hesla</strong>      <span class='tc-meta'> • Priorita: Medium • Typ: Hraniční • Kritérium: AC-2, AC-3</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us06_05_security_rules_minimum_password_strength</code></div></li></ul>
+            </details>
+            </td>
+                        <td style="text-align: center; font-weight: 700; white-space: nowrap;">
+                            5/5 TC<br>
+                            <span style="font-size: 0.8rem; color: #94a3b8;">(100 %)</span>
+                        </td>
                         <td style="text-align: center; font-weight: 700; color: var(--accent);">5</td>
                         <td style="text-align: center;">
-                            <span class="badge badge-success">Plně pokryto (5/5)</span>
+                            <span class="badge badge-success">Plně pokryto</span>
                         </td>
                         <td>
                 <details open>
@@ -407,20 +471,24 @@
 
                     <tr class="story-row" data-status="covered">
                         <td><span class="us-id">US-07</span></td>
-                        <td><span class="module-tag">Modul 1: Autentizace a správa sezení (Authentication)</span></td>
                         <td>
-                            <strong>Ověření e-mailové adresy (Email Verification)</strong>
-                            
-                <details>
-                    <summary>Zobrazit 4 schválených Test Casů (manual_tests/)</summary>
-                    <ul class="criteria-list"><li><strong>[TC-US07-01]</strong> Úspěšné ověření e-mailu pomocí platného podepsaného odkazu <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-2, Priorita: High, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us07_01_successful_email_verification_with_valid_link)</span></div></li><li><strong>[TC-US07-02]</strong> Odmítnutí pozměněného nebo vypršeného ověřovacího odkazu <span style='color: #94a3b8; font-size: 0.8em;'>[AC-3, Priorita: High, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us07_02_tampered_or_expired_verification_link_rejected)</span></div></li><li><strong>[TC-US07-03]</strong> Opětovné vyžádání nového ověřovacího odkazu z rozhraní aplikace <span style='color: #94a3b8; font-size: 0.8em;'>[AC-4, Priorita: Medium, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us07_03_resend_verification_link_request)</span></div></li><li><strong>[TC-US07-04]</strong> Ochrana proti zahlcení (Rate Limiting) při opakovaném vyžádání ověření <span style='color: #94a3b8; font-size: 0.8em;'>[AC-5, Priorita: Medium, Typ: Hraniční]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us07_04_rate_limiting_resend_verification)</span></div></li></ul>
-                </details>
-                
+                            <span class="module-tag">Modul 1: Autentizace a správa sezení (Authentication)</span><br>
+                            <span class="source-file-tag">📄 TC_US-07_overeni_emailu.md</span>
                         </td>
-                        <td style="text-align: center; font-weight: 700;">4</td>
+                        <td>
+            <strong>Ověření e-mailové adresy (Email Verification)</strong>
+            <details open style="margin-top: 0.5rem;">
+                <summary>Zobrazit 4 manuálních test casů (pokryto 4/4)</summary>
+                <ul class="tc-list"><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US07-01]</span>       <strong>Úspěšné ověření e-mailu pomocí platného podepsaného odkazu</strong>      <span class='tc-meta'> • Priorita: High • Typ: Pozitivní • Kritérium: AC-1, AC-2</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us07_01_successful_email_verification_with_valid_link</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US07-02]</span>       <strong>Odmítnutí pozměněného nebo vypršeného ověřovacího odkazu</strong>      <span class='tc-meta'> • Priorita: High • Typ: Negativní • Kritérium: AC-3</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us07_02_tampered_or_expired_verification_link_rejected</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US07-03]</span>       <strong>Opětovné vyžádání nového ověřovacího odkazu z rozhraní aplikace</strong>      <span class='tc-meta'> • Priorita: Medium • Typ: Pozitivní • Kritérium: AC-4</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us07_03_resend_verification_link_request</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US07-04]</span>       <strong>Ochrana proti zahlcení (Rate Limiting) při opakovaném vyžádání ověření</strong>      <span class='tc-meta'> • Priorita: Medium • Typ: Hraniční • Kritérium: AC-5</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us07_04_rate_limiting_resend_verification</code></div></li></ul>
+            </details>
+            </td>
+                        <td style="text-align: center; font-weight: 700; white-space: nowrap;">
+                            4/4 TC<br>
+                            <span style="font-size: 0.8rem; color: #94a3b8;">(100 %)</span>
+                        </td>
                         <td style="text-align: center; font-weight: 700; color: var(--accent);">4</td>
                         <td style="text-align: center;">
-                            <span class="badge badge-success">Plně pokryto (4/4)</span>
+                            <span class="badge badge-success">Plně pokryto</span>
                         </td>
                         <td>
                 <details open>
@@ -432,20 +500,24 @@
 
                     <tr class="story-row" data-status="covered">
                         <td><span class="us-id">US-08</span></td>
-                        <td><span class="module-tag">Modul 1: Autentizace a správa sezení (Authentication)</span></td>
                         <td>
-                            <strong>Ochrana proti útokům hrubou silou na přihlášení (Rate Limiting)</strong>
-                            
-                <details>
-                    <summary>Zobrazit 8 schválených Test Casů (manual_tests/)</summary>
-                    <ul class="criteria-list"><li><strong>[TC-US08-01]</strong> Průchod povoleného limitu 1 až 5 neúspěšných pokusů o přihlášení <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-2, Priorita: High, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us08_01_attempts_1_to_5_allowed_without_blocking)</span></div></li><li><strong>[TC-US08-02]</strong> Dočasná blokace při 6. neúspěšném pokusu a zobrazení odpočtu sekund <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-2, AC-3, Priorita: High, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us08_02_blocking_on_6th_attempt_and_countdown_display)</span></div></li><li><strong>[TC-US08-03]</strong> Automatické vynulování počítadla neúspěšných pokusů po úspěšném přihlášení <span style='color: #94a3b8; font-size: 0.8em;'>[AC-4, Priorita: High, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us08_03_counter_reset_after_successful_login)</span></div></li><li><strong>[TC-US08-04]</strong> Obnovení možnosti přihlášení po vypršení časového limitu blokace <span style='color: #94a3b8; font-size: 0.8em;'>[AC-3, Priorita: Medium, Typ: Hraniční]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us08_04_restoration_of_login_after_throttle_expiration)</span></div></li><li><strong>[TC-US08-05]</strong> Izolace počítadla neúspěšných pokusů na konkrétní e-mailovou adresu <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, Priorita: High, Typ: Hraniční]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us08_05_rate_limit_isolation_per_account)</span></div></li><li><strong>[TC-US08-06]</strong> Sjednocení počítadla při různé velikosti písmen v e-mailu (Case Sensitivity & Normalizace) <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-2, Priorita: High, Typ: Hraniční]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us08_06_case_sensitivity_and_normalization_unification)</span></div></li><li><strong>[TC-US08-07]</strong> Ochrana proti útokům hrubou silou na neexistující účty (Prevence User Enumeration) <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-3, Priorita: High, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us08_07_brute_force_protection_on_non_existent_accounts)</span></div></li><li><strong>[TC-US08-08]</strong> Pokus o odeslání přihlášení uprostřed doby aktivní blokace a kontrola odpočtu <span style='color: #94a3b8; font-size: 0.8em;'>[AC-3, Priorita: Medium, Typ: Hraniční]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us08_08_submission_during_active_block_and_countdown_check)</span></div></li></ul>
-                </details>
-                
+                            <span class="module-tag">Modul 1: Autentizace a správa sezení (Authentication)</span><br>
+                            <span class="source-file-tag">📄 TC_US-08_rate_limiting.md</span>
                         </td>
-                        <td style="text-align: center; font-weight: 700;">8</td>
+                        <td>
+            <strong>Ochrana proti útokům hrubou silou na přihlášení (Rate Limiting)</strong>
+            <details open style="margin-top: 0.5rem;">
+                <summary>Zobrazit 8 manuálních test casů (pokryto 8/8)</summary>
+                <ul class="tc-list"><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US08-01]</span>       <strong>Průchod povoleného limitu 1 až 5 neúspěšných pokusů o přihlášení</strong>      <span class='tc-meta'> • Priorita: High • Typ: Pozitivní • Kritérium: AC-1, AC-2</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us08_01_attempts_1_to_5_allowed_without_blocking</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US08-02]</span>       <strong>Dočasná blokace při 6. neúspěšném pokusu a zobrazení odpočtu sekund</strong>      <span class='tc-meta'> • Priorita: High • Typ: Negativní • Kritérium: AC-1, AC-2, AC-3</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us08_02_blocking_on_6th_attempt_and_countdown_display</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US08-03]</span>       <strong>Automatické vynulování počítadla neúspěšných pokusů po úspěšném přihlášení</strong>      <span class='tc-meta'> • Priorita: High • Typ: Pozitivní • Kritérium: AC-4</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us08_03_counter_reset_after_successful_login</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US08-04]</span>       <strong>Obnovení možnosti přihlášení po vypršení časového limitu blokace</strong>      <span class='tc-meta'> • Priorita: Medium • Typ: Hraniční • Kritérium: AC-3</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us08_04_restoration_of_login_after_throttle_expiration</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US08-05]</span>       <strong>Izolace počítadla neúspěšných pokusů na konkrétní e-mailovou adresu</strong>      <span class='tc-meta'> • Priorita: High • Typ: Hraniční • Kritérium: AC-1</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us08_05_rate_limit_isolation_per_account</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US08-06]</span>       <strong>Sjednocení počítadla při různé velikosti písmen v e-mailu (Case Sensitivity & Normalizace)</strong>      <span class='tc-meta'> • Priorita: High • Typ: Hraniční • Kritérium: AC-1, AC-2</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us08_06_case_sensitivity_and_normalization_unification</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US08-07]</span>       <strong>Ochrana proti útokům hrubou silou na neexistující účty (Prevence User Enumeration)</strong>      <span class='tc-meta'> • Priorita: High • Typ: Negativní • Kritérium: AC-1, AC-3</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us08_07_brute_force_protection_on_non_existent_accounts</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US08-08]</span>       <strong>Pokus o odeslání přihlášení uprostřed doby aktivní blokace a kontrola odpočtu</strong>      <span class='tc-meta'> • Priorita: Medium • Typ: Hraniční • Kritérium: AC-3</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us08_08_submission_during_active_block_and_countdown_check</code></div></li></ul>
+            </details>
+            </td>
+                        <td style="text-align: center; font-weight: 700; white-space: nowrap;">
+                            8/8 TC<br>
+                            <span style="font-size: 0.8rem; color: #94a3b8;">(100 %)</span>
+                        </td>
                         <td style="text-align: center; font-weight: 700; color: var(--accent);">8</td>
                         <td style="text-align: center;">
-                            <span class="badge badge-success">Plně pokryto (8/8)</span>
+                            <span class="badge badge-success">Plně pokryto</span>
                         </td>
                         <td>
                 <details open>
@@ -457,95 +529,111 @@
 
                     <tr class="story-row" data-status="covered">
                         <td><span class="us-id">US-09</span></td>
-                        <td><span class="module-tag">Modul 2: Katalog a detail kurzů (Courses)</span></td>
                         <td>
-                            <strong>Prohlížení katalogu kurzů</strong>
-                            
-                <details>
-                    <summary>Zobrazit 5 schválených Test Casů (manual_tests/)</summary>
-                    <ul class="criteria-list"><li><strong>[TC-US09-01]</strong> Přehledné zobrazení katalogu kurzů a povinných údajů na kartách <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-2, AC-3, Priorita: High, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us09_01_courses_catalog_display_and_card_elements)</span></div></li><li><strong>[TC-US09-02]</strong> Zobrazení neutrálního výchozího obrázku u kurzu bez vlastního náhledu <span style='color: #94a3b8; font-size: 0.8em;'>[AC-3, Priorita: Medium, Typ: Hraniční]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us09_02_default_image_for_course_without_thumbnail)</span></div></li><li><strong>[TC-US09-03]</strong> Přechod na podrobný detail kurzu z karty v katalogu <span style='color: #94a3b8; font-size: 0.8em;'>[AC-4, Priorita: High, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us09_03_navigate_to_course_detail)</span></div></li><li><strong>[TC-US09-04]</strong> Zobrazení výzvy k registraci pro nepřihlášeného návštěvníka <span style='color: #94a3b8; font-size: 0.8em;'>[AC-5, Priorita: High, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us09_04_anonymous_user_registration_prompt)</span></div></li><li><strong>[TC-US09-05]</strong> Absence výzvy k registraci pro již přihlášeného uživatele <span style='color: #94a3b8; font-size: 0.8em;'>[AC-5, Priorita: Low, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us09_05_absence_of_registration_prompt_for_authenticated_user)</span></div></li></ul>
-                </details>
-                
+                            <span class="module-tag">Modul 2: Katalog a detail kurzů (Courses)</span><br>
+                            <span class="source-file-tag">📄 TC_US-09_katalog_kurzu.md</span>
                         </td>
-                        <td style="text-align: center; font-weight: 700;">5</td>
-                        <td style="text-align: center; font-weight: 700; color: var(--accent);">9</td>
+                        <td>
+            <strong>Prohlížení katalogu kurzů</strong>
+            <details open style="margin-top: 0.5rem;">
+                <summary>Zobrazit 5 manuálních test casů (pokryto 5/5)</summary>
+                <ul class="tc-list"><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US09-01]</span>       <strong>Přehledné zobrazení katalogu kurzů a povinných údajů na kartách</strong>      <span class='tc-meta'> • Priorita: High • Typ: Pozitivní • Kritérium: AC-1, AC-2, AC-3</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us09_01_courses_catalog_display_and_card_elements</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US09-02]</span>       <strong>Zobrazení neutrálního výchozího obrázku u kurzu bez vlastního náhledu</strong>      <span class='tc-meta'> • Priorita: Medium • Typ: Hraniční • Kritérium: AC-3</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us09_02_default_image_for_course_without_thumbnail</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US09-03]</span>       <strong>Přechod na podrobný detail kurzu z karty v katalogu</strong>      <span class='tc-meta'> • Priorita: High • Typ: Pozitivní • Kritérium: AC-4</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us09_03_navigate_to_course_detail</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US09-04]</span>       <strong>Zobrazení výzvy k registraci pro nepřihlášeného návštěvníka</strong>      <span class='tc-meta'> • Priorita: High • Typ: Pozitivní • Kritérium: AC-5</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us09_04_anonymous_user_registration_prompt</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US09-05]</span>       <strong>Absence výzvy k registraci pro již přihlášeného uživatele</strong>      <span class='tc-meta'> • Priorita: Low • Typ: Negativní • Kritérium: AC-5</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us09_05_absence_of_registration_prompt_for_authenticated_user</code></div></li></ul>
+            </details>
+            </td>
+                        <td style="text-align: center; font-weight: 700; white-space: nowrap;">
+                            5/5 TC<br>
+                            <span style="font-size: 0.8rem; color: #94a3b8;">(100 %)</span>
+                        </td>
+                        <td style="text-align: center; font-weight: 700; color: var(--accent);">5</td>
                         <td style="text-align: center;">
-                            <span class="badge badge-success">Plně pokryto (9/5)</span>
+                            <span class="badge badge-success">Plně pokryto</span>
                         </td>
                         <td>
                 <details open>
-                    <summary>Přiřazené testy (9)</summary>
-                    <div class="tests-list"><div class='test-item'>⚙️ <strong>TestCoursesCatalog.test_courses_catalog_display</strong><div class='test-meta'>📁 tests/courses/test_courses.py | 🔍 8 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCoursesCatalog.test_course_card_elements_presence</strong><div class='test-meta'>📁 tests/courses/test_courses.py | 🔍 16 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCoursesCatalog.test_anonymous_user_registration_prompt_in_catalog</strong><div class='test-meta'>📁 tests/courses/test_courses.py | 🔍 6 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCoursesCatalog.test_navigate_to_course_detail</strong><div class='test-meta'>📁 tests/courses/test_courses.py | 🔍 4 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCoursesCatalog.test_tc_us09_01_courses_catalog_display_and_card_elements</strong><div class='test-meta'>📁 tests/courses/test_courses_catalog.py | 🔍 22 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCoursesCatalog.test_tc_us09_02_default_image_for_course_without_thumbnail</strong><div class='test-meta'>📁 tests/courses/test_courses_catalog.py | 🔍 5 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCoursesCatalog.test_tc_us09_03_navigate_to_course_detail</strong><div class='test-meta'>📁 tests/courses/test_courses_catalog.py | 🔍 4 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCoursesCatalog.test_tc_us09_04_anonymous_user_registration_prompt</strong><div class='test-meta'>📁 tests/courses/test_courses_catalog.py | 🔍 6 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCoursesCatalog.test_tc_us09_05_absence_of_registration_prompt_for_authenticated_user</strong><div class='test-meta'>📁 tests/courses/test_courses_catalog.py | 🔍 5 kontrol</div></div></div>
+                    <summary>Přiřazené testy (5)</summary>
+                    <div class="tests-list"><div class='test-item'>⚙️ <strong>TestCoursesCatalog.test_tc_us09_01_courses_catalog_display_and_card_elements</strong><div class='test-meta'>📁 tests/courses/test_courses_catalog.py | 🔍 22 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCoursesCatalog.test_tc_us09_02_default_image_for_course_without_thumbnail</strong><div class='test-meta'>📁 tests/courses/test_courses_catalog.py | 🔍 5 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCoursesCatalog.test_tc_us09_03_navigate_to_course_detail</strong><div class='test-meta'>📁 tests/courses/test_courses_catalog.py | 🔍 4 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCoursesCatalog.test_tc_us09_04_anonymous_user_registration_prompt</strong><div class='test-meta'>📁 tests/courses/test_courses_catalog.py | 🔍 6 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCoursesCatalog.test_tc_us09_05_absence_of_registration_prompt_for_authenticated_user</strong><div class='test-meta'>📁 tests/courses/test_courses_catalog.py | 🔍 5 kontrol</div></div></div>
                 </details>
                 </td>
                     </tr>
 
                     <tr class="story-row" data-status="covered">
                         <td><span class="us-id">US-10</span></td>
-                        <td><span class="module-tag">Modul 2: Katalog a detail kurzů (Courses)</span></td>
                         <td>
-                            <strong>Zobrazení detailu kurzu a vypsaných termínů</strong>
-                            
-                <details>
-                    <summary>Zobrazit 4 schválených Test Casů (manual_tests/)</summary>
-                    <ul class="criteria-list"><li><strong>[TC-US10-01]</strong> Zobrazení kompletních informací o kurzu a seznamu vypsaných běhů <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-2, AC-3, Priorita: High, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us10_01_course_detail_content_and_iterations_list)</span></div></li><li><strong>[TC-US10-02]</strong> Ověření formátu a výpočtu poměru obsazenosti termínu (např. 3/12) <span style='color: #94a3b8; font-size: 0.8em;'>[AC-3, Priorita: Medium, Typ: Hraniční]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us10_02_iteration_capacity_ratio_format)</span></div></li><li><strong>[TC-US10-03]</strong> Zobrazení výzvy k vytvoření účtu pro nepřihlášeného návštěvníka na detailu kurzu <span style='color: #94a3b8; font-size: 0.8em;'>[AC-4, Priorita: High, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us10_03_registration_prompt_for_anonymous_user_on_detail)</span></div></li><li><strong>[TC-US10-04]</strong> Zpracování požadavku na neexistující ID kurzu <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, Priorita: Low, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us10_04_non_existent_course_id_handling)</span></div></li></ul>
-                </details>
-                
+                            <span class="module-tag">Modul 2: Katalog a detail kurzů (Courses)</span><br>
+                            <span class="source-file-tag">📄 TC_US-10_detail_kurzu.md</span>
                         </td>
-                        <td style="text-align: center; font-weight: 700;">4</td>
-                        <td style="text-align: center; font-weight: 700; color: var(--accent);">7</td>
+                        <td>
+            <strong>Zobrazení detailu kurzu a vypsaných termínů</strong>
+            <details open style="margin-top: 0.5rem;">
+                <summary>Zobrazit 4 manuálních test casů (pokryto 4/4)</summary>
+                <ul class="tc-list"><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US10-01]</span>       <strong>Zobrazení kompletních informací o kurzu a seznamu vypsaných běhů</strong>      <span class='tc-meta'> • Priorita: High • Typ: Pozitivní • Kritérium: AC-1, AC-2, AC-3</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us10_01_course_detail_content_and_iterations_list</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US10-02]</span>       <strong>Ověření formátu a výpočtu poměru obsazenosti termínu (např. 3/12)</strong>      <span class='tc-meta'> • Priorita: Medium • Typ: Hraniční • Kritérium: AC-3</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us10_02_iteration_capacity_ratio_format</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US10-03]</span>       <strong>Zobrazení výzvy k vytvoření účtu pro nepřihlášeného návštěvníka na detailu kurzu</strong>      <span class='tc-meta'> • Priorita: High • Typ: Pozitivní • Kritérium: AC-4</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us10_03_registration_prompt_for_anonymous_user_on_detail</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US10-04]</span>       <strong>Zpracování požadavku na neexistující ID kurzu</strong>      <span class='tc-meta'> • Priorita: Low • Typ: Negativní • Kritérium: AC-1</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us10_04_non_existent_course_id_handling</code></div></li></ul>
+            </details>
+            </td>
+                        <td style="text-align: center; font-weight: 700; white-space: nowrap;">
+                            4/4 TC<br>
+                            <span style="font-size: 0.8rem; color: #94a3b8;">(100 %)</span>
+                        </td>
+                        <td style="text-align: center; font-weight: 700; color: var(--accent);">4</td>
                         <td style="text-align: center;">
-                            <span class="badge badge-success">Plně pokryto (7/4)</span>
+                            <span class="badge badge-success">Plně pokryto</span>
                         </td>
                         <td>
                 <details open>
-                    <summary>Přiřazené testy (7)</summary>
-                    <div class="tests-list"><div class='test-item'>⚙️ <strong>TestCourseDetail.test_tc_us10_01_course_detail_content_and_iterations_list</strong><div class='test-meta'>📁 tests/courses/test_course_detail.py | 🔍 21 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCourseDetail.test_tc_us10_02_iteration_capacity_ratio_format</strong><div class='test-meta'>📁 tests/courses/test_course_detail.py | 🔍 5 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCourseDetail.test_tc_us10_03_registration_prompt_for_anonymous_user_on_detail</strong><div class='test-meta'>📁 tests/courses/test_course_detail.py | 🔍 5 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCourseDetail.test_tc_us10_04_non_existent_course_id_handling</strong><div class='test-meta'>📁 tests/courses/test_course_detail.py | 🔍 2 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCoursesCatalog.test_navigate_to_course_detail</strong><div class='test-meta'>📁 tests/courses/test_courses.py | 🔍 4 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCoursesCatalog.test_course_detail_content_and_iterations_format</strong><div class='test-meta'>📁 tests/courses/test_courses.py | 🔍 8 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCoursesCatalog.test_course_detail_iterations_anonymous_vs_authenticated</strong><div class='test-meta'>📁 tests/courses/test_courses.py | 🔍 8 kontrol</div></div></div>
+                    <summary>Přiřazené testy (4)</summary>
+                    <div class="tests-list"><div class='test-item'>⚙️ <strong>TestCourseDetail.test_tc_us10_01_course_detail_content_and_iterations_list</strong><div class='test-meta'>📁 tests/courses/test_course_detail.py | 🔍 21 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCourseDetail.test_tc_us10_02_iteration_capacity_ratio_format</strong><div class='test-meta'>📁 tests/courses/test_course_detail.py | 🔍 5 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCourseDetail.test_tc_us10_03_registration_prompt_for_anonymous_user_on_detail</strong><div class='test-meta'>📁 tests/courses/test_course_detail.py | 🔍 5 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCourseDetail.test_tc_us10_04_non_existent_course_id_handling</strong><div class='test-meta'>📁 tests/courses/test_course_detail.py | 🔍 2 kontrol</div></div></div>
                 </details>
                 </td>
                     </tr>
 
                     <tr class="story-row" data-status="covered">
                         <td><span class="us-id">US-11</span></td>
-                        <td><span class="module-tag">Modul 2: Katalog a detail kurzů (Courses)</span></td>
                         <td>
-                            <strong>Vizuální indikace a zamezení zápisu při naplněné kapacitě</strong>
-                            
-                <details>
-                    <summary>Zobrazit 3 schválených Test Casů (manual_tests/)</summary>
-                    <ul class="criteria-list"><li><strong>[TC-US11-01]</strong> Zobrazení tlačítka registrace u běhu s volnou kapacitou a přesměrování <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-2, Priorita: High, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us11_01_enroll_button_for_available_capacity)</span></div></li><li><strong>[TC-US11-02]</strong> Skrytí registrace a indikace plné obsazenosti u vyčerpané kapacity <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-3, Priorita: High, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us11_02_fully_booked_iteration_indication)</span></div></li><li><strong>[TC-US11-03]</strong> Zamezení přímého zápisu na plně obsazený běh přes přímou URL <span style='color: #94a3b8; font-size: 0.8em;'>[AC-2, AC-3, Priorita: High, Typ: Hraniční]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us11_03_direct_url_access_to_fully_booked_iteration)</span></div></li></ul>
-                </details>
-                
+                            <span class="module-tag">Modul 2: Katalog a detail kurzů (Courses)</span><br>
+                            <span class="source-file-tag">📄 TC_US-11_kapacita_kurzu.md</span>
                         </td>
-                        <td style="text-align: center; font-weight: 700;">3</td>
-                        <td style="text-align: center; font-weight: 700; color: var(--accent);">5</td>
+                        <td>
+            <strong>Vizuální indikace a zamezení zápisu při naplněné kapacitě</strong>
+            <details open style="margin-top: 0.5rem;">
+                <summary>Zobrazit 3 manuálních test casů (pokryto 3/3)</summary>
+                <ul class="tc-list"><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US11-01]</span>       <strong>Zobrazení tlačítka registrace u běhu s volnou kapacitou a přesměrování</strong>      <span class='tc-meta'> • Priorita: High • Typ: Pozitivní • Kritérium: AC-1, AC-2</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us11_01_enroll_button_for_available_capacity</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US11-02]</span>       <strong>Skrytí registrace a indikace plné obsazenosti u vyčerpané kapacity</strong>      <span class='tc-meta'> • Priorita: High • Typ: Negativní • Kritérium: AC-1, AC-3</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us11_02_fully_booked_iteration_indication</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US11-03]</span>       <strong>Zamezení přímého zápisu na plně obsazený běh přes přímou URL</strong>      <span class='tc-meta'> • Priorita: High • Typ: Hraniční • Kritérium: AC-2, AC-3</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us11_03_direct_url_access_to_fully_booked_iteration</code></div></li></ul>
+            </details>
+            </td>
+                        <td style="text-align: center; font-weight: 700; white-space: nowrap;">
+                            3/3 TC<br>
+                            <span style="font-size: 0.8rem; color: #94a3b8;">(100 %)</span>
+                        </td>
+                        <td style="text-align: center; font-weight: 700; color: var(--accent);">3</td>
                         <td style="text-align: center;">
-                            <span class="badge badge-success">Plně pokryto (5/3)</span>
+                            <span class="badge badge-success">Plně pokryto</span>
                         </td>
                         <td>
                 <details open>
-                    <summary>Přiřazené testy (5)</summary>
-                    <div class="tests-list"><div class='test-item'>⚙️ <strong>TestCourseCapacity.test_tc_us11_01_enroll_button_for_available_capacity</strong><div class='test-meta'>📁 tests/courses/test_course_capacity.py | 🔍 9 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCourseCapacity.test_tc_us11_02_fully_booked_iteration_indication</strong><div class='test-meta'>📁 tests/courses/test_course_capacity.py | 🔍 6 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCourseCapacity.test_tc_us11_03_direct_url_access_to_fully_booked_iteration</strong><div class='test-meta'>📁 tests/courses/test_course_capacity.py | 🔍 2 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCoursesCatalog.test_course_detail_iterations_anonymous_vs_authenticated</strong><div class='test-meta'>📁 tests/courses/test_courses.py | 🔍 8 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCoursesCatalog.test_fully_booked_iteration_indication</strong><div class='test-meta'>📁 tests/courses/test_courses.py | 🔍 5 kontrol</div></div></div>
+                    <summary>Přiřazené testy (3)</summary>
+                    <div class="tests-list"><div class='test-item'>⚙️ <strong>TestCourseCapacity.test_tc_us11_01_enroll_button_for_available_capacity</strong><div class='test-meta'>📁 tests/courses/test_course_capacity.py | 🔍 9 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCourseCapacity.test_tc_us11_02_fully_booked_iteration_indication</strong><div class='test-meta'>📁 tests/courses/test_course_capacity.py | 🔍 6 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCourseCapacity.test_tc_us11_03_direct_url_access_to_fully_booked_iteration</strong><div class='test-meta'>📁 tests/courses/test_course_capacity.py | 🔍 2 kontrol</div></div></div>
                 </details>
                 </td>
                     </tr>
 
                     <tr class="story-row" data-status="covered">
                         <td><span class="us-id">US-12</span></td>
-                        <td><span class="module-tag">Modul 3: Zápis a Moje kurzy (Enrollment)</span></td>
                         <td>
-                            <strong>Nezávazná registrace na běh kurzu s validací IČO a telefonu</strong>
-                            
-                <details>
-                    <summary>Zobrazit 5 schválených Test Casů (manual_tests/)</summary>
-                    <ul class="criteria-list"><li><strong>[TC-US12-01]</strong> Úspěšná nezávazná registrace na běh kurzu s platným IČO a telefonem <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-2, AC-3, AC-5, AC-6, AC-7, Priorita: High, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us12_01_successful_enrollment_with_ico_and_phone)</span></div></li><li><strong>[TC-US12-02]</strong> Validace povinného pole a minimální délky telefonního čísla <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-2, AC-4, Priorita: High, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us12_02_validation_of_required_phone_and_minimum_length)</span></div></li><li><strong>[TC-US12-03]</strong> Validace formální platnosti IČO pomocí váženého kontrolního součtu modulo 11 <span style='color: #94a3b8; font-size: 0.8em;'>[AC-3, AC-4, Priorita: High, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us12_03_validation_of_ico_checksum_modulo_11)</span></div></li><li><strong>[TC-US12-04]</strong> Zamezení zápisu na kurz pro nepovolané role (Lektor a nepřihlášený host) <span style='color: #94a3b8; font-size: 0.8em;'>[AC-5, Priorita: High, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us12_04_prevention_of_enrollment_for_unauthorized_roles)</span></div></li><li><strong>[TC-US12-05]</strong> Úspěšný zápis na kurz bez vyplnění nepovinného pole IČO <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-2, AC-6, AC-7, Priorita: Medium, Typ: Hraniční]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us12_05_successful_enrollment_without_optional_ico)</span></div></li></ul>
-                </details>
-                
+                            <span class="module-tag">Modul 3: Zápis a Moje kurzy (Enrollment)</span><br>
+                            <span class="source-file-tag">📄 TC_US-12_registrace_na_kurz.md</span>
                         </td>
-                        <td style="text-align: center; font-weight: 700;">5</td>
+                        <td>
+            <strong>Nezávazná registrace na běh kurzu s validací IČO a telefonu</strong>
+            <details open style="margin-top: 0.5rem;">
+                <summary>Zobrazit 5 manuálních test casů (pokryto 5/5)</summary>
+                <ul class="tc-list"><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US12-01]</span>       <strong>Úspěšná nezávazná registrace na běh kurzu s platným IČO a telefonem</strong>      <span class='tc-meta'> • Priorita: High • Typ: Pozitivní • Kritérium: AC-1, AC-2, AC-3, AC-5, AC-6, AC-7</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us12_01_successful_enrollment_with_ico_and_phone</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US12-02]</span>       <strong>Validace povinného pole a minimální délky telefonního čísla</strong>      <span class='tc-meta'> • Priorita: High • Typ: Negativní • Kritérium: AC-1, AC-2, AC-4</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us12_02_validation_of_required_phone_and_minimum_length</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US12-03]</span>       <strong>Validace formální platnosti IČO pomocí váženého kontrolního součtu modulo 11</strong>      <span class='tc-meta'> • Priorita: High • Typ: Negativní • Kritérium: AC-3, AC-4</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us12_03_validation_of_ico_checksum_modulo_11</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US12-04]</span>       <strong>Zamezení zápisu na kurz pro nepovolané role (Lektor a nepřihlášený host)</strong>      <span class='tc-meta'> • Priorita: High • Typ: Negativní • Kritérium: AC-5</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us12_04_prevention_of_enrollment_for_unauthorized_roles</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US12-05]</span>       <strong>Úspěšný zápis na kurz bez vyplnění nepovinného pole IČO</strong>      <span class='tc-meta'> • Priorita: Medium • Typ: Hraniční • Kritérium: AC-1, AC-2, AC-6, AC-7</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us12_05_successful_enrollment_without_optional_ico</code></div></li></ul>
+            </details>
+            </td>
+                        <td style="text-align: center; font-weight: 700; white-space: nowrap;">
+                            5/5 TC<br>
+                            <span style="font-size: 0.8rem; color: #94a3b8;">(100 %)</span>
+                        </td>
                         <td style="text-align: center; font-weight: 700; color: var(--accent);">5</td>
                         <td style="text-align: center;">
-                            <span class="badge badge-success">Plně pokryto (5/5)</span>
+                            <span class="badge badge-success">Plně pokryto</span>
                         </td>
                         <td>
                 <details open>
@@ -557,70 +645,82 @@
 
                     <tr class="story-row" data-status="covered">
                         <td><span class="us-id">US-13</span></td>
-                        <td><span class="module-tag">Modul 3: Zápis a Moje kurzy (Enrollment)</span></td>
                         <td>
-                            <strong>Přehled mých zapsaných kurzů</strong>
-                            
-                <details>
-                    <summary>Zobrazit 8 schválených Test Casů (manual_tests/)</summary>
-                    <ul class="criteria-list"><li><strong>[TC-US13-01]</strong> Zobrazení zapsaného kurzu a kompletních organizačních informací <span style='color: #94a3b8; font-size: 0.8em;'>[AC-2, AC-3, AC-4, AC-5, AC-6, AC-7, Priorita: High, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us13_01_enrolled_course_display_and_organizational_info)</span></div></li><li><strong>[TC-US13-02]</strong> Dostupnost odkazu v navigaci a přístup do sekce pro přihlášeného zákazníka <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, Priorita: High, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us13_02_navbar_link_availability_for_customer)</span></div></li><li><strong>[TC-US13-03]</strong> Přechod na podrobný detail kurzu z karty v přehledu <span style='color: #94a3b8; font-size: 0.8em;'>[AC-8, Priorita: Medium, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us13_03_navigate_to_course_detail_from_my_courses)</span></div></li><li><strong>[TC-US13-04]</strong> Zamezení přístupu do sekce 'Moje kurzy' pro nepřihlášeného návštěvníka <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, Priorita: High, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us13_04_prevention_of_unauthenticated_access_to_my_courses)</span></div></li><li><strong>[TC-US13-05]</strong> Zobrazení sekce 'Moje kurzy' pro zákazníka bez aktivních zápisů (Empty State) <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-2, Priorita: Medium, Typ: Hraniční]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us13_05_empty_state_for_customer_without_enrollments)</span></div></li><li><strong>[TC-US13-06]</strong> Zobrazení více souběžně zapsaných kurzů a nezávislost organizačních údajů <span style='color: #94a3b8; font-size: 0.8em;'>[AC-2, AC-3, Priorita: High, Typ: Hraniční]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us13_06_multiple_enrolled_courses_independent_data)</span></div></li><li><strong>[TC-US13-07]</strong> Omezení přístupu do sekce 'Moje kurzy' pro roli Lektor (RBAC) <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, Priorita: Medium, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us13_07_restriction_of_my_courses_for_lector_rbac)</span></div></li><li><strong>[TC-US13-08]</strong> Rozlišení nadcházejících kurzů a chronologické řazení termínů <span style='color: #94a3b8; font-size: 0.8em;'>[AC-2, AC-5, Priorita: Medium, Typ: Hraniční]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us13_08_upcoming_courses_chronological_ordering)</span></div></li></ul>
-                </details>
-                
+                            <span class="module-tag">Modul 3: Zápis a Moje kurzy (Enrollment)</span><br>
+                            <span class="source-file-tag">📄 TC_US-13_moje_kurzy.md</span>
                         </td>
-                        <td style="text-align: center; font-weight: 700;">8</td>
-                        <td style="text-align: center; font-weight: 700; color: var(--accent);">9</td>
+                        <td>
+            <strong>Přehled mých zapsaných kurzů</strong>
+            <details open style="margin-top: 0.5rem;">
+                <summary>Zobrazit 8 manuálních test casů (pokryto 8/8)</summary>
+                <ul class="tc-list"><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US13-01]</span>       <strong>Zobrazení zapsaného kurzu a kompletních organizačních informací</strong>      <span class='tc-meta'> • Priorita: High • Typ: Pozitivní • Kritérium: AC-2, AC-3, AC-4, AC-5, AC-6, AC-7</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us13_01_enrolled_course_display_and_organizational_info</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US13-02]</span>       <strong>Dostupnost odkazu v navigaci a přístup do sekce pro přihlášeného zákazníka</strong>      <span class='tc-meta'> • Priorita: High • Typ: Pozitivní • Kritérium: AC-1</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us13_02_navbar_link_availability_for_customer</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US13-03]</span>       <strong>Přechod na podrobný detail kurzu z karty v přehledu</strong>      <span class='tc-meta'> • Priorita: Medium • Typ: Pozitivní • Kritérium: AC-8</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us13_03_navigate_to_course_detail_from_my_courses</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US13-04]</span>       <strong>Zamezení přístupu do sekce 'Moje kurzy' pro nepřihlášeného návštěvníka</strong>      <span class='tc-meta'> • Priorita: High • Typ: Negativní • Kritérium: AC-1</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us13_04_prevention_of_unauthenticated_access_to_my_courses</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US13-05]</span>       <strong>Zobrazení sekce 'Moje kurzy' pro zákazníka bez aktivních zápisů (Empty State)</strong>      <span class='tc-meta'> • Priorita: Medium • Typ: Hraniční • Kritérium: AC-1, AC-2</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us13_05_empty_state_for_customer_without_enrollments</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US13-06]</span>       <strong>Zobrazení více souběžně zapsaných kurzů a nezávislost organizačních údajů</strong>      <span class='tc-meta'> • Priorita: High • Typ: Hraniční • Kritérium: AC-2, AC-3</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us13_06_multiple_enrolled_courses_independent_data</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US13-07]</span>       <strong>Omezení přístupu do sekce 'Moje kurzy' pro roli Lektor (RBAC)</strong>      <span class='tc-meta'> • Priorita: Medium • Typ: Negativní • Kritérium: AC-1</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us13_07_restriction_of_my_courses_for_lector_rbac</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US13-08]</span>       <strong>Rozlišení nadcházejících kurzů a chronologické řazení termínů</strong>      <span class='tc-meta'> • Priorita: Medium • Typ: Hraniční • Kritérium: AC-2, AC-5</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us13_08_upcoming_courses_chronological_ordering</code></div></li></ul>
+            </details>
+            </td>
+                        <td style="text-align: center; font-weight: 700; white-space: nowrap;">
+                            8/8 TC<br>
+                            <span style="font-size: 0.8rem; color: #94a3b8;">(100 %)</span>
+                        </td>
+                        <td style="text-align: center; font-weight: 700; color: var(--accent);">8</td>
                         <td style="text-align: center;">
-                            <span class="badge badge-success">Plně pokryto (9/8)</span>
+                            <span class="badge badge-success">Plně pokryto</span>
                         </td>
                         <td>
                 <details open>
-                    <summary>Přiřazené testy (9)</summary>
-                    <div class="tests-list"><div class='test-item'>⚙️ <strong>TestMyCourses.test_tc_us13_01_enrolled_course_display_and_organizational_info</strong><div class='test-meta'>📁 tests/courses/test_my_courses.py | 🔍 23 kontrol</div></div><div class='test-item'>⚙️ <strong>TestMyCourses.test_tc_us13_02_navbar_link_availability_for_customer</strong><div class='test-meta'>📁 tests/courses/test_my_courses.py | 🔍 5 kontrol</div></div><div class='test-item'>⚙️ <strong>TestMyCourses.test_tc_us13_03_navigate_to_course_detail_from_my_courses</strong><div class='test-meta'>📁 tests/courses/test_my_courses.py | 🔍 6 kontrol</div></div><div class='test-item'>⚙️ <strong>TestMyCourses.test_tc_us13_04_prevention_of_unauthenticated_access_to_my_courses</strong><div class='test-meta'>📁 tests/courses/test_my_courses.py | 🔍 4 kontrol</div></div><div class='test-item'>⚙️ <strong>TestMyCourses.test_tc_us13_05_empty_state_for_customer_without_enrollments</strong><div class='test-meta'>📁 tests/courses/test_my_courses.py | 🔍 6 kontrol</div></div><div class='test-item'>⚙️ <strong>TestMyCourses.test_tc_us13_06_multiple_enrolled_courses_independent_data</strong><div class='test-meta'>📁 tests/courses/test_my_courses.py | 🔍 5 kontrol</div></div><div class='test-item'>⚙️ <strong>TestMyCourses.test_tc_us13_07_restriction_of_my_courses_for_lector_rbac</strong><div class='test-meta'>📁 tests/courses/test_my_courses.py | 🔍 4 kontrol</div></div><div class='test-item'>⚙️ <strong>TestMyCourses.test_tc_us13_08_upcoming_courses_chronological_ordering</strong><div class='test-meta'>📁 tests/courses/test_my_courses.py | 🔍 4 kontrol</div></div><div class='test-item'>⚙️ <strong>TestMyCourses.test_my_courses_page_display</strong><div class='test-meta'>📁 tests/profile/test_profile.py | 🔍 7 kontrol</div></div></div>
+                    <summary>Přiřazené testy (8)</summary>
+                    <div class="tests-list"><div class='test-item'>⚙️ <strong>TestMyCourses.test_tc_us13_01_enrolled_course_display_and_organizational_info</strong><div class='test-meta'>📁 tests/courses/test_my_courses.py | 🔍 23 kontrol</div></div><div class='test-item'>⚙️ <strong>TestMyCourses.test_tc_us13_02_navbar_link_availability_for_customer</strong><div class='test-meta'>📁 tests/courses/test_my_courses.py | 🔍 5 kontrol</div></div><div class='test-item'>⚙️ <strong>TestMyCourses.test_tc_us13_03_navigate_to_course_detail_from_my_courses</strong><div class='test-meta'>📁 tests/courses/test_my_courses.py | 🔍 6 kontrol</div></div><div class='test-item'>⚙️ <strong>TestMyCourses.test_tc_us13_04_prevention_of_unauthenticated_access_to_my_courses</strong><div class='test-meta'>📁 tests/courses/test_my_courses.py | 🔍 4 kontrol</div></div><div class='test-item'>⚙️ <strong>TestMyCourses.test_tc_us13_05_empty_state_for_customer_without_enrollments</strong><div class='test-meta'>📁 tests/courses/test_my_courses.py | 🔍 6 kontrol</div></div><div class='test-item'>⚙️ <strong>TestMyCourses.test_tc_us13_06_multiple_enrolled_courses_independent_data</strong><div class='test-meta'>📁 tests/courses/test_my_courses.py | 🔍 5 kontrol</div></div><div class='test-item'>⚙️ <strong>TestMyCourses.test_tc_us13_07_restriction_of_my_courses_for_lector_rbac</strong><div class='test-meta'>📁 tests/courses/test_my_courses.py | 🔍 4 kontrol</div></div><div class='test-item'>⚙️ <strong>TestMyCourses.test_tc_us13_08_upcoming_courses_chronological_ordering</strong><div class='test-meta'>📁 tests/courses/test_my_courses.py | 🔍 4 kontrol</div></div></div>
                 </details>
                 </td>
                     </tr>
 
                     <tr class="story-row" data-status="covered">
                         <td><span class="us-id">US-14</span></td>
-                        <td><span class="module-tag">Modul 4: Správa kurzů a běhů (Lector)</span></td>
                         <td>
-                            <strong>Vytvoření nového kurzu s kontrolou poměru stran obrázku</strong>
-                            
-                <details>
-                    <summary>Zobrazit 5 schválených Test Casů (manual_tests/)</summary>
-                    <ul class="criteria-list"><li><strong>[TC-US14-01]</strong> Úspěšné vytvoření kurzu lektorem s obrázkem v poměru 16:9 <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-2, AC-3, AC-4, AC-5, AC-6, Priorita: High, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us14_01_create_course_success_with_16_9_image)</span></div></li><li><strong>[TC-US14-02]</strong> Validace povinných polí a číselných hodnot kapacity a ceny <span style='color: #94a3b8; font-size: 0.8em;'>[AC-2, AC-3, Priorita: High, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us14_02_validation_of_required_fields_and_numeric_values)</span></div></li><li><strong>[TC-US14-03]</strong> Odmítnutí náhledového obrázku s nevyhovujícím poměrem stran <span style='color: #94a3b8; font-size: 0.8em;'>[AC-4, AC-5, Priorita: High, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us14_03_rejection_of_image_with_invalid_aspect_ratio)</span></div></li><li><strong>[TC-US14-04]</strong> Zamezení přístupu k tvorbě kurzu pro zákazníka a nepřihlášeného hosta (RBAC) <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, Priorita: High, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us14_04_prevention_of_course_creation_for_customer_and_guest_rbac)</span></div></li><li><strong>[TC-US14-05]</strong> Akceptace obrázku v rámci povolené 5% odchylky poměru stran <span style='color: #94a3b8; font-size: 0.8em;'>[AC-5, AC-6, Priorita: Medium, Typ: Hraniční]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us14_05_acceptance_of_image_within_5_percent_aspect_ratio_tolerance)</span></div></li></ul>
-                </details>
-                
+                            <span class="module-tag">Modul 4: Správa kurzů a běhů (Lector)</span><br>
+                            <span class="source-file-tag">📄 TC_US-14_vytvoreni_kurzu.md</span>
                         </td>
-                        <td style="text-align: center; font-weight: 700;">5</td>
-                        <td style="text-align: center; font-weight: 700; color: var(--accent);">8</td>
+                        <td>
+            <strong>Vytvoření nového kurzu s kontrolou poměru stran obrázku</strong>
+            <details open style="margin-top: 0.5rem;">
+                <summary>Zobrazit 5 manuálních test casů (pokryto 5/5)</summary>
+                <ul class="tc-list"><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US14-01]</span>       <strong>Úspěšné vytvoření kurzu lektorem s obrázkem v poměru 16:9</strong>      <span class='tc-meta'> • Priorita: High • Typ: Pozitivní • Kritérium: AC-1, AC-2, AC-3, AC-4, AC-5, AC-6</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us14_01_create_course_success_with_16_9_image</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US14-02]</span>       <strong>Validace povinných polí a číselných hodnot kapacity a ceny</strong>      <span class='tc-meta'> • Priorita: High • Typ: Negativní • Kritérium: AC-2, AC-3</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us14_02_validation_of_required_fields_and_numeric_values</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US14-03]</span>       <strong>Odmítnutí náhledového obrázku s nevyhovujícím poměrem stran</strong>      <span class='tc-meta'> • Priorita: High • Typ: Negativní • Kritérium: AC-4, AC-5</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us14_03_rejection_of_image_with_invalid_aspect_ratio</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US14-04]</span>       <strong>Zamezení přístupu k tvorbě kurzu pro zákazníka a nepřihlášeného hosta (RBAC)</strong>      <span class='tc-meta'> • Priorita: High • Typ: Negativní • Kritérium: AC-1</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us14_04_prevention_of_course_creation_for_customer_and_guest_rbac</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US14-05]</span>       <strong>Akceptace obrázku v rámci povolené 5% odchylky poměru stran</strong>      <span class='tc-meta'> • Priorita: Medium • Typ: Hraniční • Kritérium: AC-5, AC-6</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us14_05_acceptance_of_image_within_5_percent_aspect_ratio_tolerance</code></div></li></ul>
+            </details>
+            </td>
+                        <td style="text-align: center; font-weight: 700; white-space: nowrap;">
+                            5/5 TC<br>
+                            <span style="font-size: 0.8rem; color: #94a3b8;">(100 %)</span>
+                        </td>
+                        <td style="text-align: center; font-weight: 700; color: var(--accent);">5</td>
                         <td style="text-align: center;">
-                            <span class="badge badge-success">Plně pokryto (8/5)</span>
+                            <span class="badge badge-success">Plně pokryto</span>
                         </td>
                         <td>
                 <details open>
-                    <summary>Přiřazené testy (8)</summary>
-                    <div class="tests-list"><div class='test-item'>⚙️ <strong>TestCourseCreate.test_tc_us14_01_create_course_success_with_16_9_image</strong><div class='test-meta'>📁 tests/courses/test_course_create.py | 🔍 6 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCourseCreate.test_tc_us14_02_validation_of_required_fields_and_numeric_values</strong><div class='test-meta'>📁 tests/courses/test_course_create.py | 🔍 4 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCourseCreate.test_tc_us14_03_rejection_of_image_with_invalid_aspect_ratio</strong><div class='test-meta'>📁 tests/courses/test_course_create.py | 🔍 3 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCourseCreate.test_tc_us14_04_prevention_of_course_creation_for_customer_and_guest_rbac</strong><div class='test-meta'>📁 tests/courses/test_course_create.py | 🔍 6 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCourseCreate.test_tc_us14_05_acceptance_of_image_within_5_percent_aspect_ratio_tolerance</strong><div class='test-meta'>📁 tests/courses/test_course_create.py | 🔍 3 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCourseManagement.test_course_create_form_elements_presence</strong><div class='test-meta'>📁 tests/courses/test_course_management.py | 🔍 14 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCourseManagement.test_course_create_submission_flow</strong><div class='test-meta'>📁 tests/courses/test_course_management.py | 🔍 2 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCourseManagement.test_course_create_image_aspect_ratio_validation</strong><div class='test-meta'>📁 tests/courses/test_course_management.py | 🔍 6 kontrol</div></div></div>
+                    <summary>Přiřazené testy (5)</summary>
+                    <div class="tests-list"><div class='test-item'>⚙️ <strong>TestCourseCreate.test_tc_us14_01_create_course_success_with_16_9_image</strong><div class='test-meta'>📁 tests/courses/test_course_create.py | 🔍 6 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCourseCreate.test_tc_us14_02_validation_of_required_fields_and_numeric_values</strong><div class='test-meta'>📁 tests/courses/test_course_create.py | 🔍 4 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCourseCreate.test_tc_us14_03_rejection_of_image_with_invalid_aspect_ratio</strong><div class='test-meta'>📁 tests/courses/test_course_create.py | 🔍 3 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCourseCreate.test_tc_us14_04_prevention_of_course_creation_for_customer_and_guest_rbac</strong><div class='test-meta'>📁 tests/courses/test_course_create.py | 🔍 6 kontrol</div></div><div class='test-item'>⚙️ <strong>TestCourseCreate.test_tc_us14_05_acceptance_of_image_within_5_percent_aspect_ratio_tolerance</strong><div class='test-meta'>📁 tests/courses/test_course_create.py | 🔍 3 kontrol</div></div></div>
                 </details>
                 </td>
                     </tr>
 
                     <tr class="story-row" data-status="covered">
                         <td><span class="us-id">US-15</span></td>
-                        <td><span class="module-tag">Modul 4: Správa kurzů a běhů (Lector)</span></td>
                         <td>
-                            <strong>Vypsání nového běhu (termínu) kurzu</strong>
-                            
-                <details>
-                    <summary>Zobrazit 8 schválených Test Casů (manual_tests/)</summary>
-                    <ul class="criteria-list"><li><strong>[TC-US15-01]</strong> Úspěšné vypsání nového termínu kurzu lektorem a zobrazení v detailu <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-2, AC-4, AC-5, Priorita: High, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us15_01_create_new_iteration_success)</span></div></li><li><strong>[TC-US15-02]</strong> Validace povinných polí při odeslání prázdného nebo neúplného formuláře <span style='color: #94a3b8; font-size: 0.8em;'>[AC-2, AC-3, Priorita: High, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us15_02_validation_of_required_fields_empty_form)</span></div></li><li><strong>[TC-US15-03]</strong> Zamezení přístupu k vypsání nového termínu pro běžného studenta a hosta (RBAC) <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, Priorita: High, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us15_03_prevention_of_iteration_creation_for_student_and_guest_rbac)</span></div></li><li><strong>[TC-US15-04]</strong> Logická validace časové souslednosti termínu kurzu <span style='color: #94a3b8; font-size: 0.8em;'>[AC-2, AC-3, Priorita: Medium, Typ: Hraniční]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us15_04_logical_validation_of_chronological_sequence)</span></div></li><li><strong>[TC-US15-05]</strong> Vypsání termínu s online formou výuky a kontrola zobrazení formátu <span style='color: #94a3b8; font-size: 0.8em;'>[AC-2, AC-4, AC-5, Priorita: Medium, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us15_05_create_iteration_online_format)</span></div></li><li><strong>[TC-US15-06]</strong> Vypsání více nezávislých termínů k jednomu kurzu a souběžné zobrazení <span style='color: #94a3b8; font-size: 0.8em;'>[AC-4, AC-5, Priorita: High, Typ: Hraniční]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us15_06_multiple_independent_iterations_for_single_course)</span></div></li><li><strong>[TC-US15-07]</strong> Validace data zahájení v minulosti <span style='color: #94a3b8; font-size: 0.8em;'>[AC-2, AC-3, Priorita: High, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us15_07_validation_of_past_start_date)</span></div></li><li><strong>[TC-US15-08]</strong> Omezení vypsání termínu k cizímu kurzu (Autorská oprávnění lektora) <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-4, Priorita: High, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us15_08_restriction_of_iteration_creation_for_foreign_course)</span></div></li></ul>
-                </details>
-                
+                            <span class="module-tag">Modul 4: Správa kurzů a běhů (Lector)</span><br>
+                            <span class="source-file-tag">📄 TC_US-15_vypsani_terminu.md</span>
                         </td>
-                        <td style="text-align: center; font-weight: 700;">8</td>
+                        <td>
+            <strong>Vypsání nového běhu (termínu) kurzu</strong>
+            <details open style="margin-top: 0.5rem;">
+                <summary>Zobrazit 8 manuálních test casů (pokryto 8/8)</summary>
+                <ul class="tc-list"><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US15-01]</span>       <strong>Úspěšné vypsání nového termínu kurzu lektorem a zobrazení v detailu</strong>      <span class='tc-meta'> • Priorita: High • Typ: Pozitivní • Kritérium: AC-1, AC-2, AC-4, AC-5</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us15_01_create_new_iteration_success</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US15-02]</span>       <strong>Validace povinných polí při odeslání prázdného nebo neúplného formuláře</strong>      <span class='tc-meta'> • Priorita: High • Typ: Negativní • Kritérium: AC-2, AC-3</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us15_02_validation_of_required_fields_empty_form</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US15-03]</span>       <strong>Zamezení přístupu k vypsání nového termínu pro běžného studenta a hosta (RBAC)</strong>      <span class='tc-meta'> • Priorita: High • Typ: Negativní • Kritérium: AC-1</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us15_03_prevention_of_iteration_creation_for_student_and_guest_rbac</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US15-04]</span>       <strong>Logická validace časové souslednosti termínu kurzu</strong>      <span class='tc-meta'> • Priorita: Medium • Typ: Hraniční • Kritérium: AC-2, AC-3</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us15_04_logical_validation_of_chronological_sequence</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US15-05]</span>       <strong>Vypsání termínu s online formou výuky a kontrola zobrazení formátu</strong>      <span class='tc-meta'> • Priorita: Medium • Typ: Pozitivní • Kritérium: AC-2, AC-4, AC-5</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us15_05_create_iteration_online_format</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US15-06]</span>       <strong>Vypsání více nezávislých termínů k jednomu kurzu a souběžné zobrazení</strong>      <span class='tc-meta'> • Priorita: High • Typ: Hraniční • Kritérium: AC-4, AC-5</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us15_06_multiple_independent_iterations_for_single_course</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US15-07]</span>       <strong>Validace data zahájení v minulosti</strong>      <span class='tc-meta'> • Priorita: High • Typ: Negativní • Kritérium: AC-2, AC-3</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us15_07_validation_of_past_start_date</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US15-08]</span>       <strong>Omezení vypsání termínu k cizímu kurzu (Autorská oprávnění lektora)</strong>      <span class='tc-meta'> • Priorita: High • Typ: Negativní • Kritérium: AC-1, AC-4</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us15_08_restriction_of_iteration_creation_for_foreign_course</code></div></li></ul>
+            </details>
+            </td>
+                        <td style="text-align: center; font-weight: 700; white-space: nowrap;">
+                            8/8 TC<br>
+                            <span style="font-size: 0.8rem; color: #94a3b8;">(100 %)</span>
+                        </td>
                         <td style="text-align: center; font-weight: 700; color: var(--accent);">8</td>
                         <td style="text-align: center;">
-                            <span class="badge badge-success">Plně pokryto (8/8)</span>
+                            <span class="badge badge-success">Plně pokryto</span>
                         </td>
                         <td>
                 <details open>
@@ -632,20 +732,24 @@
 
                     <tr class="story-row" data-status="covered">
                         <td><span class="us-id">US-16</span></td>
-                        <td><span class="module-tag">Modul 4: Správa kurzů a běhů (Lector)</span></td>
                         <td>
-                            <strong>Zobrazení seznamu přihlášených účastníků pro lektora</strong>
-                            
-                <details>
-                    <summary>Zobrazit 4 schválených Test Casů (manual_tests/)</summary>
-                    <ul class="criteria-list"><li><strong>[TC-US16-01]</strong> Zobrazení tabulky účastníků běhu kurzu lektorem a kompletní údaje <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-2, Priorita: High, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us16_01_view_participants_table_and_complete_data)</span></div></li><li><strong>[TC-US16-02]</strong> Zobrazení zástupné hodnoty 'Neuvedeno' při nevyplněném IČO studenta <span style='color: #94a3b8; font-size: 0.8em;'>[AC-2, AC-3, Priorita: Medium, Typ: Hraniční]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us16_02_placeholder_neuvedeno_for_empty_ico)</span></div></li><li><strong>[TC-US16-03]</strong> Zamezení přístupu k seznamu účastníků pro běžného zákazníka a hosta (Ochrana soukromí) <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-4, Priorita: High, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us16_03_prevention_of_participants_access_for_customer_and_guest_privacy)</span></div></li><li><strong>[TC-US16-04]</strong> Zobrazení seznamu pro běh kurzu bez dosud přihlášených studentů (Empty State) <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-2, Priorita: Medium, Typ: Hraniční]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us16_04_empty_state_for_iteration_without_students)</span></div></li></ul>
-                </details>
-                
+                            <span class="module-tag">Modul 4: Správa kurzů a běhů (Lector)</span><br>
+                            <span class="source-file-tag">📄 TC_US-16_seznam_ucastniku.md</span>
                         </td>
-                        <td style="text-align: center; font-weight: 700;">4</td>
+                        <td>
+            <strong>Zobrazení seznamu přihlášených účastníků pro lektora</strong>
+            <details open style="margin-top: 0.5rem;">
+                <summary>Zobrazit 4 manuálních test casů (pokryto 4/4)</summary>
+                <ul class="tc-list"><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US16-01]</span>       <strong>Zobrazení tabulky účastníků běhu kurzu lektorem a kompletní údaje</strong>      <span class='tc-meta'> • Priorita: High • Typ: Pozitivní • Kritérium: AC-1, AC-2</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us16_01_view_participants_table_and_complete_data</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US16-02]</span>       <strong>Zobrazení zástupné hodnoty 'Neuvedeno' při nevyplněném IČO studenta</strong>      <span class='tc-meta'> • Priorita: Medium • Typ: Hraniční • Kritérium: AC-2, AC-3</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us16_02_placeholder_neuvedeno_for_empty_ico</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US16-03]</span>       <strong>Zamezení přístupu k seznamu účastníků pro běžného zákazníka a hosta (Ochrana soukromí)</strong>      <span class='tc-meta'> • Priorita: High • Typ: Negativní • Kritérium: AC-1, AC-4</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us16_03_prevention_of_participants_access_for_customer_and_guest_privacy</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US16-04]</span>       <strong>Zobrazení seznamu pro běh kurzu bez dosud přihlášených studentů (Empty State)</strong>      <span class='tc-meta'> • Priorita: Medium • Typ: Hraniční • Kritérium: AC-1, AC-2</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us16_04_empty_state_for_iteration_without_students</code></div></li></ul>
+            </details>
+            </td>
+                        <td style="text-align: center; font-weight: 700; white-space: nowrap;">
+                            4/4 TC<br>
+                            <span style="font-size: 0.8rem; color: #94a3b8;">(100 %)</span>
+                        </td>
                         <td style="text-align: center; font-weight: 700; color: var(--accent);">4</td>
                         <td style="text-align: center;">
-                            <span class="badge badge-success">Plně pokryto (4/4)</span>
+                            <span class="badge badge-success">Plně pokryto</span>
                         </td>
                         <td>
                 <details open>
@@ -657,20 +761,24 @@
 
                     <tr class="story-row" data-status="covered">
                         <td><span class="us-id">US-17</span></td>
-                        <td><span class="module-tag">Modul 5: Profil a domovská nástěnka (Dashboard)</span></td>
                         <td>
-                            <strong>Domovská uvítací nástěnka po přihlášení</strong>
-                            
-                <details>
-                    <summary>Zobrazit 4 schválených Test Casů (manual_tests/)</summary>
-                    <ul class="criteria-list"><li><strong>[TC-US17-01]</strong> Zobrazení personalizované uvítací zprávy se jménem uživatele po přihlášení <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, Priorita: High, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us17_01_personalized_welcome_message_display)</span></div></li><li><strong>[TC-US17-02]</strong> Trvalá dostupnost volby 'Domů' v horní navigaci pro přihlášeného uživatele <span style='color: #94a3b8; font-size: 0.8em;'>[AC-2, Priorita: High, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us17_02_persistent_home_navigation_link)</span></div></li><li><strong>[TC-US17-03]</strong> Zamezení přístupu na domovskou nástěnku pro nepřihlášeného návštěvníka <span style='color: #94a3b8; font-size: 0.8em;'>[AC-2, Priorita: High, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us17_03_prevention_of_unauthenticated_access_to_dashboard)</span></div></li><li><strong>[TC-US17-04]</strong> Zobrazení uvítací zprávy pro uživatele s českou diakritikou ve jméně <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, Priorita: Medium, Typ: Hraniční]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us17_04_welcome_message_with_czech_diacritics)</span></div></li></ul>
-                </details>
-                
+                            <span class="module-tag">Modul 5: Profil a domovská nástěnka (Dashboard)</span><br>
+                            <span class="source-file-tag">📄 TC_US-17_domovska_nastenka.md</span>
                         </td>
-                        <td style="text-align: center; font-weight: 700;">4</td>
+                        <td>
+            <strong>Domovská uvítací nástěnka po přihlášení</strong>
+            <details open style="margin-top: 0.5rem;">
+                <summary>Zobrazit 4 manuálních test casů (pokryto 4/4)</summary>
+                <ul class="tc-list"><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US17-01]</span>       <strong>Zobrazení personalizované uvítací zprávy se jménem uživatele po přihlášení</strong>      <span class='tc-meta'> • Priorita: High • Typ: Pozitivní • Kritérium: AC-1</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us17_01_personalized_welcome_message_display</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US17-02]</span>       <strong>Trvalá dostupnost volby 'Domů' v horní navigaci pro přihlášeného uživatele</strong>      <span class='tc-meta'> • Priorita: High • Typ: Pozitivní • Kritérium: AC-2</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us17_02_persistent_home_navigation_link</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US17-03]</span>       <strong>Zamezení přístupu na domovskou nástěnku pro nepřihlášeného návštěvníka</strong>      <span class='tc-meta'> • Priorita: High • Typ: Negativní • Kritérium: AC-2</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us17_03_prevention_of_unauthenticated_access_to_dashboard</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US17-04]</span>       <strong>Zobrazení uvítací zprávy pro uživatele s českou diakritikou ve jméně</strong>      <span class='tc-meta'> • Priorita: Medium • Typ: Hraniční • Kritérium: AC-1</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us17_04_welcome_message_with_czech_diacritics</code></div></li></ul>
+            </details>
+            </td>
+                        <td style="text-align: center; font-weight: 700; white-space: nowrap;">
+                            4/4 TC<br>
+                            <span style="font-size: 0.8rem; color: #94a3b8;">(100 %)</span>
+                        </td>
                         <td style="text-align: center; font-weight: 700; color: var(--accent);">4</td>
                         <td style="text-align: center;">
-                            <span class="badge badge-success">Plně pokryto (4/4)</span>
+                            <span class="badge badge-success">Plně pokryto</span>
                         </td>
                         <td>
                 <details open>
@@ -682,45 +790,53 @@
 
                     <tr class="story-row" data-status="covered">
                         <td><span class="us-id">US-18</span></td>
-                        <td><span class="module-tag">Modul 5: Profil a domovská nástěnka (Dashboard)</span></td>
                         <td>
-                            <strong>Zobrazení a aktualizace uživatelského profilu</strong>
-                            
-                <details>
-                    <summary>Zobrazit 6 schválených Test Casů (manual_tests/)</summary>
-                    <ul class="criteria-list"><li><strong>[TC-US18-01]</strong> Předvyplnění existujících údajů a úspěšná aktualizace profilu <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-3, AC-6, Priorita: High, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us18_01_prefilled_data_and_successful_update)</span></div></li><li><strong>[TC-US18-02]</strong> Validace povinných polí jména a e-mailu a kontrola formátu e-mailu <span style='color: #94a3b8; font-size: 0.8em;'>[AC-2, Priorita: High, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us18_02_email_format_and_empty_email_validation, test_tc_us18_02_mandatory_name_validation)</span></div></li><li><strong>[TC-US18-03]</strong> Zamezení změny e-mailu na adresu již obsazenou jiným uživatelem <span style='color: #94a3b8; font-size: 0.8em;'>[AC-2, Priorita: High, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us18_03_duplicate_email_collision)</span></div></li><li><strong>[TC-US18-04]</strong> Validace formální platnosti IČO pomocí kontrolního součtu na profilu <span style='color: #94a3b8; font-size: 0.8em;'>[AC-4, Priorita: High, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us18_04_invalid_ico_validation)</span></div></li><li><strong>[TC-US18-05]</strong> Validace formátu telefonního čísla na profilu <span style='color: #94a3b8; font-size: 0.8em;'>[AC-5, Priorita: Medium, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us18_05_invalid_phone_validation)</span></div></li><li><strong>[TC-US18-06]</strong> Úspěšné uložení profilu s vymazáním nepovinných údajů (IČO a telefon) <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-3, AC-6, Priorita: Medium, Typ: Hraniční]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us18_06_clear_optional_ico_and_phone)</span></div></li></ul>
-                </details>
-                
+                            <span class="module-tag">Modul 5: Profil a domovská nástěnka (Dashboard)</span><br>
+                            <span class="source-file-tag">📄 TC_US-18_profil_uzivatele.md</span>
                         </td>
-                        <td style="text-align: center; font-weight: 700;">6</td>
-                        <td style="text-align: center; font-weight: 700; color: var(--accent);">8</td>
+                        <td>
+            <strong>Zobrazení a aktualizace uživatelského profilu</strong>
+            <details open style="margin-top: 0.5rem;">
+                <summary>Zobrazit 6 manuálních test casů (pokryto 6/6)</summary>
+                <ul class="tc-list"><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US18-01]</span>       <strong>Předvyplnění existujících údajů a úspěšná aktualizace profilu</strong>      <span class='tc-meta'> • Priorita: High • Typ: Pozitivní • Kritérium: AC-1, AC-3, AC-6</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us18_01_prefilled_data_and_successful_update</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US18-02]</span>       <strong>Validace povinných polí jména a e-mailu a kontrola formátu e-mailu</strong>      <span class='tc-meta'> • Priorita: High • Typ: Negativní • Kritérium: AC-2</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (2 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us18_02_email_format_and_empty_email_validation</code>, <code style='color: #4ade80;'>test_tc_us18_02_mandatory_name_validation</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US18-03]</span>       <strong>Zamezení změny e-mailu na adresu již obsazenou jiným uživatelem</strong>      <span class='tc-meta'> • Priorita: High • Typ: Negativní • Kritérium: AC-2</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us18_03_duplicate_email_collision</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US18-04]</span>       <strong>Validace formální platnosti IČO pomocí kontrolního součtu na profilu</strong>      <span class='tc-meta'> • Priorita: High • Typ: Negativní • Kritérium: AC-4</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us18_04_invalid_ico_validation</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US18-05]</span>       <strong>Validace formátu telefonního čísla na profilu</strong>      <span class='tc-meta'> • Priorita: Medium • Typ: Negativní • Kritérium: AC-5</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us18_05_invalid_phone_validation</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US18-06]</span>       <strong>Úspěšné uložení profilu s vymazáním nepovinných údajů (IČO a telefon)</strong>      <span class='tc-meta'> • Priorita: Medium • Typ: Hraniční • Kritérium: AC-1, AC-3, AC-6</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us18_06_clear_optional_ico_and_phone</code></div></li></ul>
+            </details>
+            </td>
+                        <td style="text-align: center; font-weight: 700; white-space: nowrap;">
+                            6/6 TC<br>
+                            <span style="font-size: 0.8rem; color: #94a3b8;">(100 %)</span>
+                        </td>
+                        <td style="text-align: center; font-weight: 700; color: var(--accent);">7</td>
                         <td style="text-align: center;">
-                            <span class="badge badge-success">Plně pokryto (8/6)</span>
+                            <span class="badge badge-success">Plně pokryto</span>
                         </td>
                         <td>
                 <details open>
-                    <summary>Přiřazené testy (8)</summary>
-                    <div class="tests-list"><div class='test-item'>⚙️ <strong>TestUserProfile.test_tc_us18_01_prefilled_data_and_successful_update</strong><div class='test-meta'>📁 tests/profile/test_profile.py | 🔍 21 kontrol</div></div><div class='test-item'>⚙️ <strong>TestUserProfile.test_tc_us18_02_email_format_and_empty_email_validation</strong><div class='test-meta'>📁 tests/profile/test_profile.py | 🔍 7 kontrol</div></div><div class='test-item'>⚙️ <strong>TestUserProfile.test_tc_us18_02_mandatory_name_validation</strong><div class='test-meta'>📁 tests/profile/test_profile.py | 🔍 3 kontrol</div></div><div class='test-item'>⚙️ <strong>TestUserProfile.test_tc_us18_03_duplicate_email_collision</strong><div class='test-meta'>📁 tests/profile/test_profile.py | 🔍 3 kontrol</div></div><div class='test-item'>⚙️ <strong>TestUserProfile.test_tc_us18_04_invalid_ico_validation</strong><div class='test-meta'>📁 tests/profile/test_profile.py | 🔍 5 kontrol</div></div><div class='test-item'>⚙️ <strong>TestUserProfile.test_tc_us18_05_invalid_phone_validation</strong><div class='test-meta'>📁 tests/profile/test_profile.py | 🔍 5 kontrol</div></div><div class='test-item'>⚙️ <strong>TestUserProfile.test_tc_us18_06_clear_optional_ico_and_phone</strong><div class='test-meta'>📁 tests/profile/test_profile.py | 🔍 5 kontrol</div></div><div class='test-item'>⚙️ <strong>TestUserProfile.test_profile_unauthenticated_access_denied</strong><div class='test-meta'>📁 tests/profile/test_profile.py | 🔍 3 kontrol</div></div></div>
+                    <summary>Přiřazené testy (7)</summary>
+                    <div class="tests-list"><div class='test-item'>⚙️ <strong>TestUserProfile.test_tc_us18_01_prefilled_data_and_successful_update</strong><div class='test-meta'>📁 tests/profile/test_profile.py | 🔍 21 kontrol</div></div><div class='test-item'>⚙️ <strong>TestUserProfile.test_tc_us18_02_email_format_and_empty_email_validation</strong><div class='test-meta'>📁 tests/profile/test_profile.py | 🔍 7 kontrol</div></div><div class='test-item'>⚙️ <strong>TestUserProfile.test_tc_us18_02_mandatory_name_validation</strong><div class='test-meta'>📁 tests/profile/test_profile.py | 🔍 3 kontrol</div></div><div class='test-item'>⚙️ <strong>TestUserProfile.test_tc_us18_03_duplicate_email_collision</strong><div class='test-meta'>📁 tests/profile/test_profile.py | 🔍 3 kontrol</div></div><div class='test-item'>⚙️ <strong>TestUserProfile.test_tc_us18_04_invalid_ico_validation</strong><div class='test-meta'>📁 tests/profile/test_profile.py | 🔍 5 kontrol</div></div><div class='test-item'>⚙️ <strong>TestUserProfile.test_tc_us18_05_invalid_phone_validation</strong><div class='test-meta'>📁 tests/profile/test_profile.py | 🔍 5 kontrol</div></div><div class='test-item'>⚙️ <strong>TestUserProfile.test_tc_us18_06_clear_optional_ico_and_phone</strong><div class='test-meta'>📁 tests/profile/test_profile.py | 🔍 5 kontrol</div></div></div>
                 </details>
                 </td>
                     </tr>
 
                     <tr class="story-row" data-status="covered">
                         <td><span class="us-id">US-19</span></td>
-                        <td><span class="module-tag">Modul 6: Bezpečnost a autorizace (Security)</span></td>
                         <td>
-                            <strong>Řízení přístupu na základě rolí (RBAC a autorizace API)</strong>
-                            
-                <details>
-                    <summary>Zobrazit 9 schválených Test Casů (manual_tests/)</summary>
-                    <ul class="criteria-list"><li><strong>[TC-US19-01]</strong> Dostupnost veřejných sekcí aplikace pro nepřihlášeného návštěvníka <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, Priorita: High, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us19_01_public_sections_availability_for_guest)</span></div></li><li><strong>[TC-US19-02]</strong> Zamezení přístupu a automatické přesměrování neautentizovaného uživatele na katalog kurzů <span style='color: #94a3b8; font-size: 0.8em;'>[AC-2, AC-6, Priorita: High, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us19_02_prevention_of_unauthenticated_access_to_private_routes)</span></div></li><li><strong>[TC-US19-03]</strong> Zpřístupnění lektorských akcí výhradně pro uživatele v roli Lektor <span style='color: #94a3b8; font-size: 0.8em;'>[AC-3, Priorita: High, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us19_03_lector_tools_accessibility_for_lector_role)</span></div></li><li><strong>[TC-US19-04]</strong> Zamezení přístupu běžného zákazníka k lektorským operacím v UI <span style='color: #94a3b8; font-size: 0.8em;'>[AC-4, Priorita: High, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us19_04_prevention_of_customer_access_to_lector_operations_ui)</span></div></li><li><strong>[TC-US19-05]</strong> Zamezení zápisu na běhy kurzů pro uživatele v roli Lektor (UI i API úroveň) <span style='color: #94a3b8; font-size: 0.8em;'>[AC-5, Priorita: Medium, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us19_05_restriction_of_enrollment_for_lector_role)</span></div></li><li><strong>[TC-US19-06]</strong> Nedostupnost servisních a údržbových rozhraní pro neautorizované návštěvníky <span style='color: #94a3b8; font-size: 0.8em;'>[AC-7, Priorita: High, Typ: Hraniční]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us19_06_unavailability_of_maintenance_interfaces)</span></div></li><li><strong>[TC-US19-07]</strong> Přepnutí rolí a okamžitá aktualizace autorizačních oprávnění v sezení <span style='color: #94a3b8; font-size: 0.8em;'>[AC-3, AC-4, Priorita: Medium, Typ: Hraniční]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us19_07_role_switching_and_immediate_permission_update)</span></div></li><li><strong>[TC-US19-08]</strong> Zamezení neoprávněné manipulace s daty přes přímé API / POST požadavky <span style='color: #94a3b8; font-size: 0.8em;'>[AC-2, AC-4, Priorita: High, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us19_08_prevention_of_unauthorized_data_manipulation_via_api)</span></div></li><li><strong>[TC-US19-09]</strong> Ochrana proti horizontální eskalaci práv (IDOR) mezi lektory <span style='color: #94a3b8; font-size: 0.8em;'>[AC-3, AC-4, Priorita: High, Typ: Hraniční]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us19_09_protection_against_horizontal_privilege_escalation_idor)</span></div></li></ul>
-                </details>
-                
+                            <span class="module-tag">Modul 6: Bezpečnost a autorizace (Security)</span><br>
+                            <span class="source-file-tag">📄 TC_US-19_rbac.md</span>
                         </td>
-                        <td style="text-align: center; font-weight: 700;">9</td>
+                        <td>
+            <strong>Řízení přístupu na základě rolí (RBAC a autorizace API)</strong>
+            <details open style="margin-top: 0.5rem;">
+                <summary>Zobrazit 9 manuálních test casů (pokryto 9/9)</summary>
+                <ul class="tc-list"><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US19-01]</span>       <strong>Dostupnost veřejných sekcí aplikace pro nepřihlášeného návštěvníka</strong>      <span class='tc-meta'> • Priorita: High • Typ: Pozitivní • Kritérium: AC-1</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us19_01_public_sections_availability_for_guest</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US19-02]</span>       <strong>Zamezení přístupu a automatické přesměrování neautentizovaného uživatele na katalog kurzů</strong>      <span class='tc-meta'> • Priorita: High • Typ: Negativní • Kritérium: AC-2, AC-6</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us19_02_prevention_of_unauthenticated_access_to_private_routes</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US19-03]</span>       <strong>Zpřístupnění lektorských akcí výhradně pro uživatele v roli Lektor</strong>      <span class='tc-meta'> • Priorita: High • Typ: Pozitivní • Kritérium: AC-3</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us19_03_lector_tools_accessibility_for_lector_role</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US19-04]</span>       <strong>Zamezení přístupu běžného zákazníka k lektorským operacím v UI</strong>      <span class='tc-meta'> • Priorita: High • Typ: Negativní • Kritérium: AC-4</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us19_04_prevention_of_customer_access_to_lector_operations_ui</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US19-05]</span>       <strong>Zamezení zápisu na běhy kurzů pro uživatele v roli Lektor (UI i API úroveň)</strong>      <span class='tc-meta'> • Priorita: Medium • Typ: Negativní • Kritérium: AC-5</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us19_05_restriction_of_enrollment_for_lector_role</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US19-06]</span>       <strong>Nedostupnost servisních a údržbových rozhraní pro neautorizované návštěvníky</strong>      <span class='tc-meta'> • Priorita: High • Typ: Hraniční • Kritérium: AC-7</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us19_06_unavailability_of_maintenance_interfaces</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US19-07]</span>       <strong>Přepnutí rolí a okamžitá aktualizace autorizačních oprávnění v sezení</strong>      <span class='tc-meta'> • Priorita: Medium • Typ: Hraniční • Kritérium: AC-3, AC-4</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us19_07_role_switching_and_immediate_permission_update</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US19-08]</span>       <strong>Zamezení neoprávněné manipulace s daty přes přímé API / POST požadavky</strong>      <span class='tc-meta'> • Priorita: High • Typ: Negativní • Kritérium: AC-2, AC-4</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us19_08_prevention_of_unauthorized_data_manipulation_via_api</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US19-09]</span>       <strong>Ochrana proti horizontální eskalaci práv (IDOR) mezi lektory</strong>      <span class='tc-meta'> • Priorita: High • Typ: Hraniční • Kritérium: AC-3, AC-4</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us19_09_protection_against_horizontal_privilege_escalation_idor</code></div></li></ul>
+            </details>
+            </td>
+                        <td style="text-align: center; font-weight: 700; white-space: nowrap;">
+                            9/9 TC<br>
+                            <span style="font-size: 0.8rem; color: #94a3b8;">(100 %)</span>
+                        </td>
                         <td style="text-align: center; font-weight: 700; color: var(--accent);">9</td>
                         <td style="text-align: center;">
-                            <span class="badge badge-success">Plně pokryto (9/9)</span>
+                            <span class="badge badge-success">Plně pokryto</span>
                         </td>
                         <td>
                 <details open>
@@ -732,20 +848,24 @@
 
                     <tr class="story-row" data-status="covered">
                         <td><span class="us-id">US-20</span></td>
-                        <td><span class="module-tag">Modul 6: Bezpečnost a autorizace (Security)</span></td>
                         <td>
-                            <strong>Ochrana proti podvržení požadavků (CSRF) a integrita sezení</strong>
-                            
-                <details>
-                    <summary>Zobrazit 3 schválených Test Casů (manual_tests/)</summary>
-                    <ul class="criteria-list"><li><strong>[TC-US20-01]</strong> Přítomnost platného bezpečnostního CSRF tokenu ve formulářích <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, Priorita: High, Typ: Pozitivní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us20_01_presence_of_valid_csrf_token)</span></div></li><li><strong>[TC-US20-02]</strong> Odmítnutí formulářového požadavku s chybějícím nebo neplatným CSRF tokenem <span style='color: #94a3b8; font-size: 0.8em;'>[AC-1, AC-2, Priorita: High, Typ: Negativní]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us20_02_rejection_of_request_with_missing_or_invalid_csrf_token)</span></div></li><li><strong>[TC-US20-03]</strong> Regenerace identifikátoru sezení při přihlášení a odhlášení (Session Fixation ochrana) <span style='color: #94a3b8; font-size: 0.8em;'>[AC-3, Priorita: High, Typ: Hraniční]</span><br><div style='margin-top: 0.2rem;'><span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (test_tc_us20_03_session_regeneration_on_login_and_logout)</span></div></li></ul>
-                </details>
-                
+                            <span class="module-tag">Modul 6: Bezpečnost a autorizace (Security)</span><br>
+                            <span class="source-file-tag">📄 TC_US-20_csrf_ochrana.md</span>
                         </td>
-                        <td style="text-align: center; font-weight: 700;">3</td>
+                        <td>
+            <strong>Ochrana proti podvržení požadavků (CSRF) a integrita sezení</strong>
+            <details open style="margin-top: 0.5rem;">
+                <summary>Zobrazit 3 manuálních test casů (pokryto 3/3)</summary>
+                <ul class="tc-list"><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US20-01]</span>       <strong>Přítomnost platného bezpečnostního CSRF tokenu ve formulářích</strong>      <span class='tc-meta'> • Priorita: High • Typ: Pozitivní • Kritérium: AC-1</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us20_01_presence_of_valid_csrf_token</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US20-02]</span>       <strong>Odmítnutí formulářového požadavku s chybějícím nebo neplatným CSRF tokenem</strong>      <span class='tc-meta'> • Priorita: High • Typ: Negativní • Kritérium: AC-1, AC-2</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us20_02_rejection_of_request_with_missing_or_invalid_csrf_token</code></div></li><li class='tc-item'>  <div class='tc-header'>    <div>      <span class='tc-id-badge'>[TC-US20-03]</span>       <strong>Regenerace identifikátoru sezení při přihlášení a odhlášení (Session Fixation ochrana)</strong>      <span class='tc-meta'> • Priorita: High • Typ: Hraniční • Kritérium: AC-3</span>    </div>    <div><span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>✓ Pokryto (1 AT)</span></div>  </div>  <div class='tc-mapped-tests'><span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> <code style='color: #4ade80;'>test_tc_us20_03_session_regeneration_on_login_and_logout</code></div></li></ul>
+            </details>
+            </td>
+                        <td style="text-align: center; font-weight: 700; white-space: nowrap;">
+                            3/3 TC<br>
+                            <span style="font-size: 0.8rem; color: #94a3b8;">(100 %)</span>
+                        </td>
                         <td style="text-align: center; font-weight: 700; color: var(--accent);">3</td>
                         <td style="text-align: center;">
-                            <span class="badge badge-success">Plně pokryto (3/3)</span>
+                            <span class="badge badge-success">Plně pokryto</span>
                         </td>
                         <td>
                 <details open>
@@ -760,7 +880,7 @@
         </div>
 
         <footer>
-            <p>Antigravity E2E Testing Suite • Automaticky generovaný a opakovatelný report pokrytí požadavků</p>
+            <p>Antigravity E2E Testing Suite • Deterministická Matice sledovatelnosti (Traceability Matrix) dle schválených manuálních test casů</p>
         </footer>
     </div>
 

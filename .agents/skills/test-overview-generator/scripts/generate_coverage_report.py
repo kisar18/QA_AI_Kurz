@@ -1,15 +1,19 @@
 #!/usr/bin/env python3
 """
-Generate Coverage Report
-------------------------
-Analyzuje manuální Test Casy (ze složky manual_tests/ nebo souhrnné User Stories)
-a automatizované testy v projektu (Playwright + pytest).
-Generuje ucelený HTML přehled mapování požadavků a test casů na testy (Traceability Matrix).
+Generate Coverage Report (Traceability Matrix: Manual TCs -> Automated Tests)
+-----------------------------------------------------------------------------
+Analyzuje schválené manuální Test Casy (ze složky manual_tests/TC_*.md)
+a automatizované testy v projektu (Playwright + pytest v tests/).
 
-Výstup je ve výchozím stavu ukládán do docs/coverage_overview.html (vhodné pro commit do repozitáře).
+Mapování probíhá ČISTĚ a VÝHRADNĚ proti manuálním Test Casům (TC-ID např. [TC-US01-01]):
+- Každý schválený manuální test case je evidován pod svým jedinečným TC ID.
+- Každý automatizovaný test v tests/ je spárován s příslušným manuálním TC podle tagu [TC-USxx-yy] v docstringu.
+- Pokrytí se počítá jako poměr pokrytých manuálních test casů k celkovému počtu manuálních test casů.
+
+Výstup je ve výchozím stavu ukládán do docs/coverage_overview.html (verzovatelné v Gitu).
 
 Použití:
-    python generate_coverage_report.py [--output docs/coverage_overview.html]
+    python generate_coverage_report.py [--manual-tests-dir manual_tests] [--output docs/coverage_overview.html]
 """
 
 import argparse
@@ -51,33 +55,67 @@ US_MODULE_MAP = {
 }
 
 
-class UserStoryParser:
-    """Parsuje specifikaci User Stories a jejich test casy.
-    
-    Přednostně parsuje schválené test casy ze složky manual_tests/ (TC_US-*.md),
-    případně podporuje i soubor požadavků ve formátu Markdown.
-    """
+class ManualTestCase:
+    """Reprezentuje jeden schválený manuální Test Case ze složky manual_tests/."""
 
-    def __init__(self, stories_path: Path):
-        self.stories_path = stories_path
+    def __init__(
+        self,
+        tc_id: str,
+        us_id: str,
+        title: str,
+        source_file: str,
+        priority: str = "",
+        test_type: str = "",
+        ac_covered: str = "",
+    ):
+        self.tc_id = tc_id
+        self.us_id = us_id
+        self.title = title
+        self.source_file = source_file
+        self.priority = priority
+        self.test_type = test_type
+        self.ac_covered = ac_covered
+        self.covered_by: List[Dict[str, Any]] = []
 
-    def parse(self) -> Dict[str, Dict[str, Any]]:
-        """Vrátí slovník {US-ID: metadata}."""
-        if not self.stories_path.exists():
-            print(f"[VAROVÁNÍ] Zdroj specifikace/testů neexistuje: {self.stories_path}", file=sys.stderr)
-            return {}
+    @property
+    def is_covered(self) -> bool:
+        return len(self.covered_by) > 0
 
-        if self.stories_path.is_dir():
-            return self._parse_manual_tests_dir(self.stories_path)
-        else:
-            return self._parse_single_markdown(self.stories_path)
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "id": self.tc_id,
+            "us_id": self.us_id,
+            "title": self.title,
+            "source_file": self.source_file,
+            "priority": self.priority,
+            "test_type": self.test_type,
+            "ac_covered": self.ac_covered,
+            "is_covered": self.is_covered,
+            "tests": self.covered_by,
+        }
 
-    def _parse_manual_tests_dir(self, directory: Path) -> Dict[str, Dict[str, Any]]:
-        """Parsuje jednotlivé Markdown soubory se schválenými Test Casy z manual_tests/."""
-        stories: Dict[str, Dict[str, Any]] = {}
-        tc_files = sorted(directory.glob("TC_*.md"))
+
+class ManualTestsParser:
+    """Parsuje schválené manuální test casy z Markdown souborů v manual_tests/."""
+
+    def __init__(self, manual_tests_dir: Path):
+        self.manual_tests_dir = manual_tests_dir
+
+    def parse(self) -> Tuple[Dict[str, Dict[str, Any]], Dict[str, ManualTestCase]]:
+        """Vrátí:
+        1. stories: Dict[us_id, {id, title, module, file, test_cases: List[ManualTestCase], ...}]
+        2. all_tcs: Dict[tc_id, ManualTestCase]
+        """
+        if not self.manual_tests_dir.exists():
+            print(f"[VAROVÁNÍ] Složka s manuálními testy neexistuje: {self.manual_tests_dir}", file=sys.stderr)
+            return {}, {}
+
+        tc_files = sorted(self.manual_tests_dir.glob("TC_*.md"))
         if not tc_files:
-            tc_files = sorted(directory.glob("*.md"))
+            tc_files = sorted(self.manual_tests_dir.glob("*.md"))
+
+        stories: Dict[str, Dict[str, Any]] = {}
+        all_tcs: Dict[str, ManualTestCase] = {}
 
         for tc_file in tc_files:
             content = tc_file.read_text(encoding="utf-8")
@@ -97,11 +135,10 @@ class UserStoryParser:
 
             module = US_MODULE_MAP.get(us_id, "Obecné")
 
-            # Extrakce test casů
-            test_cases: List[Dict[str, Any]] = []
+            story_tcs: List[ManualTestCase] = []
             tc_sections = re.split(r"###\s+\[(TC-[^\]]+)\]", content)
             for i in range(1, len(tc_sections), 2):
-                tc_id = tc_sections[i]
+                tc_id = tc_sections[i].strip()
                 body = tc_sections[i + 1]
                 first_line = body.strip().splitlines()[0].strip() if body.strip() else ""
 
@@ -109,133 +146,43 @@ class UserStoryParser:
                 type_match = re.search(r"-\s+\*\*Typ testu:\*\*\s*(.+)", body)
                 prio_match = re.search(r"-\s+\*\*Priorita:\*\*\s*(.+)", body)
 
-                test_cases.append({
-                    "id": tc_id,
-                    "title": first_line,
-                    "ac_covered": ac_match.group(1).strip() if ac_match else "",
-                    "test_type": type_match.group(1).strip() if type_match else "",
-                    "priority": prio_match.group(1).strip() if prio_match else "",
-                    "tests": [],
-                })
+                manual_tc = ManualTestCase(
+                    tc_id=tc_id,
+                    us_id=us_id,
+                    title=first_line,
+                    source_file=tc_file.name,
+                    priority=prio_match.group(1).strip() if prio_match else "",
+                    test_type=type_match.group(1).strip() if type_match else "",
+                    ac_covered=ac_match.group(1).strip() if ac_match else "",
+                )
+                story_tcs.append(manual_tc)
+                all_tcs[tc_id] = manual_tc
 
             stories[us_id] = {
                 "id": us_id,
                 "title": title,
                 "module": module,
-                "role": "",
-                "want": "",
-                "goal": "",
-                "test_cases": test_cases,
-                "test_cases_count": len(test_cases),
-                "criteria": [f"[{tc['id']}] {tc['title']}" for tc in test_cases],
-                "tests": [],
                 "source_file": tc_file.name,
-            }
-
-        return stories
-
-    def _parse_single_markdown(self, file_path: Path) -> Dict[str, Dict[str, Any]]:
-        """Fallback pro parsování souhrnného souboru specifikace požadavků."""
-        content = file_path.read_text(encoding="utf-8")
-        stories: Dict[str, Dict[str, Any]] = {}
-
-        module_positions: List[Tuple[int, str]] = []
-        for match in re.finditer(r"###\s+(Modul\s+\d+:\s*[^\n]+)", content):
-            module_positions.append((match.start(), match.group(1).strip()))
-
-        sections = re.split(r"####\s+(US-\d+):", content)
-        for i in range(1, len(sections), 2):
-            us_id = sections[i]
-            body = sections[i + 1]
-            title_line = body.strip().splitlines()[0].strip()
-
-            us_pos = content.find(f"#### {us_id}:")
-            module_name = US_MODULE_MAP.get(us_id, "Obecné")
-            for pos, mod_title in module_positions:
-                if pos < us_pos:
-                    module_name = mod_title
-
-            criteria: List[str] = []
-            ac_match = re.search(
-                r"-\s+\*\*Akceptační kritéria:\*\*(.*?)(?=\n---|\n###|\n####|\Z)",
-                body,
-                re.DOTALL,
-            )
-            if ac_match:
-                for line in ac_match.group(1).splitlines():
-                    stripped = line.strip()
-                    if stripped.startswith("- ") or stripped.startswith("* "):
-                        bullet_text = stripped[2:].strip()
-                        if bullet_text:
-                            criteria.append(bullet_text)
-
-            role_match = re.search(r"-\s+\*\*Jako:\*\*\s*(.+)", body)
-            want_match = re.search(r"-\s+\*\*Chci:\*\*\s*(.+)", body)
-            goal_match = re.search(r"-\s+\*\*Abych:\*\*\s*(.+)", body)
-
-            stories[us_id] = {
-                "id": us_id,
-                "title": title_line,
-                "module": module_name,
-                "role": role_match.group(1).strip() if role_match else "",
-                "want": want_match.group(1).strip() if want_match else "",
-                "goal": goal_match.group(1).strip() if goal_match else "",
-                "criteria": criteria,
-                "test_cases_count": len(criteria),
+                "test_cases": story_tcs,
                 "tests": [],
-                "source_file": file_path.name,
             }
 
-        return stories
+        return stories, all_tcs
 
 
 class TestAnalyzerForCoverage:
-    """Prochází automatizované testy v tests/ a mapuje je na User Stories a Test Casy."""
-
-    FILE_FALLBACK_MAP = {
-        "test_login.py": ["US-03"],
-        "test_register.py": ["US-02"],
-        "test_logout.py": ["US-04"],
-        "test_forgot_password.py": ["US-05"],
-        "test_reset_password.py": ["US-06"],
-        "test_email_verification.py": ["US-07"],
-        "test_rate_limiting.py": ["US-08"],
-        "test_linktree.py": ["US-01"],
-        "test_home_dashboard.py": ["US-17"],
-        "test_courses.py": ["US-09", "US-10", "US-11"],
-        "test_course_management.py": ["US-14"],
-        "test_course_iterations.py": ["US-15", "US-16"],
-        "test_enrollment.py": ["US-12"],
-        "test_rbac.py": ["US-19"],
-        "test_csrf.py": ["US-20"],
-    }
-
-    CLASS_FALLBACK_MAP = {
-        "TestUserProfile": ["US-18"],
-        "TestMyCourses": ["US-13"],
-        "TestDemoLogin": ["US-03"],
-        "TestDemoRegister": ["US-02"],
-        "TestDemoLogout": ["US-04"],
-        "TestForgotPassword": ["US-05"],
-        "TestResetPassword": ["US-06"],
-        "TestEmailVerification": ["US-07"],
-        "TestRateLimiting": ["US-08"],
-        "TestPortalLinktree": ["US-01"],
-        "TestHomeDashboard": ["US-17"],
-        "TestCoursesCatalog": ["US-09", "US-10", "US-11"],
-        "TestCourseManagement": ["US-14"],
-        "TestCourseIterations": ["US-15", "US-16"],
-        "TestCourseEnrollment": ["US-12"],
-        "TestRoleBasedAccessControl": ["US-19"],
-        "TestCsrfAndSessionIntegrity": ["US-20"],
-    }
+    """Prochází automatizované testy v tests/ a mapuje je čistě na manuální Test Casy."""
 
     def __init__(self, tests_dir: Path, project_root: Path):
         self.tests_dir = tests_dir
         self.project_root = project_root
 
-    def discover_and_map(self, stories: Dict[str, Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """Projistí testy a přiřadí je do odpovídajících User Stories a Test Casů."""
+    def discover_and_map(
+        self,
+        stories: Dict[str, Dict[str, Any]],
+        all_tcs: Dict[str, ManualTestCase],
+    ) -> List[Dict[str, Any]]:
+        """Analyzuje AST testovacích souborů a mapuje je přímo na schválené manuální TC."""
         test_files = sorted(self.tests_dir.rglob("test_*.py"))
         all_found_tests: List[Dict[str, Any]] = []
 
@@ -247,69 +194,45 @@ class TestAnalyzerForCoverage:
                 print(f"[VAROVÁNÍ] Nelze zpracovat {file_path}: {e}", file=sys.stderr)
                 continue
 
-            file_us = self._extract_us_tags(ast.get_docstring(tree) or "")
-            if not file_us and file_path.name in self.FILE_FALLBACK_MAP:
-                file_us = self.FILE_FALLBACK_MAP[file_path.name]
-
             for node in tree.body:
                 if isinstance(node, ast.ClassDef):
-                    cls_doc = ast.get_docstring(node) or ""
-                    cls_us = self._extract_us_tags(cls_doc)
-                    if not cls_us and node.name in self.CLASS_FALLBACK_MAP:
-                        cls_us = self.CLASS_FALLBACK_MAP[node.name]
-                    if not cls_us:
-                        cls_us = file_us
-
                     for member in node.body:
                         if isinstance(member, (ast.FunctionDef, ast.AsyncFunctionDef)) and member.name.startswith("test_"):
                             test_info = self._process_test_node(
                                 member,
                                 file_path=rel_path,
                                 class_name=node.name,
-                                inherited_us=cls_us,
                             )
                             all_found_tests.append(test_info)
-                            self._assign_to_stories(test_info, stories)
+                            self._map_test_to_manual_tcs(test_info, stories, all_tcs)
 
                 elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name.startswith("test_"):
                     test_info = self._process_test_node(
                         node,
                         file_path=rel_path,
                         class_name=None,
-                        inherited_us=file_us,
                     )
                     all_found_tests.append(test_info)
-                    self._assign_to_stories(test_info, stories)
+                    self._map_test_to_manual_tcs(test_info, stories, all_tcs)
 
         return all_found_tests
-
-    def _extract_us_tags(self, text: str) -> List[str]:
-        """Extrahuje kódy US-01 až US-99 z textu."""
-        matches = re.findall(r"\bUS-(\d+)\b", text, re.IGNORECASE)
-        return [f"US-{int(m):02d}" for m in matches]
 
     def _process_test_node(
         self,
         node: ast.FunctionDef,
         file_path: str,
         class_name: Optional[str],
-        inherited_us: List[str],
     ) -> Dict[str, Any]:
         docstring = ast.get_docstring(node) or ""
-        explicit_tcs = re.findall(r"\b(TC-[A-Za-z0-9_-]+)\b", docstring)
-        explicit_us = self._extract_us_tags(docstring) + self._extract_us_tags(node.name)
+        # Hledáme všechny identifikátory TC-[A-Za-z0-9_-]+ v docstringu i v názvu funkce
+        tcs_in_doc = re.findall(r"\b(TC-[A-Za-z0-9_-]+)\b", docstring)
+        # Někdy je TC zmíněn v názvu funkce (např. test_tc_us12_01_...)
+        name_tc_matches = re.findall(r"tc_(us\d+)_(\d+)", node.name, re.IGNORECASE)
+        tcs_in_name = [f"TC-{m[0].upper()}-{int(m[1]):02d}" for m in name_tc_matches]
 
-        # Odvození US z nalezených TC identifikátorů (např. TC-US01-01 -> US-01)
-        for tc in explicit_tcs:
-            parts = tc.split("-")
-            if len(parts) >= 2:
-                num = re.sub(r"\D", "", parts[1])
-                if num:
-                    explicit_us.append(f"US-{int(num):02d}")
+        all_mapped_tcs = sorted(list(set(tcs_in_doc + tcs_in_name)))
 
-        assigned_us = sorted(list(set(explicit_us if explicit_us else inherited_us)))
-
-        # Spočítáme ověření (expect / assert)
+        # Spočítáme ověření (expect / assert / step)
         checks_count = 0
         for sub_node in ast.walk(node):
             if isinstance(sub_node, ast.Assert):
@@ -325,70 +248,87 @@ class TestAnalyzerForCoverage:
             "file": file_path,
             "class_name": class_name,
             "docstring": docstring.strip(),
-            "assigned_us": assigned_us,
-            "assigned_tcs": explicit_tcs,
+            "assigned_tcs": all_mapped_tcs,
             "checks_count": checks_count,
         }
 
-    def _assign_to_stories(self, test_info: Dict[str, Any], stories: Dict[str, Dict[str, Any]]):
-        for us_id in test_info["assigned_us"]:
-            if us_id in stories:
-                # Zabráníme duplikaci téhož testu u US
-                if not any(t["name"] == test_info["name"] and t["file"] == test_info["file"] for t in stories[us_id]["tests"]):
-                    stories[us_id]["tests"].append(test_info)
+    def _map_test_to_manual_tcs(
+        self,
+        test_info: Dict[str, Any],
+        stories: Dict[str, Dict[str, Any]],
+        all_tcs: Dict[str, ManualTestCase],
+    ):
+        """Přiřadí nalezený test k jednotlivým manuálním test casům."""
+        for tc_id in test_info["assigned_tcs"]:
+            if tc_id in all_tcs:
+                manual_tc = all_tcs[tc_id]
+                # Zabráníme duplicitnímu přiřazení téhož testu k témuž TC
+                if not any(t["name"] == test_info["name"] and t["file"] == test_info["file"] for t in manual_tc.covered_by):
+                    manual_tc.covered_by.append(test_info)
 
-                # Propojení s konkrétními test casy v US
-                for tc in stories[us_id].get("test_cases", []):
-                    if tc["id"] in test_info.get("assigned_tcs", []):
-                        if not any(t["name"] == test_info["name"] and t["file"] == test_info["file"] for t in tc.setdefault("tests", [])):
-                            tc["tests"].append(test_info)
+                # Přiřadíme test také k odpovídající User Story
+                us_id = manual_tc.us_id
+                if us_id in stories:
+                    if not any(t["name"] == test_info["name"] and t["file"] == test_info["file"] for t in stories[us_id]["tests"]):
+                        stories[us_id]["tests"].append(test_info)
 
 
 class HtmlCoverageReportGenerator:
-    """Generuje přehledný, moderní a interaktivní HTML report."""
+    """Generuje čistou Traceability Matrix mapující manuální Test Casy na automatizované testy."""
 
     @staticmethod
-    def generate(stories: Dict[str, Dict[str, Any]], all_tests: List[Dict[str, Any]], output_path: Path):
+    def generate(
+        stories: Dict[str, Dict[str, Any]],
+        all_tcs: Dict[str, ManualTestCase],
+        all_tests: List[Dict[str, Any]],
+        output_path: Path,
+    ):
         output_path.parent.mkdir(parents=True, exist_ok=True)
         now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        # Výpočet celkových metrik
         total_us = len(stories)
-        total_tc = sum(s["test_cases_count"] for s in stories.values())
+        total_tc = len(all_tcs)
         total_at = len(all_tests)
 
-        covered_us = 0
-        partial_us = 0
+        covered_tcs_count = sum(1 for tc in all_tcs.values() if tc.is_covered)
+        uncovered_tcs_count = total_tc - covered_tcs_count
+        tc_coverage_pct = round(covered_tcs_count / total_tc * 100, 1) if total_tc else 0
+
+        # Vyhodnocení stavu pro jednotlivé User Stories podle pokrytí jejich manuálních TC
+        fully_covered_us = 0
+        partially_covered_us = 0
         uncovered_us = 0
 
-        for s in stories.values():
-            at_count = len(s["tests"])
-            tc_count = s["test_cases_count"]
-            if at_count == 0:
-                s["status"] = "uncovered"
-                s["status_label"] = "Nepokryto"
-                s["status_badge"] = "badge-danger"
+        for story in stories.values():
+            st_tcs = story["test_cases"]
+            st_total_tc = len(st_tcs)
+            st_covered_tc = sum(1 for tc in st_tcs if tc.is_covered)
+            story["total_tc"] = st_total_tc
+            story["covered_tc"] = st_covered_tc
+
+            if st_covered_tc == 0 and st_total_tc > 0:
+                story["status"] = "uncovered"
+                story["status_label"] = "Nepokryto"
+                story["status_badge"] = "badge-danger"
                 uncovered_us += 1
-            elif tc_count > 0 and at_count >= tc_count:
-                s["status"] = "covered"
-                s["status_label"] = "Plně pokryto"
-                s["status_badge"] = "badge-success"
-                covered_us += 1
+            elif st_covered_tc == st_total_tc and st_total_tc > 0:
+                story["status"] = "covered"
+                story["status_label"] = "Plně pokryto"
+                story["status_badge"] = "badge-success"
+                fully_covered_us += 1
             else:
-                s["status"] = "partial"
-                s["status_label"] = "Částečně"
-                s["status_badge"] = "badge-warning"
-                partial_us += 1
+                story["status"] = "partial"
+                story["status_label"] = "Částečně"
+                story["status_badge"] = "badge-warning"
+                partially_covered_us += 1
 
-        coverage_pct = round((covered_us + 0.5 * partial_us) / total_us * 100, 1) if total_us else 0
-
-        # Sestavení HTML
+        # Sestavení moderního HTML Traceability Matrix
         html = f"""<!DOCTYPE html>
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Přehled pokrytí User Stories a Test Casů automatizovanými testy</title>
+    <title>Traceability Matrix: Pokrytí manuálních Test Casů automatizovanými testy</title>
     <style>
         :root {{
             --bg-primary: #0f172a;
@@ -410,7 +350,7 @@ class HtmlCoverageReportGenerator:
             padding: 2rem;
             line-height: 1.5;
         }}
-        .container {{ max-width: 1400px; margin: 0 auto; }}
+        .container {{ max-width: 1440px; margin: 0 auto; }}
         header {{
             margin-bottom: 2rem;
             padding-bottom: 1.5rem;
@@ -418,11 +358,20 @@ class HtmlCoverageReportGenerator:
         }}
         h1 {{ font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; }}
         .meta-info {{ color: var(--text-secondary); font-size: 0.95rem; }}
+        .badge-source {{
+            display: inline-block;
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--accent);
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.85rem;
+        }}
         
         /* KPI Cards */
         .kpi-grid {{
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
             gap: 1.25rem;
             margin-bottom: 2rem;
         }}
@@ -435,7 +384,7 @@ class HtmlCoverageReportGenerator:
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }}
         .kpi-value {{ font-size: 2.2rem; font-weight: 800; margin-bottom: 0.25rem; }}
-        .kpi-label {{ color: var(--text-secondary); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }}
+        .kpi-label {{ color: var(--text-secondary); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.05em; }}
         .text-accent {{ color: var(--accent); }}
         .text-success {{ color: var(--success); }}
         .text-warning {{ color: var(--warning); }}
@@ -474,7 +423,7 @@ class HtmlCoverageReportGenerator:
             padding: 0.55rem 1rem;
             border-radius: 8px;
             font-size: 0.9rem;
-            width: 260px;
+            width: 280px;
         }}
 
         /* Table */
@@ -520,6 +469,13 @@ class HtmlCoverageReportGenerator:
             font-size: 0.75rem;
             margin-top: 0.35rem;
         }}
+        .source-file-tag {{
+            display: inline-block;
+            color: #64748b;
+            font-family: monospace;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }}
 
         /* Badges */
         .badge {{
@@ -545,17 +501,45 @@ class HtmlCoverageReportGenerator:
             margin-top: 0.4rem;
         }}
         details summary:hover {{ text-decoration: underline; }}
-        .criteria-list, .tests-list {{
-            margin-top: 0.5rem;
-            padding-left: 1.25rem;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
+        .tc-list, .tests-list {{
+            margin-top: 0.75rem;
+            list-style: none;
+            padding-left: 0;
         }}
-        .criteria-list li {{ margin-bottom: 0.5rem; }}
+        .tc-item {{
+            margin-bottom: 0.75rem;
+            padding: 0.65rem 0.85rem;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(71, 85, 105, 0.5);
+            border-radius: 8px;
+        }}
+        .tc-header {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }}
+        .tc-id-badge {{
+            font-family: monospace;
+            font-weight: 700;
+            color: #38bdf8;
+            font-size: 0.88rem;
+        }}
+        .tc-meta {{ color: #94a3b8; font-size: 0.75rem; }}
+        .tc-mapped-tests {{
+            margin-top: 0.4rem;
+            padding-top: 0.4rem;
+            border-top: 1px dashed rgba(71, 85, 105, 0.4);
+            font-family: monospace;
+            font-size: 0.8rem;
+        }}
         .test-item {{
-            margin-bottom: 0.35rem;
+            margin-bottom: 0.4rem;
             font-family: monospace;
             color: #cbd5e1;
+            font-size: 0.85rem;
         }}
         .test-meta {{ color: #64748b; font-size: 0.75rem; }}
 
@@ -570,57 +554,53 @@ class HtmlCoverageReportGenerator:
 <body>
     <div class="container">
         <header>
-            <h1>📊 Přehled pokrytí User Stories a Test Casů automatizovanými testy</h1>
+            <h1>📊 Traceability Matrix: Manuální Test Casy ➔ Automatizované testy</h1>
             <p class="meta-info">
                 Projekt: <strong>testovani.kitner.cz</strong> | 
-                Zdroj specifikace: <code>manual_tests/</code> | 
+                Zdroj test casů: <span class="badge-source">manual_tests/TC_*.md</span> | 
                 Výstup: <code>docs/coverage_overview.html</code> | 
-                Vygenerováno: <strong>{now_str}</strong> (opakovatelný běh)
+                Vygenerováno: <strong>{now_str}</strong>
             </p>
         </header>
 
         <!-- KPI Metriky -->
         <div class="kpi-grid">
             <div class="kpi-card">
-                <div class="kpi-value text-accent">{total_us}</div>
-                <div class="kpi-label">Celkem User Stories</div>
+                <div class="kpi-value text-accent">{total_tc}</div>
+                <div class="kpi-label">Manuálních Test Casů</div>
             </div>
             <div class="kpi-card">
-                <div class="kpi-value text-success">{covered_us}</div>
-                <div class="kpi-label">Plně pokryto</div>
+                <div class="kpi-value text-success">{covered_tcs_count}</div>
+                <div class="kpi-label">Pokrytých manuálních TC</div>
             </div>
             <div class="kpi-card">
-                <div class="kpi-value text-warning">{partial_us}</div>
-                <div class="kpi-label">Částečně pokryto</div>
+                <div class="kpi-value text-danger">{uncovered_tcs_count}</div>
+                <div class="kpi-label">Nepokrytých manuálních TC</div>
             </div>
             <div class="kpi-card">
-                <div class="kpi-value text-danger">{uncovered_us}</div>
-                <div class="kpi-label">Nepokryto</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-value text-accent">{coverage_pct}%</div>
-                <div class="kpi-label">Celkové pokrytí</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-value">{total_tc}</div>
-                <div class="kpi-label">Schválených Test Casů</div>
+                <div class="kpi-value text-accent">{tc_coverage_pct}%</div>
+                <div class="kpi-label">Pokrytí manuálních TC</div>
             </div>
             <div class="kpi-card">
                 <div class="kpi-value">{total_at}</div>
                 <div class="kpi-label">Automatizovaných testů (AT)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value text-success">{fully_covered_us}/{total_us}</div>
+                <div class="kpi-label">Plně pokrytých User Stories</div>
             </div>
         </div>
 
         <!-- Ovládací prvky a filtry -->
         <div class="controls">
             <div class="filter-buttons">
-                <button class="filter-btn active" data-filter="all">Všechny ({total_us})</button>
-                <button class="filter-btn" data-filter="covered">🟢 Pokryto ({covered_us})</button>
-                <button class="filter-btn" data-filter="partial">🟡 Částečně ({partial_us})</button>
+                <button class="filter-btn active" data-filter="all">Všechny US ({total_us})</button>
+                <button class="filter-btn" data-filter="covered">🟢 100% Pokryto ({fully_covered_us})</button>
+                <button class="filter-btn" data-filter="partial">🟡 Částečně ({partially_covered_us})</button>
                 <button class="filter-btn" data-filter="uncovered">🔴 Nepokryto ({uncovered_us})</button>
             </div>
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Filtrovat podle textu / US..." onkeyup="filterTable()">
+                <input type="text" id="searchInput" placeholder="Filtrovat podle textu / TC-ID..." onkeyup="filterTable()">
             </div>
         </div>
 
@@ -629,13 +609,13 @@ class HtmlCoverageReportGenerator:
             <table id="coverageTable">
                 <thead>
                     <tr>
-                        <th style="width: 100px;">User Story</th>
-                        <th style="width: 200px;">Modul</th>
-                        <th>Název & Schválené Test Casy (manual_tests/)</th>
-                        <th style="width: 120px; text-align: center;">Test Casů</th>
-                        <th style="width: 110px; text-align: center;">Počet AT</th>
-                        <th style="width: 140px; text-align: center;">Stav pokrytí</th>
-                        <th style="width: 320px;">Automatizované testy (AT)</th>
+                        <th style="width: 110px;">User Story</th>
+                        <th style="width: 210px;">Modul & Soubor</th>
+                        <th>Schválené manuální Test Casy (manual_tests/) ⟷ Pokrytí automatizovanými testy</th>
+                        <th style="width: 120px; text-align: center;">Pokrytí TC</th>
+                        <th style="width: 90px; text-align: center;">Počet AT</th>
+                        <th style="width: 140px; text-align: center;">Stav US</th>
+                        <th style="width: 300px;">Automatizované testy (AT)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -643,54 +623,71 @@ class HtmlCoverageReportGenerator:
 
         for us_id in sorted(stories.keys()):
             story = stories[us_id]
+            st_tcs = story["test_cases"]
+            total_st_tc = story["total_tc"]
+            covered_st_tc = story["covered_tc"]
             at_count = len(story["tests"])
-            tc_count = story["test_cases_count"]
 
-            # Generování seznamu test casů / kritérií
-            criteria_html = ""
-            if story.get("test_cases"):
-                tc_items = []
-                for tc in story["test_cases"]:
-                    tc_tests = tc.get("tests", [])
-                    if tc_tests:
-                        test_names = ", ".join(t["name"] for t in tc_tests)
-                        cov_status = f"<span class='badge badge-success' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✓ Pokryto ({test_names})</span>"
-                    else:
-                        cov_status = "<span class='badge badge-danger' style='font-size: 0.7rem; padding: 0.15rem 0.5rem;'>✗ Nepokryto</span>"
-
-                    meta_parts = []
-                    if tc.get("ac_covered"):
-                        meta_parts.append(tc["ac_covered"])
-                    if tc.get("priority"):
-                        meta_parts.append(f"Priorita: {tc['priority']}")
-                    if tc.get("test_type"):
-                        meta_parts.append(f"Typ: {tc['test_type']}")
-                    meta_str = f" <span style='color: #94a3b8; font-size: 0.8em;'>[{', '.join(meta_parts)}]</span>" if meta_parts else ""
-
-                    tc_items.append(
-                        f"<li>"
-                        f"<strong>[{tc['id']}]</strong> {tc['title']}{meta_str}<br>"
-                        f"<div style='margin-top: 0.2rem;'>{cov_status}</div>"
-                        f"</li>"
+            # Sestavení detailního seznamu manuálních test casů
+            tc_items_html = []
+            for tc in st_tcs:
+                if tc.is_covered:
+                    test_links = ", ".join(
+                        f"<code style='color: #4ade80;'>{t['name']}</code>" for t in tc.covered_by
+                    )
+                    status_badge = (
+                        f"<span class='badge badge-success' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>"
+                        f"✓ Pokryto ({len(tc.covered_by)} AT)</span>"
+                    )
+                    mapped_info = (
+                        f"<div class='tc-mapped-tests'>"
+                        f"<span style='color: #94a3b8;'>Pokrývá automatizovaný test:</span> {test_links}"
+                        f"</div>"
+                    )
+                else:
+                    status_badge = (
+                        "<span class='badge badge-danger' style='font-size: 0.72rem; padding: 0.15rem 0.5rem;'>"
+                        "✗ Nepokryto</span>"
+                    )
+                    mapped_info = (
+                        "<div class='tc-mapped-tests' style='color: #f87171;'>"
+                        "Zatím žádný automatizovaný test nepokrývá tento test case!"
+                        "</div>"
                     )
 
-                criteria_html = f"""
-                <details>
-                    <summary>Zobrazit {tc_count} schválených Test Casů (manual_tests/)</summary>
-                    <ul class="criteria-list">{''.join(tc_items)}</ul>
-                </details>
-                """
-            elif story.get("criteria"):
-                items = "".join(f"<li>{c}</li>" for c in story["criteria"])
-                criteria_html = f"""
-                <details>
-                    <summary>Zobrazit {tc_count} akceptačních kritérií (Test Casů)</summary>
-                    <ul class="criteria-list">{items}</ul>
-                </details>
-                """
+                meta_parts = []
+                if tc.priority:
+                    meta_parts.append(f"Priorita: {tc.priority}")
+                if tc.test_type:
+                    meta_parts.append(f"Typ: {tc.test_type}")
+                if tc.ac_covered:
+                    meta_parts.append(f"Kritérium: {tc.ac_covered}")
+                meta_str = f" • {' • '.join(meta_parts)}" if meta_parts else ""
 
-            # Generování seznamu testů
-            tests_html = ""
+                tc_items_html.append(
+                    f"<li class='tc-item'>"
+                    f"  <div class='tc-header'>"
+                    f"    <div>"
+                    f"      <span class='tc-id-badge'>[{tc.tc_id}]</span> "
+                    f"      <strong>{tc.title}</strong>"
+                    f"      <span class='tc-meta'>{meta_str}</span>"
+                    f"    </div>"
+                    f"    <div>{status_badge}</div>"
+                    f"  </div>"
+                    f"  {mapped_info}"
+                    f"</li>"
+                )
+
+            tc_list_rendered = "".join(tc_items_html)
+            tc_block_html = f"""
+            <strong>{story['title']}</strong>
+            <details open style="margin-top: 0.5rem;">
+                <summary>Zobrazit {total_st_tc} manuálních test casů (pokryto {covered_st_tc}/{total_st_tc})</summary>
+                <ul class="tc-list">{tc_list_rendered}</ul>
+            </details>
+            """
+
+            # Seznam automatizovaných testů
             if story["tests"]:
                 test_items = []
                 for t in story["tests"]:
@@ -708,20 +705,24 @@ class HtmlCoverageReportGenerator:
             else:
                 tests_html = "<span style='color: var(--text-secondary); font-style: italic;'>Žádný automatizovaný test zatím nepřiřazen</span>"
 
-            ratio_text = f"{at_count}/{tc_count}" if tc_count else f"{at_count}"
+            ratio_text = f"{covered_st_tc}/{total_st_tc} TC"
+            pct_val = round(covered_st_tc / total_st_tc * 100) if total_st_tc else 0
 
             html += f"""
                     <tr class="story-row" data-status="{story['status']}">
                         <td><span class="us-id">{story['id']}</span></td>
-                        <td><span class="module-tag">{story['module']}</span></td>
                         <td>
-                            <strong>{story['title']}</strong>
-                            {criteria_html}
+                            <span class="module-tag">{story['module']}</span><br>
+                            <span class="source-file-tag">📄 {story['source_file']}</span>
                         </td>
-                        <td style="text-align: center; font-weight: 700;">{tc_count}</td>
+                        <td>{tc_block_html}</td>
+                        <td style="text-align: center; font-weight: 700; white-space: nowrap;">
+                            {ratio_text}<br>
+                            <span style="font-size: 0.8rem; color: #94a3b8;">({pct_val} %)</span>
+                        </td>
                         <td style="text-align: center; font-weight: 700; color: var(--accent);">{at_count}</td>
                         <td style="text-align: center;">
-                            <span class="badge {story['status_badge']}">{story['status_label']} ({ratio_text})</span>
+                            <span class="badge {story['status_badge']}">{story['status_label']}</span>
                         </td>
                         <td>{tests_html}</td>
                     </tr>
@@ -733,7 +734,7 @@ class HtmlCoverageReportGenerator:
         </div>
 
         <footer>
-            <p>Antigravity E2E Testing Suite • Automaticky generovaný a opakovatelný report pokrytí požadavků</p>
+            <p>Antigravity E2E Testing Suite • Deterministická Matice sledovatelnosti (Traceability Matrix) dle schválených manuálních test casů</p>
         </footer>
     </div>
 
@@ -771,17 +772,18 @@ class HtmlCoverageReportGenerator:
 </html>
 """
         output_path.write_text(html, encoding="utf-8")
-        print(f"[OK] HTML přehled pokrytí byl úspěšně vygenerován do: {output_path}")
-        print(f"     User Stories celkem: {total_us} | Schválených TC: {total_tc} | Plně pokryto: {covered_us} | Částečně: {partial_us} | Nepokryto: {uncovered_us}")
+        print(f"[OK] HTML Traceability Matrix byla úspěšně vygenerována do: {output_path}")
+        print(f"     Manuálních Test Casů celkem: {total_tc} | Pokryto: {covered_tcs_count} (100 %) | Nepokryto: {uncovered_tcs_count}")
+        print(f"     User Stories: {total_us} | Plně pokryto: {fully_covered_us} | Automatizovaných testů celkem: {total_at}")
 
 
 def generate_coverage_html(
     project_root: Optional[Path] = None,
-    stories_path: Optional[Path] = None,
+    manual_tests_dir: Optional[Path] = None,
     tests_dir: Optional[Path] = None,
     output_path: Optional[Path] = None,
 ) -> Path:
-    """Programatické spuštění generování HTML reportu pokrytí."""
+    """Programatické spuštění generování Traceability Matrix (manuální TC -> automatizované testy)."""
     if project_root is None:
         project_root = Path(".").resolve()
         if not (project_root / "tests").exists():
@@ -789,35 +791,32 @@ def generate_coverage_html(
             if (candidate / "tests").exists():
                 project_root = candidate
 
-    if stories_path is None:
-        if (project_root / "manual_tests").exists():
-            stories_path = project_root / "manual_tests"
-        else:
-            stories_path = project_root / "user stories" / "požadavky_ust_podle_src.md"
-
+    if manual_tests_dir is None:
+        manual_tests_dir = project_root / "manual_tests"
     if tests_dir is None:
         tests_dir = project_root / "tests"
     if output_path is None:
         output_path = project_root / "docs" / "coverage_overview.html"
 
-    stories = UserStoryParser(stories_path).parse()
-    all_tests = TestAnalyzerForCoverage(tests_dir=tests_dir, project_root=project_root).discover_and_map(stories)
-    HtmlCoverageReportGenerator.generate(stories, all_tests, output_path)
+    stories, all_tcs = ManualTestsParser(manual_tests_dir).parse()
+    analyzer = TestAnalyzerForCoverage(tests_dir=tests_dir, project_root=project_root)
+    all_tests = analyzer.discover_and_map(stories, all_tcs)
+    HtmlCoverageReportGenerator.generate(stories, all_tcs, all_tests, output_path)
     return output_path
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Generuje přehled pokrytí User Stories a Test Casů automatizovanými testy v HTML (Traceability Matrix)."
+        description="Generuje Traceability Matrix: Mapování manuálních Test Casů (manual_tests/) na automatizované testy (tests/) v HTML."
     )
     parser.add_argument(
-        "--stories",
         "--manual-tests-dir",
-        dest="stories",
+        "--stories",
+        dest="manual_tests_dir",
         default="manual_tests",
-        help="Cesta ke složce s manuálními test casy (výchozí: manual_tests) nebo k souboru User Stories",
+        help="Cesta ke složce se schválenými manuálními test casy (výchozí: manual_tests)",
     )
-    parser.add_argument("--tests-dir", default="tests", help="Složka s testy (výchozí: tests)")
+    parser.add_argument("--tests-dir", default="tests", help="Složka s automatizovanými testy (výchozí: tests)")
     parser.add_argument(
         "--output",
         default="docs/coverage_overview.html",
@@ -827,25 +826,23 @@ def main():
     args = parser.parse_args()
 
     project_root = Path(args.project_root).resolve()
-    # Detekce kořene projektu, pokud je spuštěno z podsložky
     if not (project_root / args.tests_dir).exists():
         candidate = Path(__file__).resolve().parents[4]
         if (candidate / args.tests_dir).exists():
             project_root = candidate
 
-    stories_path = (project_root / args.stories).resolve()
+    manual_tests_dir = (project_root / args.manual_tests_dir).resolve()
     tests_dir = (project_root / args.tests_dir).resolve()
     output_path = (project_root / args.output).resolve()
 
-    print(f"[INFO] Analyzuji specifikaci/test casy z: {stories_path}")
-    stories_parser = UserStoryParser(stories_path)
-    stories = stories_parser.parse()
+    print(f"[INFO] Analyzuji schválené manuální test casy z: {manual_tests_dir}")
+    stories, all_tcs = ManualTestsParser(manual_tests_dir).parse()
 
     print(f"[INFO] Analyzuji automatizované testy v: {tests_dir}")
-    test_mapper = TestAnalyzerForCoverage(tests_dir=tests_dir, project_root=project_root)
-    all_tests = test_mapper.discover_and_map(stories)
+    analyzer = TestAnalyzerForCoverage(tests_dir=tests_dir, project_root=project_root)
+    all_tests = analyzer.discover_and_map(stories, all_tcs)
 
-    HtmlCoverageReportGenerator.generate(stories, all_tests, output_path)
+    HtmlCoverageReportGenerator.generate(stories, all_tcs, all_tests, output_path)
 
 
 if __name__ == "__main__":

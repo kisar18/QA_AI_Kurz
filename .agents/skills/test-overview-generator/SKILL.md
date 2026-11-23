@@ -21,19 +21,19 @@ Tento skill slouží k automatickému generování technického katalogu testů 
    python .agents/skills/test-overview-generator/scripts/generate_coverage_report.py
    ```
 
-2. **Automatická analýza a mapování požadavků na testy:**
+2. **Automatická analýza a mapování testů (čistě na manuální test casy):**
    Skripty staticky analyzují projekt a provádí:
-   - **Manuální Test Casy a User Stories:** Projdou `manual_tests/` (nebo `user stories/`) a extrahují všechny schválené Test Casy a User Stories (US-01 až US-20).
-   - **Testy:** Projdou `tests/` pomocí AST a extrahují kroky, kontroly a mapování na `[TC-USxx-yy]` i `US-xx`.
-   - **Výpočet pokrytí:** Porovnají počet test casů a počet AT pro každou US a určí stav (🟢 Plně pokryto, 🟡 Částečně, 🔴 Nepokryto).
-   - **Výstupy:** Vygenerují `TEST_OVERVIEW.md` (katalog testů) a `docs/coverage_overview.html` (interaktivní HTML přehled vhodný k uložení do repozitáře).
+   - **Manuální Test Casy:** Projdou výhradně `manual_tests/` a extrahují všechny schválené manuální Test Casy (`[TC-USxx-yy]`). Mapování se neprovádí proti obecným akceptačním kritériím, ale striktně proti konkrétním manuálním scénářům.
+   - **Testy:** Projdou `tests/` pomocí AST a extrahují kroky, kontroly a párují testy přímo na konkrétní `[TC-USxx-yy]`.
+   - **Výpočet pokrytí:** Porovná stav pokrytí pro každý jednotlivý manuální Test Case (🟢 Pokryto / 🔴 Nepokryto) a pro každou User Story (podíl pokrytých manuálních TC).
+   - **Výstupy:** Vygenerují `TEST_OVERVIEW.md` (katalog testů) a `docs/coverage_overview.html` (Traceability Matrix: manuální TC ➔ automatizované testy).
 
 3. **Rozhodnutí, zda je hotovo (Definition of Done):**
    Spusť validační skript pro ověření stavu:
    ```powershell
    python .agents/skills/test-overview-generator/scripts/check_done.py
    ```
-   - Ověřuje existenci, aktuálnost, konzistenci statistik, kvalitu testů i HTML report pokrytí (`docs/coverage_overview.html`).
+   - Ověřuje existenci, aktuálnost, konzistenci statistik, kvalitu testů, **100% pokrytí schválených manuálních TC** i HTML report pokrytí (`docs/coverage_overview.html`).
    - Návratový kód: `0` = **HOTOVO**, `1` = **NENÍ HOTOVO** (přepínač `--fix` automaticky vše přegeneruje).
 
 4. **Předání výsledku uživateli:**

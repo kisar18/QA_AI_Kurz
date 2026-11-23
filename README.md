@@ -193,5 +193,5 @@ Všechny tyto případy jsou transparentně zdokumentovány, např.:
 
 Po spuštění testovací sady nebo generátorů jsou k dispozici:
 1. **`reports/report.html`**: Kompletní grafický HTML report s logem kroků a screenshoty.
-2. **`docs/coverage_overview.html`**: Matice pokrytí User Stories a Test Casů (schválené test casy z `manual_tests/`).
+2. **`docs/coverage_overview.html`**: Traceability Matrix – čisté mapování automatizovaných testů přímo na schválené manuální test casy z `manual_tests/`.
 3. **`TEST_OVERVIEW.md`**: Detailní Markdown katalog všech 127 testů a 626 kontrol.
